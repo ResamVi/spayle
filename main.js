@@ -20,12 +20,16 @@ function preload() {
 function create() {
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     game.physics.startSystem(Phaser.Physics.P2JS);
+    game.world.setBounds(0,0, 1920, 1920);
+    game.renderer.renderSession.roundPixels = true
+
     game.add.sprite(0, 0, "sky");
-    
     player = game.add.sprite(game.world.centerX, game.world.centerY, "player");
     game.physics.p2.enable(player);
 
     controls = game.input.keyboard.createCursorKeys();
+
+    game.camera.follow(player, null, 0.1, 0.1);
 }
 
 function update() {
@@ -46,7 +50,10 @@ function render() {
     //game.debug.spriteInfo(player, 32, 32);
     var x = player.body.velocity.x;
     var y = player.body.velocity.y;
+    
     game.debug.text(Math.sqrt(x*x + y*y) , 10, 10);
+    game.debug.cameraInfo(game.camera, 32, 32);
+    game.debug.spriteCoords(player, 32, 500);
 }
 
 
