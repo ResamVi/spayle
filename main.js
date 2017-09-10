@@ -7,9 +7,12 @@ const functions = {
 
 const game = new Phaser.Game(800, 600, Phaser.AUTO, '', functions);
 
-const ROTATION_SPEED = 40;
+const ROTATION_SPEED = 100;
+const THRUST_FORCE = 50000
 
-var controls;
+var arrowkeys;
+var space;
+
 var player;
 
 function preload() {
@@ -21,13 +24,14 @@ function create() {
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     game.physics.startSystem(Phaser.Physics.P2JS);
     game.world.setBounds(0,0, 1920, 1920);
-    game.renderer.renderSession.roundPixels = true
 
     game.add.sprite(0, 0, "sky");
     player = game.add.sprite(game.world.centerX, game.world.centerY, "player");
     game.physics.p2.enable(player);
 
-    controls = game.input.keyboard.createCursorKeys();
+    arrowkeys = game.input.keyboard.createCursorKeys();
+    space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    space.onDown.add(thrust, this);
 
     game.camera.follow(player, null, 0.1, 0.1);
 }
@@ -36,10 +40,10 @@ function update() {
     
     player.body.thrust(100);
 
-    if (controls.left.isDown) {
+    if (arrowkeys.left.isDown) {
         player.body.rotateLeft(ROTATION_SPEED);
     }
-    else if (controls.right.isDown) {
+    else if (arrowkeys.right.isDown) {
         player.body.rotateRight(ROTATION_SPEED);
     }else{
         player.body.setZeroRotation();
@@ -57,4 +61,7 @@ function render() {
 }
 
 
-
+function thrust() {
+    player.body.setZeroVelocity();
+    player.body.thrust(THRUST_FORCE);
+}
