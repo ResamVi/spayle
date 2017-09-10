@@ -1,9 +1,14 @@
+var Phaser = require('phaser-ce');
+var test = require('./test.js');
+
 const functions = {
     preload: preload,
     create: create,
     update: update,
     render: render
 }
+
+test();
 
 const game = new Phaser.Game(800, 600, Phaser.AUTO, '', functions);
 

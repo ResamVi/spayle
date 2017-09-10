@@ -1,0 +1,1 @@
+watchify ./src/spayle.js -o ./build/spayle.js -v
