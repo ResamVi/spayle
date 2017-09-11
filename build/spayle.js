@@ -106011,6 +106011,7 @@ const ROTATION_SPEED = 100;
 const THRUST_FORCE = 50000
 
 var arrowkeys;
+var wasd;
 var space;
 
 var player;
@@ -106021,29 +106022,37 @@ function preload() {
 }
 
 function create() {
+    
+    // World settings
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     game.physics.startSystem(Phaser.Physics.P2JS);
     game.world.setBounds(0,0, 1920, 1920);
 
+    // Sprites
     game.add.sprite(0, 0, "sky");
     player = game.add.sprite(game.world.centerX, game.world.centerY, "player");
     game.physics.p2.enable(player);
 
+    // Controls
     arrowkeys = game.input.keyboard.createCursorKeys();
-    space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    space.onDown.add(thrust, this);
+    wasd = {
+        right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+        left: game.input.keyboard.addKey(Phaser.Keyboard.A)
+    };
+
+    game.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
+    space = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
 
     game.camera.follow(player, null, 0.1, 0.1);
 }
 
 function update() {
-    
     player.body.thrust(100);
 
-    if (arrowkeys.left.isDown) {
+    if (arrowkeys.left.isDown || wasd.left.isDown) {
         player.body.rotateLeft(ROTATION_SPEED);
     }
-    else if (arrowkeys.right.isDown) {
+    else if (arrowkeys.right.isDown || wasd.right.isDown) {
         player.body.rotateRight(ROTATION_SPEED);
     }else{
         player.body.setZeroRotation();
