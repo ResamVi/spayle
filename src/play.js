@@ -1,28 +1,17 @@
 module.exports = (function(){
     
     const ROTATION_SPEED = 100;
-    const THRUST_FORCE = 50000
-    const WORLD_BOUNDS = 10000;
-    const PLAYER_START_Y = 120
-    const PLAYER_START_X = 210
+    const THRUST_FORCE = 50000;
+    const PLAYER_START_Y = 120;
+    const PLAYER_START_X = 210;
     
     var arrowkeys;
     var wasd;
     
     var player;
-
-    function preload() {
-        game.load.image('background', 'res/background.png');
-        game.load.image('player', 'res/player.png');
-    }
     
     function create() {
-        
-        // World settings
-        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        game.physics.startSystem(Phaser.Physics.P2JS);
-        game.world.setBounds(0,0, WORLD_BOUNDS, WORLD_BOUNDS);
-    
+
         // Sprites
         game.add.sprite(0, 0, 'background');
         player = game.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
@@ -69,5 +58,5 @@ module.exports = (function(){
         game.debug.spriteCoords(player, 32, 500);
     }
 
-    return { preload: preload, create: create, update: update, render: render}
+    return { create: create, update: update, render: render};
 })();
