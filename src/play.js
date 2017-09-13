@@ -29,7 +29,7 @@ module.exports = (function(){
         var thrust = function() {
             player.body.setZeroVelocity();
             player.body.thrust(THRUST_FORCE);
-        }
+        };
 
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
@@ -59,7 +59,7 @@ module.exports = (function(){
             
             this.game.debug.spriteInfo(player, 32, 180);
             this.game.debug.body(player);
-            this.game.debug.text("Velocity: " + v , 32, 550);
+            this.game.debug.text('Velocity: ' + v , 32, 550);
             this.game.debug.cameraInfo(this.camera, 32, 32);
             this.game.debug.spriteCoords(player, 32, 500);
         }

@@ -105999,12 +105999,12 @@ module.exports = (function(){
 
     function create() {
         
-       // World settings
-       this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-       this.physics.startSystem(Phaser.Physics.P2JS);
-       this.world.setBounds(0,0, WORLD_BOUNDS, WORLD_BOUNDS);
+        // World settings
+        this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        this.physics.startSystem(Phaser.Physics.P2JS);
+        this.world.setBounds(0,0, WORLD_BOUNDS, WORLD_BOUNDS);
 
-       this.state.start("load");
+        this.state.start('load');
     }
 
     return { create: create};
@@ -106012,7 +106012,6 @@ module.exports = (function(){
 },{}],4:[function(require,module,exports){
 module.exports = (function(){
     
-    var ready = false;
     var progressText;
 
     function preload() {
@@ -106024,17 +106023,17 @@ module.exports = (function(){
         this.load.onFileComplete.add(fileComplete, this);
         this.load.onLoadComplete.add(loadComplete, this);
 
-        var loadText = this.add.bitmapText(10, 10, "font", "Loading");
+        var loadText = this.add.bitmapText(10, 10, 'font', 'Loading');
         loadText.updateTransform();
         var centerX = this.game.width / 2 - (loadText.textWidth * 0.5);
         var centerY = this.game.height / 2 - (loadText.textHeight * 0.5);
         loadText.position.x = centerX;
         loadText.position.y = centerY - 90;
         
-        progressText = this.add.bitmapText(10, 10, "font", "0%");
+        progressText = this.add.bitmapText(10, 10, 'font', '0%');
         progressText.updateTransform();
-        var centerX = this.game.width / 2 - (progressText.textWidth * 0.5);
-        var centerY = this.game.height / 2 - (progressText.textHeight * 0.5);
+        centerX = this.game.width / 2 - (progressText.textWidth * 0.5);
+        centerY = this.game.height / 2 - (progressText.textHeight * 0.5);
         progressText.position.x = centerX;
         progressText.position.y = centerY;
 
@@ -106042,7 +106041,7 @@ module.exports = (function(){
     }
 
     function queueFiles() {
-        //console.log("Queue files");
+        //console.log('Queue files');
         this.load.image('background', 'res/background.png');
         this.load.image('player', 'res/player.png');
 
@@ -106051,22 +106050,22 @@ module.exports = (function(){
     }
 
     function loadStart() {
-        //console.log("Start loading");
+        //console.log('Start loading');
     }
 
-    function fileComplete(progress, cacheKey, success, totalLoaded, totalFiles) {
-        //console.log("--- Completed file ---");
-        //console.log("progress: " + progress);
-        //console.log("cacheKey: " + cacheKey);
-        //console.log("success: " + success);
-        //console.log("totalLoaded: " + totalLoaded);
-        //console.log("totalFiles: " + totalFiles);
-        //console.log("\n");
-        progressText.setText(progress + "%");
+    function fileComplete(progress /*, cacheKey, success, totalLoaded, totalFiles*/) {
+        //console.log('--- Completed file ---');
+        //console.log('progress: ' + progress);
+        //console.log('cacheKey: ' + cacheKey);
+        //console.log('success: ' + success);
+        //console.log('totalLoaded: ' + totalLoaded);
+        //console.log('totalFiles: ' + totalFiles);
+        //console.log('\n');
+        progressText.setText(progress + '%');
     }
 
     function loadComplete() {
-        //console.log("Load complete");
+        //console.log('Load complete');
         this.state.start('play');
     }
     
@@ -106104,7 +106103,7 @@ module.exports = (function(){
         var thrust = function() {
             player.body.setZeroVelocity();
             player.body.thrust(THRUST_FORCE);
-        }
+        };
 
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
@@ -106134,7 +106133,7 @@ module.exports = (function(){
             
             this.game.debug.spriteInfo(player, 32, 180);
             this.game.debug.body(player);
-            this.game.debug.text("Velocity: " + v , 32, 550);
+            this.game.debug.text('Velocity: ' + v , 32, 550);
             this.game.debug.cameraInfo(this.camera, 32, 32);
             this.game.debug.spriteCoords(player, 32, 500);
         }
@@ -106145,10 +106144,10 @@ module.exports = (function(){
 },{}],6:[function(require,module,exports){
 var Phaser = require('phaser-ce');
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '')
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
 
-game.state.add('boot', require('./boot.js'))
-game.state.add('load', require('./load.js'))
+game.state.add('boot', require('./boot.js'));
+game.state.add('load', require('./load.js'));
 game.state.add('play', require('./play.js'));
 
 game.state.start('boot');

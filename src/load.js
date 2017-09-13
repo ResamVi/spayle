@@ -1,6 +1,5 @@
 module.exports = (function(){
     
-    var ready = false;
     var progressText;
 
     function preload() {
@@ -12,17 +11,17 @@ module.exports = (function(){
         this.load.onFileComplete.add(fileComplete, this);
         this.load.onLoadComplete.add(loadComplete, this);
 
-        var loadText = this.add.bitmapText(10, 10, "font", "Loading");
+        var loadText = this.add.bitmapText(10, 10, 'font', 'Loading');
         loadText.updateTransform();
         var centerX = this.game.width / 2 - (loadText.textWidth * 0.5);
         var centerY = this.game.height / 2 - (loadText.textHeight * 0.5);
         loadText.position.x = centerX;
         loadText.position.y = centerY - 90;
         
-        progressText = this.add.bitmapText(10, 10, "font", "0%");
+        progressText = this.add.bitmapText(10, 10, 'font', '0%');
         progressText.updateTransform();
-        var centerX = this.game.width / 2 - (progressText.textWidth * 0.5);
-        var centerY = this.game.height / 2 - (progressText.textHeight * 0.5);
+        centerX = this.game.width / 2 - (progressText.textWidth * 0.5);
+        centerY = this.game.height / 2 - (progressText.textHeight * 0.5);
         progressText.position.x = centerX;
         progressText.position.y = centerY;
 
@@ -30,7 +29,7 @@ module.exports = (function(){
     }
 
     function queueFiles() {
-        //console.log("Queue files");
+        //console.log('Queue files');
         this.load.image('background', 'res/background.png');
         this.load.image('player', 'res/player.png');
 
@@ -39,22 +38,22 @@ module.exports = (function(){
     }
 
     function loadStart() {
-        //console.log("Start loading");
+        //console.log('Start loading');
     }
 
-    function fileComplete(progress, cacheKey, success, totalLoaded, totalFiles) {
-        //console.log("--- Completed file ---");
-        //console.log("progress: " + progress);
-        //console.log("cacheKey: " + cacheKey);
-        //console.log("success: " + success);
-        //console.log("totalLoaded: " + totalLoaded);
-        //console.log("totalFiles: " + totalFiles);
-        //console.log("\n");
-        progressText.setText(progress + "%");
+    function fileComplete(progress /*, cacheKey, success, totalLoaded, totalFiles*/) {
+        //console.log('--- Completed file ---');
+        //console.log('progress: ' + progress);
+        //console.log('cacheKey: ' + cacheKey);
+        //console.log('success: ' + success);
+        //console.log('totalLoaded: ' + totalLoaded);
+        //console.log('totalFiles: ' + totalFiles);
+        //console.log('\n');
+        progressText.setText(progress + '%');
     }
 
     function loadComplete() {
-        //console.log("Load complete");
+        //console.log('Load complete');
         this.state.start('play');
     }
     
