@@ -106019,10 +106019,13 @@ module.exports = (function(){
     }
 
     function create() {
+        
+        // Declare loading process
         this.load.onLoadStart.add(loadStart, this);
         this.load.onFileComplete.add(fileComplete, this);
         this.load.onLoadComplete.add(loadComplete, this);
 
+        // Display and center load text
         var loadText = this.add.bitmapText(10, 10, 'font', 'Loading');
         loadText.updateTransform();
         var centerX = this.game.width / 2 - (loadText.textWidth * 0.5);
@@ -106030,6 +106033,7 @@ module.exports = (function(){
         loadText.position.x = centerX;
         loadText.position.y = centerY - 90;
         
+        // Display and center current progress text
         progressText = this.add.bitmapText(10, 10, 'font', '0%');
         progressText.updateTransform();
         centerX = this.game.width / 2 - (progressText.textWidth * 0.5);
@@ -106044,6 +106048,7 @@ module.exports = (function(){
         //console.log('Queue files');
         this.load.image('background', 'res/background.png');
         this.load.image('player', 'res/player.png');
+        this.load.atlasJSONHash('explosionAtlas', 'res/explosionAnimation.png', 'res/explosionAnimation.json');
 
         // Everything above has been put into queue, now start loading
         this.load.start();
@@ -106085,14 +106090,24 @@ module.exports = (function(){
     var wasd;
     
     var player;
+    var explosion;
     
     function create() {
 
-        // Sprites
+        // Background
         this.add.sprite(0, 0, 'background');
+        
+        // Player
         player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
         this.physics.p2.enable(player);
-    
+
+        // Explosion
+        explosion = this.add.sprite(-90, -10, 'explosionAtlas', 'explosion/ex0.png');
+        explosion.scale.setTo(2, 2);
+        var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 11, '.png', 1);
+        explosion.animations.add('explode', frames, 60, false, true);
+        player.addChild(explosion);
+
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
         wasd = {
@@ -106101,19 +106116,21 @@ module.exports = (function(){
         };
     
         var thrust = function() {
+            explosion.animations.play('explode');
             player.body.setZeroVelocity();
             player.body.thrust(THRUST_FORCE);
         };
 
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
-    
         this.camera.follow(player, null, 0.1, 0.1);
     }
     
     function update() {
+
+        // Keep the player moving
         player.body.thrust(100);
-    
+
         if (arrowkeys.left.isDown || wasd.left.isDown) {
             player.body.rotateLeft(ROTATION_SPEED);
         }
@@ -106136,6 +106153,8 @@ module.exports = (function(){
             this.game.debug.text('Velocity: ' + v , 32, 550);
             this.game.debug.cameraInfo(this.camera, 32, 32);
             this.game.debug.spriteCoords(player, 32, 500);
+            this.game.debug.body(explosion);
+            this.game.debug.body(player);
         }
     }
 

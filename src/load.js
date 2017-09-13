@@ -7,10 +7,13 @@ module.exports = (function(){
     }
 
     function create() {
+        
+        // Declare loading process
         this.load.onLoadStart.add(loadStart, this);
         this.load.onFileComplete.add(fileComplete, this);
         this.load.onLoadComplete.add(loadComplete, this);
 
+        // Display and center load text
         var loadText = this.add.bitmapText(10, 10, 'font', 'Loading');
         loadText.updateTransform();
         var centerX = this.game.width / 2 - (loadText.textWidth * 0.5);
@@ -18,6 +21,7 @@ module.exports = (function(){
         loadText.position.x = centerX;
         loadText.position.y = centerY - 90;
         
+        // Display and center current progress text
         progressText = this.add.bitmapText(10, 10, 'font', '0%');
         progressText.updateTransform();
         centerX = this.game.width / 2 - (progressText.textWidth * 0.5);
@@ -32,6 +36,7 @@ module.exports = (function(){
         //console.log('Queue files');
         this.load.image('background', 'res/background.png');
         this.load.image('player', 'res/player.png');
+        this.load.atlasJSONHash('explosionAtlas', 'res/explosionAnimation.png', 'res/explosionAnimation.json');
 
         // Everything above has been put into queue, now start loading
         this.load.start();
