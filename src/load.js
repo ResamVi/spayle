@@ -1,36 +1,62 @@
 module.exports = (function(){
     
     var ready = false;
+    var progressText;
 
     function preload() {
-        
-        var bmpText = this.add.bitmapText(10, 10, "font", "Loading");
-        bmpText.updateTransform();
-        var centerX = this.game.width / 2 - (bmpText.textWidth * 0.5);
-        var centerY = this.game.height / 2 - (bmpText.textHeight * 0.5);
-        bmpText.position.x = centerX;
-        bmpText.position.y = centerY - 90;
+        this.load.bitmapFont('font','res/font_0.png', 'res/font.fnt');
+    }
 
-        var loadbar = this.add.sprite(this.game.width / 2, this.game.height / 2, 'loadbar');
-        loadbar.anchor.setTo(0.5,0.5);
-        this.load.setPreloadSprite(loadbar, 0);
+    function create() {
+        this.load.onLoadStart.add(loadStart, this);
+        this.load.onFileComplete.add(fileComplete, this);
+        this.load.onLoadComplete.add(loadComplete, this);
+
+        var loadText = this.add.bitmapText(10, 10, "font", "Loading");
+        loadText.updateTransform();
+        var centerX = this.game.width / 2 - (loadText.textWidth * 0.5);
+        var centerY = this.game.height / 2 - (loadText.textHeight * 0.5);
+        loadText.position.x = centerX;
+        loadText.position.y = centerY - 90;
         
+        progressText = this.add.bitmapText(10, 10, "font", "0%");
+        progressText.updateTransform();
+        var centerX = this.game.width / 2 - (progressText.textWidth * 0.5);
+        var centerY = this.game.height / 2 - (progressText.textHeight * 0.5);
+        progressText.position.x = centerX;
+        progressText.position.y = centerY;
+
+        queueFiles.call(this);
+    }
+
+    function queueFiles() {
+        //console.log("Queue files");
         this.load.image('background', 'res/background.png');
         this.load.image('player', 'res/player.png');
+
+        // Everything above has been put into queue, now start loading
         this.load.start();
-
-        this.load.onLoadComplete.addOnce(complete, this);
     }
 
-    function update() {
-        if (ready) {
-          this.state.start('play');
-        }
+    function loadStart() {
+        //console.log("Start loading");
     }
 
-    function complete() {
-        ready = true;
+    function fileComplete(progress, cacheKey, success, totalLoaded, totalFiles) {
+        //console.log("--- Completed file ---");
+        //console.log("progress: " + progress);
+        //console.log("cacheKey: " + cacheKey);
+        //console.log("success: " + success);
+        //console.log("totalLoaded: " + totalLoaded);
+        //console.log("totalFiles: " + totalFiles);
+        //console.log("\n");
+        progressText.setText(progress + "%");
+    }
+
+    function loadComplete() {
+        //console.log("Load complete");
+        this.state.start('play');
     }
     
-    return { preload: preload, update: update};
+    return { preload: preload, create: create};
 })();

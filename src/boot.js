@@ -2,11 +2,6 @@ module.exports = (function(){
     
     const WORLD_BOUNDS = 10000;
 
-    function preload() {
-        this.load.image('loadbar', 'res/loadbar.png');
-        this.load.bitmapFont('font','res/font_0.png', 'res/font.fnt');
-    }
-
     function create() {
         
        // World settings
@@ -17,5 +12,5 @@ module.exports = (function(){
        this.state.start("load");
     }
 
-    return { preload: preload, create: create};
+    return { create: create};
 })();
