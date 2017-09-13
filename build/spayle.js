@@ -106104,7 +106104,7 @@ module.exports = (function(){
         // Explosion
         explosion = this.add.sprite(-90, -10, 'explosionAtlas', 'explosion/ex0.png');
         explosion.scale.setTo(2, 2);
-        var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 11, '.png', 1);
+        var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1);
         explosion.animations.add('explode', frames, 60, false, true);
         player.addChild(explosion);
 
