@@ -5,7 +5,7 @@ module.exports = (function(){
     const PLAYER_START_Y = 120;
     const PLAYER_START_X = 210;
     
-    var debugMode = false;
+    var debugMode = true;
 
     var arrowkeys;
     var wasd;
