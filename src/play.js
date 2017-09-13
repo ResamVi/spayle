@@ -13,15 +13,15 @@ module.exports = (function(){
     function create() {
 
         // Sprites
-        game.add.sprite(0, 0, 'background');
-        player = game.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
-        game.physics.p2.enable(player);
+        this.add.sprite(0, 0, 'background');
+        player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
+        this.physics.p2.enable(player);
     
         // Controls
-        arrowkeys = game.input.keyboard.createCursorKeys();
+        arrowkeys = this.input.keyboard.createCursorKeys();
         wasd = {
-            right: game.input.keyboard.addKey(Phaser.Keyboard.D),
-            left: game.input.keyboard.addKey(Phaser.Keyboard.A)
+            right: this.input.keyboard.addKey(Phaser.Keyboard.D),
+            left: this.input.keyboard.addKey(Phaser.Keyboard.A)
         };
     
         var thrust = function() {
@@ -29,10 +29,10 @@ module.exports = (function(){
             player.body.thrust(THRUST_FORCE);
         }
 
-        game.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
-        game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
     
-        game.camera.follow(player, null, 0.1, 0.1);
+        this.camera.follow(player, null, 0.1, 0.1);
     }
     
     function update() {
@@ -49,13 +49,13 @@ module.exports = (function(){
     }
     
     function render() {
-        //game.debug.spriteInfo(player, 32, 32);
+        //this.debug.spriteInfo(player, 32, 32);
         var x = player.body.velocity.x;
         var y = player.body.velocity.y;
         
-        game.debug.text(Math.sqrt(x*x + y*y) , 10, 10);
-        game.debug.cameraInfo(game.camera, 32, 32);
-        game.debug.spriteCoords(player, 32, 500);
+        this.game.debug.text(Math.sqrt(x*x + y*y) , 10, 10);
+        this.game.debug.cameraInfo(this.camera, 32, 32);
+        this.game.debug.spriteCoords(player, 32, 500);
     }
 
     return { create: create, update: update, render: render};

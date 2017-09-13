@@ -105998,17 +105998,18 @@ module.exports = (function(){
     const WORLD_BOUNDS = 10000;
 
     function preload() {
-        game.load.image('loadbar', 'res/loadbar.png');
+        this.load.image('loadbar', 'res/loadbar.png');
+        this.load.bitmapFont('font','res/font_0.png', 'res/font.fnt');
     }
 
     function create() {
         
        // World settings
-       game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-       game.physics.startSystem(Phaser.Physics.P2JS);
-       game.world.setBounds(0,0, WORLD_BOUNDS, WORLD_BOUNDS);
+       this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+       this.physics.startSystem(Phaser.Physics.P2JS);
+       this.world.setBounds(0,0, WORLD_BOUNDS, WORLD_BOUNDS);
 
-       this.game.state.start("load");
+       this.state.start("load");
     }
 
     return { preload: preload, create: create};
@@ -106020,20 +106021,22 @@ module.exports = (function(){
 
     function preload() {
         
-        var loadbar = game.add.sprite(200, 200, 'loadbar');
-        loadbar.anchor.setTo(0.5,0.5);
-        game.load.setPreloadSprite(loadbar, 0);
-        
-        game.load.image('background', 'res/background.png');
-        game.load.image('player', 'res/player.png');
-        game.load.start();
+        var bmpText = this.add.bitmapText(10, 10, "font", "Loading");
 
-        game.load.onLoadComplete.addOnce(complete, this);
+        var loadbar = this.add.sprite(200, 200, 'loadbar');
+        loadbar.anchor.setTo(0.5,0.5);
+        this.load.setPreloadSprite(loadbar, 0);
+        
+        this.load.image('background', 'res/background.png');
+        this.load.image('player', 'res/player.png');
+        this.load.start();
+
+        this.load.onLoadComplete.addOnce(complete, this);
     }
 
     function update() {
         if (ready) {
-          game.state.start('play');
+          this.state.start('play');
         }
     }
 
@@ -106059,15 +106062,15 @@ module.exports = (function(){
     function create() {
 
         // Sprites
-        game.add.sprite(0, 0, 'background');
-        player = game.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
-        game.physics.p2.enable(player);
+        this.add.sprite(0, 0, 'background');
+        player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
+        this.physics.p2.enable(player);
     
         // Controls
-        arrowkeys = game.input.keyboard.createCursorKeys();
+        arrowkeys = this.input.keyboard.createCursorKeys();
         wasd = {
-            right: game.input.keyboard.addKey(Phaser.Keyboard.D),
-            left: game.input.keyboard.addKey(Phaser.Keyboard.A)
+            right: this.input.keyboard.addKey(Phaser.Keyboard.D),
+            left: this.input.keyboard.addKey(Phaser.Keyboard.A)
         };
     
         var thrust = function() {
@@ -106075,10 +106078,10 @@ module.exports = (function(){
             player.body.thrust(THRUST_FORCE);
         }
 
-        game.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
-        game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
     
-        game.camera.follow(player, null, 0.1, 0.1);
+        this.camera.follow(player, null, 0.1, 0.1);
     }
     
     function update() {
@@ -106095,13 +106098,13 @@ module.exports = (function(){
     }
     
     function render() {
-        //game.debug.spriteInfo(player, 32, 32);
+        //this.debug.spriteInfo(player, 32, 32);
         var x = player.body.velocity.x;
         var y = player.body.velocity.y;
         
-        game.debug.text(Math.sqrt(x*x + y*y) , 10, 10);
-        game.debug.cameraInfo(game.camera, 32, 32);
-        game.debug.spriteCoords(player, 32, 500);
+        this.game.debug.text(Math.sqrt(x*x + y*y) , 10, 10);
+        this.game.debug.cameraInfo(this.camera, 32, 32);
+        this.game.debug.spriteCoords(player, 32, 500);
     }
 
     return { create: create, update: update, render: render};
@@ -106109,7 +106112,7 @@ module.exports = (function(){
 },{}],6:[function(require,module,exports){
 var Phaser = require('phaser-ce');
 
-window.game = new Phaser.Game(800, 600, Phaser.AUTO, '')
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '')
 
 game.state.add('boot', require('./boot.js'))
 game.state.add('load', require('./load.js'))
