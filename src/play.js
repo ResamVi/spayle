@@ -5,6 +5,8 @@ module.exports = (function(){
     const PLAYER_START_Y = 120;
     const PLAYER_START_X = 210;
     
+    var debugMode = false;
+
     var arrowkeys;
     var wasd;
     
@@ -49,13 +51,18 @@ module.exports = (function(){
     }
     
     function render() {
-        //this.debug.spriteInfo(player, 32, 32);
-        var x = player.body.velocity.x;
-        var y = player.body.velocity.y;
         
-        this.game.debug.text(Math.sqrt(x*x + y*y) , 10, 10);
-        this.game.debug.cameraInfo(this.camera, 32, 32);
-        this.game.debug.spriteCoords(player, 32, 500);
+        if(debugMode) {
+            var x = player.body.velocity.x;
+            var y = player.body.velocity.y;
+            var v = Math.round(Math.sqrt(x*x + y*y));
+            
+            this.game.debug.spriteInfo(player, 32, 180);
+            this.game.debug.body(player);
+            this.game.debug.text("Velocity: " + v , 32, 550);
+            this.game.debug.cameraInfo(this.camera, 32, 32);
+            this.game.debug.spriteCoords(player, 32, 500);
+        }
     }
 
     return { create: create, update: update, render: render};
