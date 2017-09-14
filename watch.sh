@@ -1,1 +1,1 @@
-watchify ./src/spayle.js -o ./build/spayle.js -v
+watchify ./src/MainGame.js -o ./build/spayle.js -v

@@ -3,7 +3,7 @@ module.exports = (function(){
     var progressText;
 
     function preload() {
-        this.load.bitmapFont('font','res/font_0.png', 'res/font.fnt');
+        this.load.bitmapFont('font','assets/font_0.png', 'assets/font.fnt');
     }
 
     function create() {
@@ -34,14 +34,14 @@ module.exports = (function(){
 
     function queueFiles() {
         //console.log('Queue files');
-        this.load.audio('startMusic', 'res/start.mp3');
-        this.load.audio('mainMusic', 'res/main.mp3');
-        this.load.audio('boom', 'res/boom.mp3');
-        this.load.image('dot', 'res/dot.png'); // debug purposes only
-        this.load.image('empty', 'res/empty.png');
-        this.load.image('background', 'res/background.png');
-        this.load.image('player', 'res/player.png');
-        this.load.atlasJSONHash('explosionAtlas', 'res/explosionAnimation.png', 'res/explosionAnimation.json');
+        this.load.audio('startMusic', 'assets/start.mp3');
+        this.load.audio('mainMusic', 'assets/main.mp3');
+        this.load.audio('boom', 'assets/boom.mp3');
+        this.load.image('dot', 'assets/dot.png'); // debug purposes only
+        this.load.image('empty', 'assets/empty.png');
+        this.load.image('background', 'assets/background.png');
+        this.load.image('player', 'assets/player.png');
+        this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
 
         // Everything above has been put into queue, now start loading
         this.load.start();

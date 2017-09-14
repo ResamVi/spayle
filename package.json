@@ -5,8 +5,8 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "spayle": "node ./srv/nodejs_server.js",
-	  "watch" : "watchify ./src/spayle.js -o ./build/spayle.js -v"
+    "spayle": "node ./server/nodejs_server.js",
+	  "watch" : "watchify ./src/MainGame.js -o ./build/spayle.js -v"
   },
   "repository": {
     "type": "git",

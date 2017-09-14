@@ -24,14 +24,12 @@ module.exports = (function(){
         
         // Player
         player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
-        player.anchor.x = 0.5;
-        player.anchor.y = 0.5;
+        player.anchor.setTo(0.5);
         this.physics.p2.enable(player);
 
         // Explosion Spawn
         explosionSpawn = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'empty');
-        explosionSpawn.anchor.x = 0.5;
-        explosionSpawn.anchor.y = 0.5;
+        explosionSpawn.anchor.setTo(0.5);
 
         // Music
         var startMusic = this.add.audio('startMusic');
@@ -58,11 +56,9 @@ module.exports = (function(){
 
             var explosion = this.add.sprite(explosionSpawn.x, explosionSpawn.y, 'explosionAtlas');
             var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1);
-            explosion.anchor.x = 0.5;
-            explosion.anchor.y = 0.5;
+            explosion.anchor.setTo(0.5);
             explosion.scale.setTo(2, 2);
-            explosion.animations.add('explode', frames, 60, false, true);
-            explosion.animations.play('explode');
+            explosion.animations.add('explode', frames, 60, false, true).play();
             
             player.body.setZeroVelocity();
             player.body.thrust(THRUST_FORCE);

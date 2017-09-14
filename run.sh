@@ -1,1 +1,1 @@
-node srv/nodejs_server.js
+node server/nodejs_server.js

@@ -106015,7 +106015,7 @@ module.exports = (function(){
     var progressText;
 
     function preload() {
-        this.load.bitmapFont('font','res/font_0.png', 'res/font.fnt');
+        this.load.bitmapFont('font','assets/font_0.png', 'assets/font.fnt');
     }
 
     function create() {
@@ -106046,14 +106046,14 @@ module.exports = (function(){
 
     function queueFiles() {
         //console.log('Queue files');
-        this.load.audio('startMusic', 'res/start.mp3');
-        this.load.audio('mainMusic', 'res/main.mp3');
-        this.load.audio('boom', 'res/boom.mp3');
-        this.load.image('dot', 'res/dot.png'); // debug purposes only
-        this.load.image('empty', 'res/empty.png');
-        this.load.image('background', 'res/background.png');
-        this.load.image('player', 'res/player.png');
-        this.load.atlasJSONHash('explosionAtlas', 'res/explosionAnimation.png', 'res/explosionAnimation.json');
+        this.load.audio('startMusic', 'assets/start.mp3');
+        this.load.audio('mainMusic', 'assets/main.mp3');
+        this.load.audio('boom', 'assets/boom.mp3');
+        this.load.image('dot', 'assets/dot.png'); // debug purposes only
+        this.load.image('empty', 'assets/empty.png');
+        this.load.image('background', 'assets/background.png');
+        this.load.image('player', 'assets/player.png');
+        this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
 
         // Everything above has been put into queue, now start loading
         this.load.start();
@@ -106082,6 +106082,17 @@ module.exports = (function(){
     return { preload: preload, create: create};
 })();
 },{}],5:[function(require,module,exports){
+var Phaser = require('phaser-ce');
+
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
+
+game.state.add('boot', require('./BootScene.js'));
+game.state.add('load', require('./LoadScene.js'));
+game.state.add('play', require('./PlayScene.js'));
+
+game.state.start('boot');
+
+},{"./BootScene.js":3,"./LoadScene.js":4,"./PlayScene.js":6,"phaser-ce":2}],6:[function(require,module,exports){
 module.exports = (function(){
     
     const ROTATION_SPEED = 100; // TODO: Create own file for constants
@@ -106108,14 +106119,12 @@ module.exports = (function(){
         
         // Player
         player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
-        player.anchor.x = 0.5;
-        player.anchor.y = 0.5;
+        player.anchor.setTo(0.5);
         this.physics.p2.enable(player);
 
         // Explosion Spawn
         explosionSpawn = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'empty');
-        explosionSpawn.anchor.x = 0.5;
-        explosionSpawn.anchor.y = 0.5;
+        explosionSpawn.anchor.setTo(0.5);
 
         // Music
         var startMusic = this.add.audio('startMusic');
@@ -106142,11 +106151,9 @@ module.exports = (function(){
 
             var explosion = this.add.sprite(explosionSpawn.x, explosionSpawn.y, 'explosionAtlas');
             var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1);
-            explosion.anchor.x = 0.5;
-            explosion.anchor.y = 0.5;
+            explosion.anchor.setTo(0.5);
             explosion.scale.setTo(2, 2);
-            explosion.animations.add('explode', frames, 60, false, true);
-            explosion.animations.play('explode');
+            explosion.animations.add('explode', frames, 60, false, true).play();
             
             player.body.setZeroVelocity();
             player.body.thrust(THRUST_FORCE);
@@ -106202,15 +106209,4 @@ module.exports = (function(){
 
     return { create: create, update: update, render: render};
 })();
-},{}],6:[function(require,module,exports){
-var Phaser = require('phaser-ce');
-
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
-
-game.state.add('boot', require('./boot.js'));
-game.state.add('load', require('./load.js'));
-game.state.add('play', require('./play.js'));
-
-game.state.start('boot');
-
-},{"./boot.js":3,"./load.js":4,"./play.js":5,"phaser-ce":2}]},{},[6]);
+},{}]},{},[5]);
