@@ -34,6 +34,8 @@ module.exports = (function(){
 
     function queueFiles() {
         //console.log('Queue files');
+        this.load.audio('startMusic', 'res/start.mp3');
+        this.load.audio('mainMusic', 'res/main.mp3');
         this.load.image('dot', 'res/dot.png'); // debug purposes only
         this.load.image('empty', 'res/empty.png');
         this.load.image('background', 'res/background.png');

@@ -1,10 +1,11 @@
 module.exports = (function(){
     
-    const ROTATION_SPEED = 100;
+    const ROTATION_SPEED = 100; // TODO: Create own file for constants
     const THRUST_FORCE = 50000;
     const PLAYER_START_Y = 120;
     const PLAYER_START_X = 210;
     const SPAWN_DISTANCE = -50;
+    const AUDIO_FADE_DURATION = 7300;
 
     var debugMode = true;
 
@@ -13,9 +14,10 @@ module.exports = (function(){
     
     var player;
     var explosion;
-    
     var explosionSpawn; // TODO: Create own module for explosionspawn
     
+    var mainMusic;
+
     function create() {
 
         // Background
@@ -39,6 +41,17 @@ module.exports = (function(){
         explosionSpawn = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'empty');
         explosionSpawn.anchor.x = 0.5;
         explosionSpawn.anchor.y = 0.5;
+
+        // Music
+        var startMusic = this.add.audio('startMusic');
+        startMusic.onDecoded.add(function() {
+            startMusic.fadeIn(AUDIO_FADE_DURATION);
+        }, this);
+        startMusic.onFadeComplete.add(function() {
+            mainMusic = this.add.audio('mainMusic');
+            mainMusic.play();
+            mainMusic.loop = true;
+        }, this);
 
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
