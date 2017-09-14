@@ -34,6 +34,7 @@ module.exports = (function(){
 
     function queueFiles() {
         //console.log('Queue files');
+        this.load.image('dot', 'res/dot.png'); // debug purposes only
         this.load.image('empty', 'res/empty.png');
         this.load.image('background', 'res/background.png');
         this.load.image('player', 'res/player.png');
