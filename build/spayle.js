@@ -106086,13 +106086,14 @@ var Phaser = require('phaser-ce');
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
 
+game.state.add('splash', require('./SplashScene.js'));
 game.state.add('boot', require('./BootScene.js'));
 game.state.add('load', require('./LoadScene.js'));
 game.state.add('play', require('./PlayScene.js'));
 
-game.state.start('boot');
+game.state.start('splash');
 
-},{"./BootScene.js":3,"./LoadScene.js":4,"./PlayScene.js":6,"phaser-ce":2}],6:[function(require,module,exports){
+},{"./BootScene.js":3,"./LoadScene.js":4,"./PlayScene.js":6,"./SplashScene.js":7,"phaser-ce":2}],6:[function(require,module,exports){
 module.exports = (function(){
     
     const ROTATION_SPEED = 100; // TODO: Create own file for constants
@@ -106208,5 +106209,40 @@ module.exports = (function(){
     }
 
     return { create: create, update: update, render: render};
+})();
+},{}],7:[function(require,module,exports){
+module.exports = (function(){
+    
+    const FADE_IN_DURATION = 1000;
+    const FADE_OUT_DURATION = 1000;
+    const DELAY_DURATION = 1200;
+
+    function preload() {
+        this.load.image('splash','assets/splash.png');
+    }
+
+    function create() {
+        this.stage.backgroundColor = '#FFFFFF';
+        
+        var splash = this.add.sprite(this.world.centerX, this.world.centerY, 'splash');
+        splash.anchor.setTo(0.5);
+        splash.alpha = 0;
+        
+        var tween = this.add.tween(splash);
+        tween.onComplete.add(fadeOut, this);
+        tween.to( { alpha: 1 }, FADE_IN_DURATION, Phaser.Easing.Linear.None, true);
+        
+    }
+
+    function fadeOut(splash) {
+        var tween = this.add.tween(splash);
+        tween.onComplete.add(function() {
+            this.stage.backgroundColor = '#000000';
+            this.state.start('boot');
+        }, this);
+        tween.to( { alpha: 0 }, FADE_OUT_DURATION, Phaser.Easing.Linear.None, true, DELAY_DURATION);
+    }
+    
+    return { preload: preload, create: create};
 })();
 },{}]},{},[5]);
