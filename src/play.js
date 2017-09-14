@@ -44,7 +44,7 @@ module.exports = (function(){
 
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
-        this.camera.follow(player, null, 0.1, 0.1);
+        this.camera.follow(player, null, 0.5, 0.5);
     }
     
     function update() {

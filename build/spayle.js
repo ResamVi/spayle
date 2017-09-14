@@ -106046,6 +106046,7 @@ module.exports = (function(){
 
     function queueFiles() {
         //console.log('Queue files');
+        this.load.image('empty', 'res/empty.png');
         this.load.image('background', 'res/background.png');
         this.load.image('player', 'res/player.png');
         this.load.atlasJSONHash('explosionAtlas', 'res/explosionAnimation.png', 'res/explosionAnimation.json');
@@ -106123,7 +106124,7 @@ module.exports = (function(){
 
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
-        this.camera.follow(player, null, 0.1, 0.1);
+        this.camera.follow(player, null, 0.5, 0.5);
     }
     
     function update() {
