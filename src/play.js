@@ -4,7 +4,7 @@ module.exports = (function(){
     const THRUST_FORCE = 50000;
     const PLAYER_START_Y = 120;
     const PLAYER_START_X = 210;
-    const SPAWN_DISTANCE = -50;
+    const SPAWN_DISTANCE = -20;
     const AUDIO_FADE_DURATION = 7300;
 
     var debugMode = true;
@@ -13,7 +13,6 @@ module.exports = (function(){
     var wasd;
     
     var player;
-    var explosion;
     var explosionSpawn; // TODO: Create own module for explosionspawn
     
     var mainMusic;
@@ -28,14 +27,6 @@ module.exports = (function(){
         player.anchor.x = 0.5;
         player.anchor.y = 0.5;
         this.physics.p2.enable(player);
-
-        // Explosion Animation
-        explosion = this.add.sprite(-90, -10, 'explosionAtlas', 'explosion/ex0.png');
-        explosion.anchor.x = 0.5;
-        explosion.anchor.y = 0.5;
-        explosion.scale.setTo(2, 2);
-        var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1);
-        explosion.animations.add('explode', frames, 60, false, true);
 
         // Explosion Spawn
         explosionSpawn = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'empty');
@@ -65,8 +56,12 @@ module.exports = (function(){
         var thrust = function() {
             boomSound.play();
 
-            explosion.x = explosionSpawn.x;
-            explosion.y = explosionSpawn.y;
+            var explosion = this.add.sprite(explosionSpawn.x, explosionSpawn.y, 'explosionAtlas');
+            var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1);
+            explosion.anchor.x = 0.5;
+            explosion.anchor.y = 0.5;
+            explosion.scale.setTo(2, 2);
+            explosion.animations.add('explode', frames, 60, false, true);
             explosion.animations.play('explode');
             
             player.body.setZeroVelocity();
@@ -116,7 +111,7 @@ module.exports = (function(){
             this.game.debug.text('Velocity: ' + v , 32, 550);
             this.game.debug.cameraInfo(this.camera, 32, 32);
             this.game.debug.spriteCoords(player, 32, 500);
-            this.game.debug.body(explosion);
+            //this.game.debug.body(explosion);
             this.game.debug.body(player);
         }
     }
