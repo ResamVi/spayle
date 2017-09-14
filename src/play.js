@@ -52,6 +52,8 @@ module.exports = (function(){
             mainMusic.play();
             mainMusic.loop = true;
         }, this);
+        var boomSound = this.add.audio('boom');
+        boomSound.volume = 0.1;
 
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
@@ -61,6 +63,8 @@ module.exports = (function(){
         };
     
         var thrust = function() {
+            boomSound.play();
+
             explosion.x = explosionSpawn.x;
             explosion.y = explosionSpawn.y;
             explosion.animations.play('explode');
