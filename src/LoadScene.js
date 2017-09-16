@@ -63,6 +63,7 @@ module.exports = (function(){
     }
 
     function loadComplete() {
+        console.log("Finished");
         //console.log('Load complete');
         this.state.start('play');
     }

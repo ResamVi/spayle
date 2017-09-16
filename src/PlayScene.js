@@ -17,6 +17,7 @@ module.exports = (function(){
     var player;
     var explosionSpawn; // TODO: Create own module for explosionspawn
     
+    var startMusic;
     var mainMusic;
 
     var intervalMargin = 0;
@@ -38,11 +39,11 @@ module.exports = (function(){
         explosionSpawn.anchor.setTo(0.5);
 
         // Music
-        var startMusic = this.add.audio('startMusic');
-        startMusic.onFadeComplete.add(function() {
-            mainMusic = this.add.audio('mainMusic');
+        mainMusic = this.add.audio('mainMusic');
+        mainMusic.loop = true;
+        startMusic = this.add.audio('startMusic');
+        startMusic.onStop.add(function() {
             mainMusic.play();
-            mainMusic.loop = true;
         }, this);
         startMusic.onDecoded.add(function() {
             startMusic.fadeIn(AUDIO_FADE_DURATION);
@@ -78,13 +79,16 @@ module.exports = (function(){
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
         this.camera.follow(player, null, 0.5, 0.5);
+
+        
     }
     
     
     function update() { // TODO: Create a proper game loop here
 
         updateSpawn.call(this);
-        calculateAcceleration.call(this);
+        updateAcceleration.call(this);
+        updateMusic.call(this);
 
         // Keep the player moving
         player.body.thrust(100);
@@ -99,7 +103,11 @@ module.exports = (function(){
         }
     }
     
-    function calculateAcceleration() {
+    function updateMusic() {
+
+    }
+
+    function updateAcceleration() {
         if(this.game.time.totalElapsedSeconds() > intervalMargin) {
             intervalMargin += 1;
             
