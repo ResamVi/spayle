@@ -18,16 +18,19 @@ module.exports = (function(){
     var explosionSpawn; // TODO: Create own module for explosionspawn
     
     var startMusic;
-    var mainMusic;
+    var mainMusic = [];
 
     var intervalMargin = 0;
     var velocityBonus = 0;
     var thrustFrequency = 0;
+    var currentPitch = 0;
 
     // Receive already loaded assets from menu scene
-    function init(p) {
+    function init(p, menuMusic) {
         player = p;
         this.physics.p2.enable(player);
+
+        menuMusic.fadeOut(1000);
     }
 
     function create() {
@@ -37,11 +40,15 @@ module.exports = (function(){
         explosionSpawn.anchor.setTo(0.5);
 
         // Music
-        mainMusic = this.add.audio('mainMusic');
-        mainMusic.loop = true;
+        mainMusic[0] = this.add.audio('mainMusic');
+        mainMusic[1] = this.add.audio('lowPitch');
+        mainMusic[2] = this.add.audio('mediumPitch');
+        mainMusic[3] = this.add.audio('highPitch');
+        mainMusic[4] = this.add.audio('highestPitch');
+
         startMusic = this.add.audio('startMusic');
         startMusic.onStop.add(function() {
-            mainMusic.play();
+            mainMusic[0].play('', 0, 1, true);
         }, this);
         startMusic.onDecoded.add(function() {
             startMusic.fadeIn(AUDIO_FADE_DURATION);
@@ -102,6 +109,11 @@ module.exports = (function(){
     }
     
     function updateMusic() {
+        if(currentPitch < mainMusic.length && currentPitch < velocityBonus) {
+            let currentTime = mainMusic[currentPitch].currentTime;
+            mainMusic[currentPitch].stop();
+            mainMusic[++currentPitch].play('', currentTime, 1, true);
+        }
 
     }
 

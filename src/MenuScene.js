@@ -5,6 +5,13 @@ module.exports = (function(){
 
     var player;
     var planet;
+    
+    var title;
+    var startButton;
+    var optionButton;
+    var backButton;
+
+    var menuMusic;
 
     function create() {
         
@@ -23,7 +30,7 @@ module.exports = (function(){
         player.angle = 110;
 
         // Title
-        var title = this.add.bitmapText(10, 10, 'menuFont', 'SPAYLE', 80);
+        title = this.add.bitmapText(10, 10, 'menuFont', 'SPAYLE', 80);
         title.updateTransform();
         title.anchor.setTo(0.5, 0.5);
         var centerX = this.game.width / 2 - (title.textWidth * 0.5); // TODO: Create a utils function?
@@ -33,28 +40,42 @@ module.exports = (function(){
         this.add.tween(title.scale).to( {x: 1.1, y: 1.1}, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true);
 
         // Buttons
-        createButton.call(this, 190, 80, 1.5, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
-        createButton.call(this, 190, 250, 1.5, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'yellow_button02.png');
+        startButton = createButton.call(this, 190, 80, 1.5, play, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
+        optionButton = createButton.call(this, 190, 250, 1.5, moveDown, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
+        backButton = createButton.call(this, 190, 950, 1.5, moveUp, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
 
         // Music
-        var menuMusic = this.add.audio('menuMusic');
+        menuMusic = this.add.audio('menuMusic');
         menuMusic.onDecoded.add(function() {
             menuMusic.fadeIn(5000, true);
         }, this);
     }
     
-    function createButton(x, y, scale, atlas, onHover, onIdle, onClick) {
-        var button = this.add.button(0, 0, atlas, play, this, onHover, onIdle, onClick, onIdle);
+    function createButton(x, y, scale, func, atlas, onHover, onIdle, onClick) {
+        var button = this.add.button(0, 0, atlas, func, this, onHover, onIdle, onClick, onIdle);
         var centerX = this.game.width / 2 - (button.width * 0.5);
         var centerY = this.game.height / 2 - (button.width * 0.5);
         button.anchor.setTo(0.5, 0.5);
         button.scale.setTo(scale, scale);
         button.x = centerX + x;
         button.y = centerY + y;
+        return button;
     }
 
     function play() {
-        this.state.start('play', false, false, player);
+        title.destroy();
+        startButton.destroy();
+        optionButton.destroy();
+        backButton.destroy();
+        this.state.start('play', false, false, player, menuMusic);
+    }
+
+    function moveUp() {
+        this.add.tween(this.camera).to({y: 0}, 1500, Phaser.Easing.Cubic.Out, true);
+    }
+
+    function moveDown() {
+        this.add.tween(this.camera).to({y: 700}, 1500, Phaser.Easing.Cubic.Out, true);
     }
 
     function update() {

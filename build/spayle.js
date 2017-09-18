@@ -106049,6 +106049,10 @@ module.exports = (function(){
         this.load.audio('startMusic', 'assets/start.mp3');
         this.load.audio('menuMusic', 'assets/menu.mp3');
         this.load.audio('mainMusic', 'assets/main.mp3');
+        this.load.audio('lowPitch', 'assets/main_pitch_1.mp3');
+        this.load.audio('mediumPitch', 'assets/main_pitch_2.mp3');
+        this.load.audio('highPitch', 'assets/main_pitch_3.mp3');
+        this.load.audio('highestPitch', 'assets/main_pitch_4.mp3');
         this.load.audio('boom', 'assets/boom.mp3');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
         this.load.image('empty', 'assets/empty.png');
@@ -106098,7 +106102,7 @@ game.state.add('load', require('./LoadScene.js'));
 game.state.add('menu', require('./MenuScene.js'));
 game.state.add('play', require('./PlayScene.js'));
 
-game.state.start('splash');
+game.state.start('boot');
 
 },{"./BootScene.js":3,"./LoadScene.js":4,"./MenuScene.js":6,"./PlayScene.js":7,"./SplashScene.js":8,"phaser-ce":2}],6:[function(require,module,exports){
 module.exports = (function(){
@@ -106108,6 +106112,13 @@ module.exports = (function(){
 
     var player;
     var planet;
+    
+    var title;
+    var startButton;
+    var optionButton;
+    var backButton;
+
+    var menuMusic;
 
     function create() {
         
@@ -106126,7 +106137,7 @@ module.exports = (function(){
         player.angle = 110;
 
         // Title
-        var title = this.add.bitmapText(10, 10, 'menuFont', 'SPAYLE', 80);
+        title = this.add.bitmapText(10, 10, 'menuFont', 'SPAYLE', 80);
         title.updateTransform();
         title.anchor.setTo(0.5, 0.5);
         var centerX = this.game.width / 2 - (title.textWidth * 0.5); // TODO: Create a utils function?
@@ -106136,28 +106147,42 @@ module.exports = (function(){
         this.add.tween(title.scale).to( {x: 1.1, y: 1.1}, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true);
 
         // Buttons
-        createButton.call(this, 190, 80, 1.5, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
-        createButton.call(this, 190, 250, 1.5, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'yellow_button02.png');
+        startButton = createButton.call(this, 190, 80, 1.5, play, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
+        optionButton = createButton.call(this, 190, 250, 1.5, moveDown, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
+        backButton = createButton.call(this, 190, 950, 1.5, moveUp, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
 
         // Music
-        var menuMusic = this.add.audio('menuMusic');
+        menuMusic = this.add.audio('menuMusic');
         menuMusic.onDecoded.add(function() {
             menuMusic.fadeIn(5000, true);
         }, this);
     }
     
-    function createButton(x, y, scale, atlas, onHover, onIdle, onClick) {
-        var button = this.add.button(0, 0, atlas, play, this, onHover, onIdle, onClick, onIdle);
+    function createButton(x, y, scale, func, atlas, onHover, onIdle, onClick) {
+        var button = this.add.button(0, 0, atlas, func, this, onHover, onIdle, onClick, onIdle);
         var centerX = this.game.width / 2 - (button.width * 0.5);
         var centerY = this.game.height / 2 - (button.width * 0.5);
         button.anchor.setTo(0.5, 0.5);
         button.scale.setTo(scale, scale);
         button.x = centerX + x;
         button.y = centerY + y;
+        return button;
     }
 
     function play() {
-        this.state.start('play', false, false, player);
+        title.destroy();
+        startButton.destroy();
+        optionButton.destroy();
+        backButton.destroy();
+        this.state.start('play', false, false, player, menuMusic);
+    }
+
+    function moveUp() {
+        this.add.tween(this.camera).to({y: 0}, 1500, Phaser.Easing.Cubic.Out, true);
+    }
+
+    function moveDown() {
+        this.add.tween(this.camera).to({y: 700}, 1500, Phaser.Easing.Cubic.Out, true);
     }
 
     function update() {
@@ -106192,16 +106217,19 @@ module.exports = (function(){
     var explosionSpawn; // TODO: Create own module for explosionspawn
     
     var startMusic;
-    var mainMusic;
+    var mainMusic = [];
 
     var intervalMargin = 0;
     var velocityBonus = 0;
     var thrustFrequency = 0;
+    var currentPitch = 0;
 
     // Receive already loaded assets from menu scene
-    function init(p) {
+    function init(p, menuMusic) {
         player = p;
         this.physics.p2.enable(player);
+
+        menuMusic.fadeOut(1000);
     }
 
     function create() {
@@ -106211,11 +106239,15 @@ module.exports = (function(){
         explosionSpawn.anchor.setTo(0.5);
 
         // Music
-        mainMusic = this.add.audio('mainMusic');
-        mainMusic.loop = true;
+        mainMusic[0] = this.add.audio('mainMusic');
+        mainMusic[1] = this.add.audio('lowPitch');
+        mainMusic[2] = this.add.audio('mediumPitch');
+        mainMusic[3] = this.add.audio('highPitch');
+        mainMusic[4] = this.add.audio('highestPitch');
+
         startMusic = this.add.audio('startMusic');
         startMusic.onStop.add(function() {
-            mainMusic.play();
+            mainMusic[0].play('', 0, 1, true);
         }, this);
         startMusic.onDecoded.add(function() {
             startMusic.fadeIn(AUDIO_FADE_DURATION);
@@ -106276,6 +106308,11 @@ module.exports = (function(){
     }
     
     function updateMusic() {
+        if(currentPitch < mainMusic.length && currentPitch < velocityBonus) {
+            let currentTime = mainMusic[currentPitch].currentTime;
+            mainMusic[currentPitch].stop();
+            mainMusic[++currentPitch].play('', currentTime, 1, true);
+        }
 
     }
 

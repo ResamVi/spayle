@@ -37,6 +37,10 @@ module.exports = (function(){
         this.load.audio('startMusic', 'assets/start.mp3');
         this.load.audio('menuMusic', 'assets/menu.mp3');
         this.load.audio('mainMusic', 'assets/main.mp3');
+        this.load.audio('lowPitch', 'assets/main_pitch_1.mp3');
+        this.load.audio('mediumPitch', 'assets/main_pitch_2.mp3');
+        this.load.audio('highPitch', 'assets/main_pitch_3.mp3');
+        this.load.audio('highestPitch', 'assets/main_pitch_4.mp3');
         this.load.audio('boom', 'assets/boom.mp3');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
         this.load.image('empty', 'assets/empty.png');
