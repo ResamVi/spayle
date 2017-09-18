@@ -24,6 +24,11 @@ module.exports = (function(){
 
         createButton.call(this, 190, 80, 1.5, 'buttonAtlas', 'yellow_button02.png', 'yellow_button02.png', 'yellow_button01.png');
         createButton.call(this, 190, 250, 1.5, 'buttonAtlas', 'grey_button02.png', 'grey_button02.png', 'yellow_button01.png');
+
+        var menuMusic = this.add.audio('menuMusic');
+        menuMusic.onDecoded.add(function() {
+            menuMusic.fadeIn(5000, true);
+        }, this);
     }
     
     function createButton(x, y, scale, atlas, onHover, onIdle, onClick) {

@@ -106047,6 +106047,7 @@ module.exports = (function(){
     function queueFiles() {
         //console.log('Queue files');
         this.load.audio('startMusic', 'assets/start.mp3');
+        this.load.audio('menuMusic', 'assets/menu.mp3');
         this.load.audio('mainMusic', 'assets/main.mp3');
         this.load.audio('boom', 'assets/boom.mp3');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
@@ -106124,6 +106125,11 @@ module.exports = (function(){
 
         createButton.call(this, 190, 80, 1.5, 'buttonAtlas', 'yellow_button02.png', 'yellow_button02.png', 'yellow_button01.png');
         createButton.call(this, 190, 250, 1.5, 'buttonAtlas', 'grey_button02.png', 'grey_button02.png', 'yellow_button01.png');
+
+        var menuMusic = this.add.audio('menuMusic');
+        menuMusic.onDecoded.add(function() {
+            menuMusic.fadeIn(5000, true);
+        }, this);
     }
     
     function createButton(x, y, scale, atlas, onHover, onIdle, onClick) {
