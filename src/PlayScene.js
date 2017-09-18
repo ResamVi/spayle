@@ -24,15 +24,13 @@ module.exports = (function(){
     var velocityBonus = 0;
     var thrustFrequency = 0;
 
-    function create() {
-
-        // Background
-        this.add.sprite(0, 0, 'background');
-        
-        // Player
-        player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
-        player.anchor.setTo(0.5);
+    // Receive already loaded assets from menu scene
+    function init(p) {
+        player = p;
         this.physics.p2.enable(player);
+    }
+
+    function create() {
 
         // Explosion Spawn
         explosionSpawn = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'empty');
@@ -150,5 +148,5 @@ module.exports = (function(){
         }
     }
 
-    return { create: create, update: update, render: render};
+    return { init: init, create: create, update: update, render: render};
 })();

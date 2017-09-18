@@ -41,7 +41,9 @@ module.exports = (function(){
         this.load.image('empty', 'assets/empty.png');
         this.load.image('background', 'assets/background.png');
         this.load.image('player', 'assets/player.png');
+        this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
+        this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
 
         // Everything above has been put into queue, now start loading
         this.load.start();
@@ -63,9 +65,9 @@ module.exports = (function(){
     }
 
     function loadComplete() {
-        console.log("Finished");
+        //console.log("Finished");
         //console.log('Load complete');
-        this.state.start('play');
+        this.state.start('menu');
     }
     
     return { preload: preload, create: create};

@@ -106053,7 +106053,9 @@ module.exports = (function(){
         this.load.image('empty', 'assets/empty.png');
         this.load.image('background', 'assets/background.png');
         this.load.image('player', 'assets/player.png');
+        this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
+        this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
 
         // Everything above has been put into queue, now start loading
         this.load.start();
@@ -106075,9 +106077,9 @@ module.exports = (function(){
     }
 
     function loadComplete() {
-        console.log("Finished");
+        //console.log("Finished");
         //console.log('Load complete');
-        this.state.start('play');
+        this.state.start('menu');
     }
     
     return { preload: preload, create: create};
@@ -106090,11 +106092,66 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
 game.state.add('splash', require('./SplashScene.js'));
 game.state.add('boot', require('./BootScene.js'));
 game.state.add('load', require('./LoadScene.js'));
+game.state.add('menu', require('./MenuScene.js'));
 game.state.add('play', require('./PlayScene.js'));
 
 game.state.start('splash');
 
-},{"./BootScene.js":3,"./LoadScene.js":4,"./PlayScene.js":6,"./SplashScene.js":7,"phaser-ce":2}],6:[function(require,module,exports){
+},{"./BootScene.js":3,"./LoadScene.js":4,"./MenuScene.js":6,"./PlayScene.js":7,"./SplashScene.js":8,"phaser-ce":2}],6:[function(require,module,exports){
+module.exports = (function(){
+
+    const PLAYER_START_Y = 270;
+    const PLAYER_START_X = 205;
+
+    var player;
+
+    function create() {
+        
+        // Background
+        this.add.sprite(0, 0, 'background');
+
+        // Player
+        player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
+        player.anchor.setTo(0.5);
+        player.angle = 110;
+
+        var title = this.add.bitmapText(10, 10, 'menuFont', 'SPAYLE', 80);
+        title.updateTransform();
+        var centerX = this.game.width / 2 - (title.textWidth * 0.5);
+        var centerY = this.game.height / 2 - (title.textHeight * 0.5);
+        title.position.x = centerX + 100;
+        title.position.y = centerY - 150;
+
+        createButton.call(this, 190, 80, 1.5, 'buttonAtlas', 'yellow_button02.png', 'yellow_button02.png', 'yellow_button01.png');
+        createButton.call(this, 190, 250, 1.5, 'buttonAtlas', 'grey_button02.png', 'grey_button02.png', 'yellow_button01.png');
+    }
+    
+    function createButton(x, y, scale, atlas, onHover, onIdle, onClick) {
+        var button = this.add.button(0, 0, atlas, play, this, onHover, onIdle, onClick);
+        var centerX = this.game.width / 2 - (button.width * 0.5);
+        var centerY = this.game.height / 2 - (button.width * 0.5);
+        button.anchor.setTo(0.5, 0.5);
+        button.scale.setTo(scale, scale);
+        button.x = centerX + x;
+        button.y = centerY + y;
+    }
+
+    function play() {
+        this.state.start('play', false, false, player);
+    }
+
+    function update() {
+
+    }
+
+    function render() {
+        
+        
+    }
+
+    return { create: create, update: update, render: render};
+})();
+},{}],7:[function(require,module,exports){
 module.exports = (function(){
     
     const ROTATION_SPEED = 100; // TODO: Create own file for constants
@@ -106121,15 +106178,13 @@ module.exports = (function(){
     var velocityBonus = 0;
     var thrustFrequency = 0;
 
-    function create() {
-
-        // Background
-        this.add.sprite(0, 0, 'background');
-        
-        // Player
-        player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
-        player.anchor.setTo(0.5);
+    // Receive already loaded assets from menu scene
+    function init(p) {
+        player = p;
         this.physics.p2.enable(player);
+    }
+
+    function create() {
 
         // Explosion Spawn
         explosionSpawn = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'empty');
@@ -106247,9 +106302,9 @@ module.exports = (function(){
         }
     }
 
-    return { create: create, update: update, render: render};
+    return { init: init, create: create, update: update, render: render};
 })();
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = (function(){
     
     const FADE_IN_DURATION = 1000;
