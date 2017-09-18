@@ -41,6 +41,8 @@ module.exports = (function(){
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
         this.load.image('empty', 'assets/empty.png');
         this.load.image('background', 'assets/background.png');
+        this.load.image('redPlanet', 'assets/red_planet.png');
+        this.load.image('moon', 'assets/moon.png');
         this.load.image('player', 'assets/player.png');
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
