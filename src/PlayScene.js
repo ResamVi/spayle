@@ -2,10 +2,11 @@ module.exports = (function(){
     
     const ROTATION_SPEED = 100; // TODO: Create own file for constants
     const THRUST_FORCE = 50000; //50000
+    const LAUNCH_FORCE = 100000;
     const PLAYER_START_Y = 120;
     const PLAYER_START_X = 210;
     const SPAWN_DISTANCE = -20;
-    const AUDIO_FADE_DURATION = 7300;
+
     const SPEED_UP_FREQUENCY = 1;
     const INSTABILITY_THRESHOLD = 2;
 
@@ -17,7 +18,6 @@ module.exports = (function(){
     var player;
     var explosionSpawn; // TODO: Create own module for explosionspawn
     
-    var startMusic;
     var mainMusic = [];
 
     var intervalMargin = 0;
@@ -25,11 +25,9 @@ module.exports = (function(){
     var thrustFrequency = 0;
 
     // Receive already loaded assets from menu scene
-    function init(p, menuMusic) {
+    function init(p) {
         player = p;
         this.physics.p2.enable(player);
-
-        menuMusic.fadeOut(1000);
     }
 
     function create() {
@@ -40,14 +38,10 @@ module.exports = (function(){
 
         // Music
         mainMusic = this.add.audio('mainMusic');
-
-        startMusic = this.add.audio('startMusic');
-        startMusic.onStop.add(function() {
-            mainMusic.play('', 0, 1, true);
+        mainMusic.onDecoded.add(function() {
+            mainMusic.play();
         }, this);
-        startMusic.onDecoded.add(function() {
-            startMusic.fadeIn(AUDIO_FADE_DURATION);
-        }, this);
+        
         var boomSound = this.add.audio('boom');
         boomSound.volume = 0.05;
 
@@ -80,7 +74,7 @@ module.exports = (function(){
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
         this.camera.follow(player, null, 0.5, 0.5);
 
-        
+        player.body.thrust(LAUNCH_FORCE);
     }
     
     

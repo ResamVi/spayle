@@ -106049,6 +106049,8 @@ module.exports = (function(){
         this.load.audio('startMusic', 'assets/start.mp3');
         this.load.audio('menuMusic', 'assets/menu.mp3');
         this.load.audio('mainMusic', 'assets/main.mp3');
+        this.load.audio('ignition', 'assets/ignition.mp3');
+        this.load.audio('boom', 'assets/boom.mp3');
         this.load.audio('boom', 'assets/boom.mp3');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
         this.load.image('empty', 'assets/empty.png');
@@ -106105,6 +106107,7 @@ module.exports = (function(){
 
     const PLAYER_START_Y = 270;
     const PLAYER_START_X = 205;
+    const AUDIO_FADE_DURATION = 4000;
 
     var player;
     var planet;
@@ -106115,6 +106118,7 @@ module.exports = (function(){
     var backButton;
 
     var menuMusic;
+    var startMusic;
 
     function create() {
         
@@ -106166,11 +106170,29 @@ module.exports = (function(){
     }
 
     function play() {
-        title.destroy();
-        startButton.destroy();
-        optionButton.destroy();
-        backButton.destroy();
-        this.state.start('play', false, false, player, menuMusic);
+        
+        this.add.tween(title).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+        this.add.tween(startButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+        this.add.tween(optionButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+        this.add.tween(backButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+
+        // TODO: Destroy on tween finish
+
+        menuMusic.fadeOut(1000);
+
+        startMusic = this.add.audio('startMusic');
+        startMusic.onDecoded.add(function() {
+            startMusic.fadeIn(AUDIO_FADE_DURATION);
+        }, this);
+
+        menuMusic = this.add.audio('ignition');
+        menuMusic.onDecoded.add(function() {
+            menuMusic.play();
+        }, this);
+        menuMusic.onStop.add(function() {
+            this.state.start('play', false, false, player, menuMusic);
+        }, this);
+        
     }
 
     function moveUp() {
@@ -106200,7 +106222,7 @@ module.exports = (function(){
     const PLAYER_START_Y = 120;
     const PLAYER_START_X = 210;
     const SPAWN_DISTANCE = -20;
-    const AUDIO_FADE_DURATION = 7300;
+
     const SPEED_UP_FREQUENCY = 1;
     const INSTABILITY_THRESHOLD = 2;
 
@@ -106212,7 +106234,6 @@ module.exports = (function(){
     var player;
     var explosionSpawn; // TODO: Create own module for explosionspawn
     
-    var startMusic;
     var mainMusic = [];
 
     var intervalMargin = 0;
@@ -106220,11 +106241,9 @@ module.exports = (function(){
     var thrustFrequency = 0;
 
     // Receive already loaded assets from menu scene
-    function init(p, menuMusic) {
+    function init(p) {
         player = p;
         this.physics.p2.enable(player);
-
-        menuMusic.fadeOut(1000);
     }
 
     function create() {
@@ -106235,14 +106254,10 @@ module.exports = (function(){
 
         // Music
         mainMusic = this.add.audio('mainMusic');
-
-        startMusic = this.add.audio('startMusic');
-        startMusic.onStop.add(function() {
-            mainMusic.play('', 0, 1, true);
+        mainMusic.onDecoded.add(function() {
+            mainMusic.play();
         }, this);
-        startMusic.onDecoded.add(function() {
-            startMusic.fadeIn(AUDIO_FADE_DURATION);
-        }, this);
+        
         var boomSound = this.add.audio('boom');
         boomSound.volume = 0.05;
 

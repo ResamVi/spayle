@@ -2,6 +2,7 @@ module.exports = (function(){
 
     const PLAYER_START_Y = 270;
     const PLAYER_START_X = 205;
+    const AUDIO_FADE_DURATION = 4000;
 
     var player;
     var planet;
@@ -12,6 +13,7 @@ module.exports = (function(){
     var backButton;
 
     var menuMusic;
+    var startMusic;
 
     function create() {
         
@@ -63,11 +65,29 @@ module.exports = (function(){
     }
 
     function play() {
-        title.destroy();
-        startButton.destroy();
-        optionButton.destroy();
-        backButton.destroy();
-        this.state.start('play', false, false, player, menuMusic);
+        
+        this.add.tween(title).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+        this.add.tween(startButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+        this.add.tween(optionButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+        this.add.tween(backButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+
+        // TODO: Destroy on tween finish
+
+        menuMusic.fadeOut(1000);
+
+        startMusic = this.add.audio('startMusic');
+        startMusic.onDecoded.add(function() {
+            startMusic.fadeIn(AUDIO_FADE_DURATION);
+        }, this);
+
+        menuMusic = this.add.audio('ignition');
+        menuMusic.onDecoded.add(function() {
+            menuMusic.play();
+        }, this);
+        menuMusic.onStop.add(function() {
+            this.state.start('play', false, false, player, menuMusic);
+        }, this);
+        
     }
 
     function moveUp() {
