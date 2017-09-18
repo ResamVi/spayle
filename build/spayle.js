@@ -106049,10 +106049,6 @@ module.exports = (function(){
         this.load.audio('startMusic', 'assets/start.mp3');
         this.load.audio('menuMusic', 'assets/menu.mp3');
         this.load.audio('mainMusic', 'assets/main.mp3');
-        this.load.audio('lowPitch', 'assets/main_pitch_1.mp3');
-        this.load.audio('mediumPitch', 'assets/main_pitch_2.mp3');
-        this.load.audio('highPitch', 'assets/main_pitch_3.mp3');
-        this.load.audio('highestPitch', 'assets/main_pitch_4.mp3');
         this.load.audio('boom', 'assets/boom.mp3');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
         this.load.image('empty', 'assets/empty.png');
@@ -106222,7 +106218,6 @@ module.exports = (function(){
     var intervalMargin = 0;
     var velocityBonus = 0;
     var thrustFrequency = 0;
-    var currentPitch = 0;
 
     // Receive already loaded assets from menu scene
     function init(p, menuMusic) {
@@ -106239,15 +106234,11 @@ module.exports = (function(){
         explosionSpawn.anchor.setTo(0.5);
 
         // Music
-        mainMusic[0] = this.add.audio('mainMusic');
-        mainMusic[1] = this.add.audio('lowPitch');
-        mainMusic[2] = this.add.audio('mediumPitch');
-        mainMusic[3] = this.add.audio('highPitch');
-        mainMusic[4] = this.add.audio('highestPitch');
+        mainMusic = this.add.audio('mainMusic');
 
         startMusic = this.add.audio('startMusic');
         startMusic.onStop.add(function() {
-            mainMusic[0].play('', 0, 1, true);
+            mainMusic.play('', 0, 1, true);
         }, this);
         startMusic.onDecoded.add(function() {
             startMusic.fadeIn(AUDIO_FADE_DURATION);
@@ -106292,7 +106283,6 @@ module.exports = (function(){
 
         updateSpawn.call(this);
         updateAcceleration.call(this);
-        updateMusic.call(this);
 
         // Keep the player moving
         player.body.thrust(100);
@@ -106305,15 +106295,6 @@ module.exports = (function(){
         }else{
             player.body.setZeroRotation();
         }
-    }
-    
-    function updateMusic() {
-        if(currentPitch < mainMusic.length && currentPitch < velocityBonus) {
-            let currentTime = mainMusic[currentPitch].currentTime;
-            mainMusic[currentPitch].stop();
-            mainMusic[++currentPitch].play('', currentTime, 1, true);
-        }
-
     }
 
     function updateAcceleration() {
