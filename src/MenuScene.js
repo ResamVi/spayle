@@ -1,6 +1,7 @@
 module.exports = (function(){
 
     const Const = require('./Constants.js');
+    const Player = require('./Player.js');
 
     var player;
     var planet;
@@ -32,9 +33,7 @@ module.exports = (function(){
         planet.pivot.set(Const.ORBIT_RADIUS);
 
         // Player
-        player = this.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player');
-        player.anchor.setTo(0.5);
-        player.angle = Const.PLAYER_START_ANGLE;
+        player = new Player(this);
 
         // Title
         title = this.add.bitmapText(0, 0, 'menuFont', 'SPAYLE', 80);

@@ -106159,10 +106159,11 @@ game.state.add('play', require('./PlayScene.js'));
 
 game.state.start('boot');
 
-},{"./BootScene.js":3,"./LoadScene.js":5,"./MenuScene.js":7,"./PlayScene.js":8,"./SplashScene.js":9,"phaser-ce":2}],7:[function(require,module,exports){
+},{"./BootScene.js":3,"./LoadScene.js":5,"./MenuScene.js":7,"./PlayScene.js":8,"./SplashScene.js":10,"phaser-ce":2}],7:[function(require,module,exports){
 module.exports = (function(){
 
     const Const = require('./Constants.js');
+    const Player = require('./Player.js');
 
     var player;
     var planet;
@@ -106194,9 +106195,7 @@ module.exports = (function(){
         planet.pivot.set(Const.ORBIT_RADIUS);
 
         // Player
-        player = this.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player');
-        player.anchor.setTo(0.5);
-        player.angle = Const.PLAYER_START_ANGLE;
+        player = new Player(this);
 
         // Title
         title = this.add.bitmapText(0, 0, 'menuFont', 'SPAYLE', 80);
@@ -106274,7 +106273,7 @@ module.exports = (function(){
 
     return { create: create, update: update, render: render};
 })();
-},{"./Constants.js":4}],8:[function(require,module,exports){
+},{"./Constants.js":4,"./Player.js":9}],8:[function(require,module,exports){
 module.exports = (function(){
     
     var Const = require('./Constants.js');
@@ -106283,34 +106282,23 @@ module.exports = (function(){
     var wasd;
     
     var player;
-    var explosionSpawn; // TODO: Create own module for explosionspawn
     
-    var mainMusic = [];
+    var mainMusic;
 
-    var intervalMargin = 0;
-    var velocityBonus = 0;
-    var thrustFrequency = 0;
-
-    // Receive already loaded assets from menu scene
-    function init(p) {
-        player = p;
-        this.physics.p2.enable(player);
+    // Receive already loaded player from menu scene
+    function init(args) {
+        player = args;
+        this.physics.p2.enable(player.sprite);
+        player.body = player.sprite.body;
     }
 
     function create() {
-
-        // Explosion Spawn
-        explosionSpawn = this.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'empty');
-        explosionSpawn.anchor.setTo(0.5);
 
         // Music
         mainMusic = this.add.audio('mainMusic');
         mainMusic.onDecoded.add(function() {
             mainMusic.play();
         }, this);
-        
-        var boomSound = this.add.audio('boom');
-        boomSound.volume = 0.05;
 
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
@@ -106318,28 +106306,15 @@ module.exports = (function(){
             right: this.input.keyboard.addKey(Phaser.Keyboard.D),
             left: this.input.keyboard.addKey(Phaser.Keyboard.A)
         };
-    
-        var thrust = function() {
-            thrustFrequency++;
-            
-            boomSound.play();
 
-            this.camera.shake(0.01, 100, false);
-
-            var explosion = this.add.sprite(explosionSpawn.x, explosionSpawn.y, 'explosionAtlas');
-            var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1);
-            explosion.anchor.setTo(0.5);
-            explosion.scale.setTo(2, 2);
-            explosion.animations.add('explode', frames, 60, false, true).play();
-
-            player.body.setZeroVelocity();            
-            var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
-            player.body.thrust(acceleration);
+        var test = function() {
+            console.log('OW');
+            player.body.thrustLeft(100000);
         };
 
-        this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(thrust, this);
-        this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
-        this.camera.follow(player, null, 0.5, 0.5);
+        this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(test, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, this);
+        this.camera.follow(player.sprite, null, 0.5, 0.5);
 
         player.body.thrust(Const.LAUNCH_FORCE);
     }
@@ -106347,8 +106322,9 @@ module.exports = (function(){
     
     function update() { // TODO: Create a proper game loop here
 
-        updateSpawn.call(this);
-        updateAcceleration.call(this);
+        console.log(player.body.angularVelocity);
+
+        player.update();
 
         // Keep the player moving
         player.body.thrust(100);
@@ -106361,29 +106337,6 @@ module.exports = (function(){
             player.body.setZeroRotation();
     }
 
-    function updateAcceleration() {
-        if(this.game.time.totalElapsedSeconds() > intervalMargin) {
-            intervalMargin += 1;
-            
-            if(thrustFrequency > Const.SPEED_UP_FREQUENCY) velocityBonus++; // Increase
-            else if (velocityBonus / 2 > 1) velocityBonus /= 2; // Decrease
-            else  velocityBonus = 0; // Round down to zero
-            
-            thrustFrequency = 0;
-        }
-
-        if(velocityBonus > Const.INSTABILITY_THRESHOLD)
-            this.camera.shake(0.002 * velocityBonus, 2000, false);
-    }
-
-    function updateSpawn() {    
-        var xAngle = Math.cos(player.rotation - this.math.HALF_PI);
-        var yAngle = Math.sin(player.rotation - this.math.HALF_PI);
-        
-        explosionSpawn.x = player.x + xAngle * Const.SPAWN_DISTANCE;
-        explosionSpawn.y = player.y + yAngle * Const.SPAWN_DISTANCE;
-    }
-
     function render() {
         
         if(Const.DEBUG_MODE) {
@@ -106391,15 +106344,13 @@ module.exports = (function(){
             var y = player.body.velocity.y;
             var v = Math.round(Math.sqrt(x*x + y*y));
             
-            this.game.debug.spriteInfo(player, 32, 180);
+            this.game.debug.spriteInfo(player.sprite, 32, 180);
             this.game.debug.body(player);
             this.game.debug.text('Velocity: ' + v , 32, 550);
             this.game.debug.cameraInfo(this.camera, 32, 32);
-            this.game.debug.spriteCoords(player, 32, 500);
-            this.game.debug.body(player);
+            this.game.debug.spriteCoords(player.sprite, 32, 500);
+            this.game.debug.body(player.sprite);
 
-            this.game.debug.text('velBonus: ' + velocityBonus, 32, 350);
-            this.game.debug.text('thrustFreq: ' + thrustFrequency, 32, 380);
             this.game.debug.text('Elapsed seconds: ' + this.game.time.totalElapsedSeconds(), 32, 400);
         }
     }
@@ -106407,6 +106358,88 @@ module.exports = (function(){
     return { init: init, create: create, update: update, render: render};
 })();
 },{"./Constants.js":4}],9:[function(require,module,exports){
+module.exports = function Player(game) {
+    
+    // To use constants in this module
+    var Const = require('./Constants.js');
+    
+    // This object keeps track and exposes the sprite
+    var sprite = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player');
+    sprite.anchor.setTo(0.5);
+    sprite.angle = Const.PLAYER_START_ANGLE;
+    this.sprite = sprite;
+
+    // The coordinates of the explosion spawn are used when the animation is triggered
+    var explosionSpawn = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'empty');
+    explosionSpawn.anchor.setTo(0.5);
+
+    // Boom sound for thrusting
+    var boomSound = game.add.audio('boom');
+    boomSound.volume = 0.05;
+    
+    // Keep track of thrust frequency and adjust "instability mode" accordingly
+    var thrustFrequency = 0;
+    var intervalMargin = 0;
+    var velocityBonus = 0;
+
+    // Do animation, camera and sound effects
+    var fireEngine = function() {
+        var explosion = game.add.sprite(explosionSpawn.x, explosionSpawn.y, 'explosionAtlas');
+        var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1);
+        explosion.anchor.setTo(0.5);
+        explosion.scale.setTo(2, 2);
+        explosion.animations.add('explode', frames, 60, false, true).play();
+        
+        boomSound.play();
+        game.camera.shake(0.01, 100, false);
+    };
+
+    // Apply the physics
+    this.thrust = function() {
+        fireEngine();
+        thrustFrequency++;
+        sprite.body.setZeroVelocity();            
+        var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
+        sprite.body.thrust(acceleration);
+    };
+
+    this.loseControl = function() {
+        console.log('OW');
+        sprite.body.thrustLeft(100);
+    };
+
+    // This has to be called in the game loop for each frame
+    this.update = function() {
+        updateSpawn();
+        updateAcceleration();
+    };
+
+    // Given how the rocket ship is angled, calculate the explosion spawn coordinates
+    var updateSpawn = function() {    
+        var xAngle = Math.cos(sprite.rotation - game.math.HALF_PI);
+        var yAngle = Math.sin(sprite.rotation - game.math.HALF_PI);
+        
+        explosionSpawn.x = sprite.x + xAngle * Const.SPAWN_DISTANCE;
+        explosionSpawn.y = sprite.y + yAngle * Const.SPAWN_DISTANCE;
+    };
+
+    // Given the frequency, increase the the camera shake with higher frequency
+    var updateAcceleration = function() {
+        if(game.time.totalElapsedSeconds() > intervalMargin) {
+            intervalMargin += 1;
+            
+            if(thrustFrequency > Const.SPEED_UP_FREQUENCY) this.velocityBonus++; // Increase
+            else if (velocityBonus / 2 > 1) velocityBonus /= 2; // Decrease
+            else  velocityBonus = 0; // Round down to zero
+            
+            thrustFrequency = 0;
+        }
+
+        if(velocityBonus > Const.INSTABILITY_THRESHOLD)
+            game.camera.shake(0.002 * velocityBonus, 2000, false);
+    };
+};
+},{"./Constants.js":4}],10:[function(require,module,exports){
 module.exports = (function(){
     
     const FADE_IN_DURATION = 1000;
