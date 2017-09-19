@@ -106010,12 +106010,55 @@ module.exports = (function(){
     return { create: create};
 })();
 },{}],4:[function(require,module,exports){
+module.exports = {
+    
+    // DEBUG MODE
+    DEBUG_MODE: true,
+
+    // MenuScene Constants
+    PLAYER_START_Y: 270,
+    PLAYER_START_X: 205,
+    PLAYER_START_ANGLE: 110,
+
+    LOADBAR_WIDTH: 320,
+    LOADBAR_OFFSET: 20,
+
+    AUDIO_FADE_DURATION: 4000,
+
+    FADE_OUT: [{alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0],
+
+    ORBIT_SPEED: 0.005,
+    ORBIT_RADIUS: 2000,
+    
+    TITLE_X_OFFSET: 180,
+    TITLE_Y_OFFSET: 150,
+
+    BUTTON_X: 180,
+    START_BUTTON: ['yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png'],
+    OPTION_BUTTON: ['grey_button02.png', 'grey_button01.png', 'grey_button02.png'],
+    INVISIBLE: 0,
+
+    TITLE_BOUNCE: [{x: 1.1, y: 1.1}, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true],
+    MAIN_MENU: [{y: 0}, 1500, Phaser.Easing.Cubic.Out, true],
+    OPTION_MENU: [{y: 700}, 1500, Phaser.Easing.Cubic.Out, true],
+    
+    // PlayScene Constants
+    ROTATION_SPEED: 100,
+    THRUST_FORCE: 50000,
+    LAUNCH_FORCE: 100000,
+    SPAWN_DISTANCE: -20,
+    SPEED_UP_FREQUENCY: 1,
+    INSTABILITY_THRESHOLD: 2,
+};
+},{}],5:[function(require,module,exports){
 module.exports = (function(){
     
     var progressText;
+    var Const = require('./Constants.js');
 
     function preload() {
         this.load.bitmapFont('font','assets/font_0.png', 'assets/font.fnt');
+        this.load.image('preloadbar', 'assets/loadbar.png');
     }
 
     function create() {
@@ -106026,20 +106069,29 @@ module.exports = (function(){
         this.load.onLoadComplete.add(loadComplete, this);
 
         // Display and center load text
-        var loadText = this.add.bitmapText(10, 10, 'font', 'Loading');
+        var loadText = this.add.bitmapText(0, 0, 'font', 'Loading');
         loadText.updateTransform();
         var centerX = this.game.width / 2 - (loadText.textWidth * 0.5);
         var centerY = this.game.height / 2 - (loadText.textHeight * 0.5);
-        loadText.position.x = centerX;
-        loadText.position.y = centerY - 90;
+        loadText.x = centerX;
+        loadText.y = centerY - 90;
         
         // Display and center current progress text
-        progressText = this.add.bitmapText(10, 10, 'font', '0%');
+        progressText = this.add.bitmapText(0, 0, 'font', '0%');
         progressText.updateTransform();
         centerX = this.game.width / 2 - (progressText.textWidth * 0.5);
         centerY = this.game.height / 2 - (progressText.textHeight * 0.5);
-        progressText.position.x = centerX;
-        progressText.position.y = centerY;
+        progressText.x = centerX;
+        progressText.y = centerY;
+
+        // Loadbar
+        var preloadBar = this.add.sprite(10, 30, 'preloadbar');
+        preloadBar.updateTransform();
+        centerX = this.game.width / 2;
+        centerY = this.game.height / 2;
+        preloadBar.x = centerX - Const.LOADBAR_WIDTH / 2;
+        preloadBar.y = centerY + Const.LOADBAR_OFFSET;
+        this.load.setPreloadSprite(preloadBar);
 
         queueFiles.call(this);
     }
@@ -106067,29 +106119,34 @@ module.exports = (function(){
     }
 
     function loadStart() {
-        //console.log('Start loading');
+        if(Const.DEBUG_MODE) {
+            console.log('Start loading');
+        }
     }
 
-    function fileComplete(progress /*, cacheKey, success, totalLoaded, totalFiles*/) {
-        //console.log('--- Completed file ---');
-        //console.log('progress: ' + progress);
-        //console.log('cacheKey: ' + cacheKey);
-        //console.log('success: ' + success);
-        //console.log('totalLoaded: ' + totalLoaded);
-        //console.log('totalFiles: ' + totalFiles);
-        //console.log('\n');
+    function fileComplete(progress , cacheKey, success, totalLoaded, totalFiles) {
+        if(Const.DEBUG_MODE) {
+            console.log('--- Completed file ---');
+            console.log('progress: ' + progress);
+            console.log('cacheKey: ' + cacheKey);
+            console.log('success: ' + success);
+            console.log('totalLoaded: ' + totalLoaded);
+            console.log('totalFiles: ' + totalFiles);
+            console.log('\n');
+        }
         progressText.setText(progress + '%');
     }
 
     function loadComplete() {
-        //console.log("Finished");
-        //console.log('Load complete');
+        if(Const.DEBUG_MODE) {
+            console.log('Load complete');
+        }
         this.state.start('menu');
     }
     
     return { preload: preload, create: create};
 })();
-},{}],5:[function(require,module,exports){
+},{"./Constants.js":4}],6:[function(require,module,exports){
 var Phaser = require('phaser-ce');
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
@@ -106102,12 +106159,10 @@ game.state.add('play', require('./PlayScene.js'));
 
 game.state.start('boot');
 
-},{"./BootScene.js":3,"./LoadScene.js":4,"./MenuScene.js":6,"./PlayScene.js":7,"./SplashScene.js":8,"phaser-ce":2}],6:[function(require,module,exports){
+},{"./BootScene.js":3,"./LoadScene.js":5,"./MenuScene.js":7,"./PlayScene.js":8,"./SplashScene.js":9,"phaser-ce":2}],7:[function(require,module,exports){
 module.exports = (function(){
 
-    const PLAYER_START_Y = 270;
-    const PLAYER_START_X = 205;
-    const AUDIO_FADE_DURATION = 4000;
+    const Const = require('./Constants.js');
 
     var player;
     var planet;
@@ -106120,69 +106175,72 @@ module.exports = (function(){
     var menuMusic;
     var startMusic;
 
+    var centerX;
+    var centerY;
+
     function create() {
         
+        // Center of screen (not the world!)
+        centerX = this.camera.width / 2;
+        centerY = this.camera.height / 2;
+
         // Background
         this.add.sprite(0, 0, 'background');
 
         // Moon
-        planet = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'moon');
+        planet = this.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'moon');
         planet.anchor.setTo(0.5, 0.5);
         planet.scale.setTo(0.1, 0.1);
-        planet.pivot.set(2000);
+        planet.pivot.set(Const.ORBIT_RADIUS);
 
         // Player
-        player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
+        player = this.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player');
         player.anchor.setTo(0.5);
-        player.angle = 110;
+        player.angle = Const.PLAYER_START_ANGLE;
 
         // Title
-        title = this.add.bitmapText(10, 10, 'menuFont', 'SPAYLE', 80);
+        title = this.add.bitmapText(0, 0, 'menuFont', 'SPAYLE', 80);
         title.updateTransform();
         title.anchor.setTo(0.5, 0.5);
-        var centerX = this.game.width / 2 - (title.textWidth * 0.5); // TODO: Create a utils function?
-        var centerY = this.game.height / 2 - (title.textHeight * 0.5);
-        title.position.x = centerX + 270;
-        title.position.y = centerY - 150;
-        this.add.tween(title.scale).to( {x: 1.1, y: 1.1}, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true);
+        title.position.x = centerX + Const.TITLE_X_OFFSET;
+        title.position.y = centerY - Const.TITLE_Y_OFFSET;
+        this.add.tween(title.scale).to( ...Const.TITLE_BOUNCE);
 
         // Buttons
-        startButton = createButton.call(this, 190, 80, 1.5, play, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
-        optionButton = createButton.call(this, 190, 250, 1.5, moveDown, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
-        backButton = createButton.call(this, 190, 950, 1.5, moveUp, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
+        startButton = createButton.call(this, 0, 1.5, play, 'buttonAtlas', ...Const.START_BUTTON);
+        optionButton = createButton.call(this, 120, 1.5, moveDown, 'buttonAtlas', ...Const.OPTION_BUTTON);
+        backButton = createButton.call(this, 850, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
 
         // Music
         menuMusic = this.add.audio('menuMusic');
         menuMusic.onDecoded.add(function() {
-            menuMusic.fadeIn(5000, true);
+            menuMusic.fadeIn(Const.AUDIO_FADE_DURATION, true);
         }, this);
     }
     
-    function createButton(x, y, scale, func, atlas, onHover, onIdle, onClick) {
+    function createButton(y, scale, func, atlas, onHover, onIdle, onClick) {
         var button = this.add.button(0, 0, atlas, func, this, onHover, onIdle, onClick, onIdle);
-        var centerX = this.game.width / 2 - (button.width * 0.5);
-        var centerY = this.game.height / 2 - (button.width * 0.5);
         button.anchor.setTo(0.5, 0.5);
         button.scale.setTo(scale, scale);
-        button.x = centerX + x;
+        button.x = centerX + Const.BUTTON_X;
         button.y = centerY + y;
         return button;
     }
 
     function play() {
         
-        this.add.tween(title).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-        this.add.tween(startButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-        this.add.tween(optionButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-        this.add.tween(backButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-
-        // TODO: Destroy on tween finish
+        for(var sprite of [title, startButton, optionButton, backButton]) {
+            var t = this.add.tween(sprite).to(...Const.FADE_OUT);
+            t.onComplete.add(function(invisibleSprite) {
+                invisibleSprite.destroy();
+            });
+        }
 
         menuMusic.fadeOut(1000);
 
         startMusic = this.add.audio('startMusic');
         startMusic.onDecoded.add(function() {
-            startMusic.fadeIn(AUDIO_FADE_DURATION);
+            startMusic.fadeIn(Const.AUDIO_FADE_DURATION);
         }, this);
 
         menuMusic = this.add.audio('ignition');
@@ -106196,15 +106254,15 @@ module.exports = (function(){
     }
 
     function moveUp() {
-        this.add.tween(this.camera).to({y: 0}, 1500, Phaser.Easing.Cubic.Out, true);
+        this.add.tween(this.camera).to(...Const.MAIN_MENU);
     }
 
     function moveDown() {
-        this.add.tween(this.camera).to({y: 700}, 1500, Phaser.Easing.Cubic.Out, true);
+        this.add.tween(this.camera).to(...Const.OPTION_MENU);
     }
 
     function update() {
-        planet.rotation += 0.005;
+        planet.rotation += Const.ORBIT_SPEED;
     }
 
     function render() {
@@ -106214,20 +106272,10 @@ module.exports = (function(){
 
     return { create: create, update: update, render: render};
 })();
-},{}],7:[function(require,module,exports){
+},{"./Constants.js":4}],8:[function(require,module,exports){
 module.exports = (function(){
     
-    const ROTATION_SPEED = 100; // TODO: Create own file for constants
-    const THRUST_FORCE = 50000; //50000
-    const LAUNCH_FORCE = 100000;
-    const PLAYER_START_Y = 120;
-    const PLAYER_START_X = 210;
-    const SPAWN_DISTANCE = -20;
-
-    const SPEED_UP_FREQUENCY = 1;
-    const INSTABILITY_THRESHOLD = 2;
-
-    var debugMode = true;
+    var Const = require('./Constants.js');
 
     var arrowkeys;
     var wasd;
@@ -106250,7 +106298,7 @@ module.exports = (function(){
     function create() {
 
         // Explosion Spawn
-        explosionSpawn = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'empty');
+        explosionSpawn = this.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'empty');
         explosionSpawn.anchor.setTo(0.5);
 
         // Music
@@ -106283,7 +106331,7 @@ module.exports = (function(){
             explosion.animations.add('explode', frames, 60, false, true).play();
 
             player.body.setZeroVelocity();            
-            var acceleration = THRUST_FORCE + THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
+            var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
             player.body.thrust(acceleration);
         };
 
@@ -106291,7 +106339,7 @@ module.exports = (function(){
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
         this.camera.follow(player, null, 0.5, 0.5);
 
-        player.body.thrust(LAUNCH_FORCE);
+        player.body.thrust(Const.LAUNCH_FORCE);
     }
     
     
@@ -106303,28 +106351,26 @@ module.exports = (function(){
         // Keep the player moving
         player.body.thrust(100);
 
-        if (arrowkeys.left.isDown || wasd.left.isDown) {
-            player.body.rotateLeft(ROTATION_SPEED);
-        }
-        else if (arrowkeys.right.isDown || wasd.right.isDown) {
-            player.body.rotateRight(ROTATION_SPEED);
-        }else{
+        if (arrowkeys.left.isDown || wasd.left.isDown) 
+            player.body.rotateLeft(Const.ROTATION_SPEED);
+        else if (arrowkeys.right.isDown || wasd.right.isDown)
+            player.body.rotateRight(Const.ROTATION_SPEED);
+        else
             player.body.setZeroRotation();
-        }
     }
 
     function updateAcceleration() {
         if(this.game.time.totalElapsedSeconds() > intervalMargin) {
             intervalMargin += 1;
             
-            if(thrustFrequency > SPEED_UP_FREQUENCY) velocityBonus++; // Increase
+            if(thrustFrequency > Const.SPEED_UP_FREQUENCY) velocityBonus++; // Increase
             else if (velocityBonus / 2 > 1) velocityBonus /= 2; // Decrease
             else  velocityBonus = 0; // Round down to zero
             
             thrustFrequency = 0;
         }
 
-        if(velocityBonus > INSTABILITY_THRESHOLD)
+        if(velocityBonus > Const.INSTABILITY_THRESHOLD)
             this.camera.shake(0.002 * velocityBonus, 2000, false);
     }
 
@@ -106332,13 +106378,13 @@ module.exports = (function(){
         var xAngle = Math.cos(player.rotation - this.math.HALF_PI);
         var yAngle = Math.sin(player.rotation - this.math.HALF_PI);
         
-        explosionSpawn.x = player.x + xAngle * SPAWN_DISTANCE;
-        explosionSpawn.y = player.y + yAngle * SPAWN_DISTANCE;
+        explosionSpawn.x = player.x + xAngle * Const.SPAWN_DISTANCE;
+        explosionSpawn.y = player.y + yAngle * Const.SPAWN_DISTANCE;
     }
 
     function render() {
         
-        if(debugMode) {
+        if(Const.DEBUG_MODE) {
             var x = player.body.velocity.x;
             var y = player.body.velocity.y;
             var v = Math.round(Math.sqrt(x*x + y*y));
@@ -106358,7 +106404,7 @@ module.exports = (function(){
 
     return { init: init, create: create, update: update, render: render};
 })();
-},{}],8:[function(require,module,exports){
+},{"./Constants.js":4}],9:[function(require,module,exports){
 module.exports = (function(){
     
     const FADE_IN_DURATION = 1000;
@@ -106393,4 +106439,4 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{}]},{},[5]);
+},{}]},{},[6]);

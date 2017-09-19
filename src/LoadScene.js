@@ -5,6 +5,7 @@ module.exports = (function(){
 
     function preload() {
         this.load.bitmapFont('font','assets/font_0.png', 'assets/font.fnt');
+        this.load.image('preloadbar', 'assets/loadbar.png');
     }
 
     function create() {
@@ -15,20 +16,29 @@ module.exports = (function(){
         this.load.onLoadComplete.add(loadComplete, this);
 
         // Display and center load text
-        var loadText = this.add.bitmapText(10, 10, 'font', 'Loading');
+        var loadText = this.add.bitmapText(0, 0, 'font', 'Loading');
         loadText.updateTransform();
         var centerX = this.game.width / 2 - (loadText.textWidth * 0.5);
         var centerY = this.game.height / 2 - (loadText.textHeight * 0.5);
-        loadText.position.x = centerX;
-        loadText.position.y = centerY - 90;
+        loadText.x = centerX;
+        loadText.y = centerY - 90;
         
         // Display and center current progress text
-        progressText = this.add.bitmapText(10, 10, 'font', '0%');
+        progressText = this.add.bitmapText(0, 0, 'font', '0%');
         progressText.updateTransform();
         centerX = this.game.width / 2 - (progressText.textWidth * 0.5);
         centerY = this.game.height / 2 - (progressText.textHeight * 0.5);
-        progressText.position.x = centerX;
-        progressText.position.y = centerY;
+        progressText.x = centerX;
+        progressText.y = centerY;
+
+        // Loadbar
+        var preloadBar = this.add.sprite(10, 30, 'preloadbar');
+        preloadBar.updateTransform();
+        centerX = this.game.width / 2;
+        centerY = this.game.height / 2;
+        preloadBar.x = centerX - Const.LOADBAR_WIDTH / 2;
+        preloadBar.y = centerY + Const.LOADBAR_OFFSET;
+        this.load.setPreloadSprite(preloadBar);
 
         queueFiles.call(this);
     }

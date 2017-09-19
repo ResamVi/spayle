@@ -13,8 +13,15 @@ module.exports = (function(){
     var menuMusic;
     var startMusic;
 
+    var centerX;
+    var centerY;
+
     function create() {
         
+        // Center of screen (not the world!)
+        centerX = this.camera.width / 2;
+        centerY = this.camera.height / 2;
+
         // Background
         this.add.sprite(0, 0, 'background');
 
@@ -33,16 +40,14 @@ module.exports = (function(){
         title = this.add.bitmapText(0, 0, 'menuFont', 'SPAYLE', 80);
         title.updateTransform();
         title.anchor.setTo(0.5, 0.5);
-        var centerX = this.game.width / 2 - (title.textWidth * 0.5); // TODO: Create a utils function?
-        var centerY = this.game.height / 2 - (title.textHeight * 0.5);
         title.position.x = centerX + Const.TITLE_X_OFFSET;
         title.position.y = centerY - Const.TITLE_Y_OFFSET;
         this.add.tween(title.scale).to( ...Const.TITLE_BOUNCE);
 
         // Buttons
-        startButton = createButton.call(this, Const.BUTTON_X, 80, 1.5, play, 'buttonAtlas', ...Const.START_BUTTON);
-        optionButton = createButton.call(this, Const.BUTTON_X, 250, 1.5, moveDown, 'buttonAtlas', ...Const.OPTION_BUTTON);
-        backButton = createButton.call(this, Const.BUTTON_X, 950, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
+        startButton = createButton.call(this, 0, 1.5, play, 'buttonAtlas', ...Const.START_BUTTON);
+        optionButton = createButton.call(this, 120, 1.5, moveDown, 'buttonAtlas', ...Const.OPTION_BUTTON);
+        backButton = createButton.call(this, 850, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
 
         // Music
         menuMusic = this.add.audio('menuMusic');
@@ -51,13 +56,11 @@ module.exports = (function(){
         }, this);
     }
     
-    function createButton(x, y, scale, func, atlas, onHover, onIdle, onClick) {
+    function createButton(y, scale, func, atlas, onHover, onIdle, onClick) {
         var button = this.add.button(0, 0, atlas, func, this, onHover, onIdle, onClick, onIdle);
-        var centerX = this.game.width / 2 - (button.width * 0.5);
-        var centerY = this.game.height / 2 - (button.width * 0.5);
         button.anchor.setTo(0.5, 0.5);
         button.scale.setTo(scale, scale);
-        button.x = centerX + x;
+        button.x = centerX + Const.BUTTON_X;
         button.y = centerY + y;
         return button;
     }
@@ -89,11 +92,11 @@ module.exports = (function(){
     }
 
     function moveUp() {
-        this.add.tween(this.camera).to(...Const.OPTION_MENU);
+        this.add.tween(this.camera).to(...Const.MAIN_MENU);
     }
 
     function moveDown() {
-        this.add.tween(this.camera).to(...Const.MAIN_MENU);
+        this.add.tween(this.camera).to(...Const.OPTION_MENU);
     }
 
     function update() {
