@@ -1,16 +1,6 @@
 module.exports = (function(){
     
-    const ROTATION_SPEED = 100; // TODO: Create own file for constants
-    const THRUST_FORCE = 50000; //50000
-    const LAUNCH_FORCE = 100000;
-    const PLAYER_START_Y = 120;
-    const PLAYER_START_X = 210;
-    const SPAWN_DISTANCE = -20;
-
-    const SPEED_UP_FREQUENCY = 1;
-    const INSTABILITY_THRESHOLD = 2;
-
-    var debugMode = true;
+    var Const = require('./Constants.js');
 
     var arrowkeys;
     var wasd;
@@ -33,7 +23,7 @@ module.exports = (function(){
     function create() {
 
         // Explosion Spawn
-        explosionSpawn = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'empty');
+        explosionSpawn = this.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'empty');
         explosionSpawn.anchor.setTo(0.5);
 
         // Music
@@ -66,7 +56,7 @@ module.exports = (function(){
             explosion.animations.add('explode', frames, 60, false, true).play();
 
             player.body.setZeroVelocity();            
-            var acceleration = THRUST_FORCE + THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
+            var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
             player.body.thrust(acceleration);
         };
 
@@ -74,7 +64,7 @@ module.exports = (function(){
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
         this.camera.follow(player, null, 0.5, 0.5);
 
-        player.body.thrust(LAUNCH_FORCE);
+        player.body.thrust(Const.LAUNCH_FORCE);
     }
     
     
@@ -86,28 +76,26 @@ module.exports = (function(){
         // Keep the player moving
         player.body.thrust(100);
 
-        if (arrowkeys.left.isDown || wasd.left.isDown) {
-            player.body.rotateLeft(ROTATION_SPEED);
-        }
-        else if (arrowkeys.right.isDown || wasd.right.isDown) {
-            player.body.rotateRight(ROTATION_SPEED);
-        }else{
+        if (arrowkeys.left.isDown || wasd.left.isDown) 
+            player.body.rotateLeft(Const.ROTATION_SPEED);
+        else if (arrowkeys.right.isDown || wasd.right.isDown)
+            player.body.rotateRight(Const.ROTATION_SPEED);
+        else
             player.body.setZeroRotation();
-        }
     }
 
     function updateAcceleration() {
         if(this.game.time.totalElapsedSeconds() > intervalMargin) {
             intervalMargin += 1;
             
-            if(thrustFrequency > SPEED_UP_FREQUENCY) velocityBonus++; // Increase
+            if(thrustFrequency > Const.SPEED_UP_FREQUENCY) velocityBonus++; // Increase
             else if (velocityBonus / 2 > 1) velocityBonus /= 2; // Decrease
             else  velocityBonus = 0; // Round down to zero
             
             thrustFrequency = 0;
         }
 
-        if(velocityBonus > INSTABILITY_THRESHOLD)
+        if(velocityBonus > Const.INSTABILITY_THRESHOLD)
             this.camera.shake(0.002 * velocityBonus, 2000, false);
     }
 
@@ -115,13 +103,13 @@ module.exports = (function(){
         var xAngle = Math.cos(player.rotation - this.math.HALF_PI);
         var yAngle = Math.sin(player.rotation - this.math.HALF_PI);
         
-        explosionSpawn.x = player.x + xAngle * SPAWN_DISTANCE;
-        explosionSpawn.y = player.y + yAngle * SPAWN_DISTANCE;
+        explosionSpawn.x = player.x + xAngle * Const.SPAWN_DISTANCE;
+        explosionSpawn.y = player.y + yAngle * Const.SPAWN_DISTANCE;
     }
 
     function render() {
         
-        if(debugMode) {
+        if(Const.DEBUG_MODE) {
             var x = player.body.velocity.x;
             var y = player.body.velocity.y;
             var v = Math.round(Math.sqrt(x*x + y*y));

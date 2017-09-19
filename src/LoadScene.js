@@ -1,6 +1,7 @@
 module.exports = (function(){
     
     var progressText;
+    var Const = require('./Constants.js');
 
     function preload() {
         this.load.bitmapFont('font','assets/font_0.png', 'assets/font.fnt');
@@ -55,23 +56,28 @@ module.exports = (function(){
     }
 
     function loadStart() {
-        //console.log('Start loading');
+        if(Const.DEBUG_MODE) {
+            console.log('Start loading');
+        }
     }
 
-    function fileComplete(progress /*, cacheKey, success, totalLoaded, totalFiles*/) {
-        //console.log('--- Completed file ---');
-        //console.log('progress: ' + progress);
-        //console.log('cacheKey: ' + cacheKey);
-        //console.log('success: ' + success);
-        //console.log('totalLoaded: ' + totalLoaded);
-        //console.log('totalFiles: ' + totalFiles);
-        //console.log('\n');
+    function fileComplete(progress , cacheKey, success, totalLoaded, totalFiles) {
+        if(Const.DEBUG_MODE) {
+            console.log('--- Completed file ---');
+            console.log('progress: ' + progress);
+            console.log('cacheKey: ' + cacheKey);
+            console.log('success: ' + success);
+            console.log('totalLoaded: ' + totalLoaded);
+            console.log('totalFiles: ' + totalFiles);
+            console.log('\n');
+        }
         progressText.setText(progress + '%');
     }
 
     function loadComplete() {
-        //console.log("Finished");
-        //console.log('Load complete');
+        if(Const.DEBUG_MODE) {
+            console.log('Load complete');
+        }
         this.state.start('menu');
     }
     

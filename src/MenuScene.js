@@ -1,8 +1,6 @@
 module.exports = (function(){
 
-    const PLAYER_START_Y = 270;
-    const PLAYER_START_X = 205;
-    const AUDIO_FADE_DURATION = 4000;
+    const Const = require('./Constants.js');
 
     var player;
     var planet;
@@ -21,35 +19,35 @@ module.exports = (function(){
         this.add.sprite(0, 0, 'background');
 
         // Moon
-        planet = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'moon');
+        planet = this.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'moon');
         planet.anchor.setTo(0.5, 0.5);
         planet.scale.setTo(0.1, 0.1);
-        planet.pivot.set(2000);
+        planet.pivot.set(Const.ORBIT_RADIUS);
 
         // Player
-        player = this.add.sprite(PLAYER_START_X, PLAYER_START_Y, 'player');
+        player = this.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player');
         player.anchor.setTo(0.5);
-        player.angle = 110;
+        player.angle = Const.PLAYER_START_ANGLE;
 
         // Title
-        title = this.add.bitmapText(10, 10, 'menuFont', 'SPAYLE', 80);
+        title = this.add.bitmapText(0, 0, 'menuFont', 'SPAYLE', 80);
         title.updateTransform();
         title.anchor.setTo(0.5, 0.5);
         var centerX = this.game.width / 2 - (title.textWidth * 0.5); // TODO: Create a utils function?
         var centerY = this.game.height / 2 - (title.textHeight * 0.5);
-        title.position.x = centerX + 270;
-        title.position.y = centerY - 150;
-        this.add.tween(title.scale).to( {x: 1.1, y: 1.1}, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true);
+        title.position.x = centerX + Const.TITLE_X_OFFSET;
+        title.position.y = centerY - Const.TITLE_Y_OFFSET;
+        this.add.tween(title.scale).to( ...Const.TITLE_BOUNCE);
 
         // Buttons
-        startButton = createButton.call(this, 190, 80, 1.5, play, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
-        optionButton = createButton.call(this, 190, 250, 1.5, moveDown, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
-        backButton = createButton.call(this, 190, 950, 1.5, moveUp, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
+        startButton = createButton.call(this, Const.BUTTON_X, 80, 1.5, play, 'buttonAtlas', ...Const.START_BUTTON);
+        optionButton = createButton.call(this, Const.BUTTON_X, 250, 1.5, moveDown, 'buttonAtlas', ...Const.OPTION_BUTTON);
+        backButton = createButton.call(this, Const.BUTTON_X, 950, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
 
         // Music
         menuMusic = this.add.audio('menuMusic');
         menuMusic.onDecoded.add(function() {
-            menuMusic.fadeIn(5000, true);
+            menuMusic.fadeIn(Const.AUDIO_FADE_DURATION, true);
         }, this);
     }
     
@@ -66,18 +64,18 @@ module.exports = (function(){
 
     function play() {
         
-        this.add.tween(title).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-        this.add.tween(startButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-        this.add.tween(optionButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-        this.add.tween(backButton).to( {alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-
-        // TODO: Destroy on tween finish
+        for(var sprite of [title, startButton, optionButton, backButton]) {
+            var t = this.add.tween(sprite).to(...Const.FADE_OUT);
+            t.onComplete.add(function(invisibleSprite) {
+                invisibleSprite.destroy();
+            });
+        }
 
         menuMusic.fadeOut(1000);
 
         startMusic = this.add.audio('startMusic');
         startMusic.onDecoded.add(function() {
-            startMusic.fadeIn(AUDIO_FADE_DURATION);
+            startMusic.fadeIn(Const.AUDIO_FADE_DURATION);
         }, this);
 
         menuMusic = this.add.audio('ignition');
@@ -91,15 +89,15 @@ module.exports = (function(){
     }
 
     function moveUp() {
-        this.add.tween(this.camera).to({y: 0}, 1500, Phaser.Easing.Cubic.Out, true);
+        this.add.tween(this.camera).to(...Const.OPTION_MENU);
     }
 
     function moveDown() {
-        this.add.tween(this.camera).to({y: 700}, 1500, Phaser.Easing.Cubic.Out, true);
+        this.add.tween(this.camera).to(...Const.MAIN_MENU);
     }
 
     function update() {
-        planet.rotation += 0.005;
+        planet.rotation += Const.ORBIT_SPEED;
     }
 
     function render() {
