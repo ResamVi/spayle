@@ -106219,6 +106219,7 @@ module.exports = (function(){
     
     const ROTATION_SPEED = 100; // TODO: Create own file for constants
     const THRUST_FORCE = 50000; //50000
+    const LAUNCH_FORCE = 100000;
     const PLAYER_START_Y = 120;
     const PLAYER_START_X = 210;
     const SPAWN_DISTANCE = -20;
@@ -106290,7 +106291,7 @@ module.exports = (function(){
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(thrust, this);
         this.camera.follow(player, null, 0.5, 0.5);
 
-        
+        player.body.thrust(LAUNCH_FORCE);
     }
     
     
