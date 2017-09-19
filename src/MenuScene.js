@@ -67,6 +67,7 @@ module.exports = (function(){
 
     function play() {
         
+        // Fade out all menu items
         for(var sprite of [title, startButton, optionButton, backButton]) {
             var t = this.add.tween(sprite).to(...Const.FADE_OUT);
             t.onComplete.add(function(invisibleSprite) {
@@ -74,19 +75,20 @@ module.exports = (function(){
             });
         }
 
+        // Change music and start count down
         menuMusic.fadeOut(1000);
-
+        
         startMusic = this.add.audio('startMusic');
         startMusic.onDecoded.add(function() {
             startMusic.fadeIn(Const.AUDIO_FADE_DURATION);
         }, this);
 
-        menuMusic = this.add.audio('ignition');
-        menuMusic.onDecoded.add(function() {
-            menuMusic.play();
+        var countdown = this.add.audio('ignition');
+        countdown.onDecoded.add(function() {
+            countdown.play();
         }, this);
-        menuMusic.onStop.add(function() {
-            this.state.start('play', false, false, player, menuMusic);
+        countdown.onStop.add(function() {
+            this.state.start('play', false, false, player);
         }, this);
         
     }
