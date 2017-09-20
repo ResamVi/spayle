@@ -106049,6 +106049,18 @@ module.exports = {
     SPAWN_DISTANCE: -20,
     SPEED_UP_FREQUENCY: 1,
     INSTABILITY_THRESHOLD: 2,
+
+    // Player Constants
+    SHAKE_DURATION: 2000,
+    GAIN_CONTROL_BACK: [{force: 0}, 4000, Phaser.Easing.Quintic.Out, true],
+    SPIN_AMOUNT: 1000,
+    MINIMUM_SPEED: 100,
+    SMALL_EXPLOSION: 2,
+    SMALL_EXPLOSION_DISTANCE: -20,
+    BIG_EXPLOSION: 6,
+    BIG_EXPLOSION_DISTANCE: -20,
+    EXPLODE_ANIMATION_SETTINGS: ['explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true],
+    ACCEL_REPEAT_DURATION: 1000
 };
 },{}],5:[function(require,module,exports){
 module.exports = (function(){
@@ -106110,6 +106122,7 @@ module.exports = (function(){
         this.load.image('redPlanet', 'assets/red_planet.png');
         this.load.image('moon', 'assets/moon.png');
         this.load.image('player', 'assets/player.png');
+        this.load.image('playerFire', 'assets/player_fire.png');
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
@@ -106298,7 +106311,8 @@ module.exports = (function(){
 
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
-        this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.loseControl, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, this);
         
         this.camera.follow(player.sprite, null, 0.5, 0.5);
@@ -106356,36 +106370,51 @@ module.exports = function Player(game) {
     game.physics.p2.enable(sprite);
     this.body = sprite.body;
 
-    // The coordinates of the explosion spawn are used when the animation is triggered
-    var explosionSpawn = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'empty');
-    explosionSpawn.anchor.setTo(0.5);
-
     // Boom sound for thrusting
     var boomSound = game.add.audio('boom');
     boomSound.volume = 0.05;
     
-    // Keep track of thrust frequency and adjust "instability mode" accordingly
+    // Keep track of velocity which increases with thrustFrequency
     var thrustFrequency = 0;
-    var intervalMargin = 0;
     var velocityBonus = 0;
 
-    var isSpinning = false;
-    var currentTime = 0;
-    var spin = {force: 0};
+    // Possible states: 'ready', 'spinning', 'charging'
+    var state = 'ready';
+    
+    // This value is tweened, therefore object notation needed
+    var spin = {force: 0}; 
 
-    this.destroy = function() {
-        explosionSpawn.destroy();
-        sprite.destroy();
-        boomSound.destroy();
+    // Given the frequency, increase the the camera shake with higher frequency
+    var trackFrequency = function() {    
+
+        // Increase
+        if (thrustFrequency > Const.SPEED_UP_FREQUENCY) 
+            velocityBonus++;
+        // Decrease
+        else if (velocityBonus / 2 > 1) 
+            velocityBonus /= 2; 
+        // Round down to zero
+        else  
+            velocityBonus = 0; 
+            
+        thrustFrequency = 0;
+
+        // Go intro "instability mode" i.e. camera shakes due to high velocity
+        if(velocityBonus > Const.INSTABILITY_THRESHOLD)
+            game.camera.shake(0.002 * velocityBonus, Const.SHAKE_DURATION, false);
     };
 
+    // Keep track of thrust frequency and adjust "instability mode" accordingly
+    game.time.events.repeat(Const.ACCEL_REPEAT_DURATION, Number.POSITIVE_INFINITY, trackFrequency, this);
+
     // Do animation, camera and sound effects
-    var fireEngine = function() {
-        var explosion = game.add.sprite(explosionSpawn.x, explosionSpawn.y, 'explosionAtlas');
-        var frames = Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1);
+    var fireEngine = function(explosionSize, distanceFromShip) {
+        var position = calculateRearPosition(distanceFromShip);
+        
+        var explosion = game.add.sprite(position.x, position.y, 'explosionAtlas');
         explosion.anchor.setTo(0.5);
-        explosion.scale.setTo(2, 2);
-        explosion.animations.add('explode', frames, 60, false, true).play();
+        explosion.scale.setTo(explosionSize, explosionSize);
+        explosion.animations.add(...Const.EXPLODE_ANIMATION_SETTINGS).play();
         
         boomSound.play();
         game.camera.shake(0.01, 100, false);
@@ -106393,8 +106422,10 @@ module.exports = function Player(game) {
 
     // Apply the physics
     this.thrust = function() {
-        fireEngine();
+        fireEngine(Const.SMALL_EXPLOSION, Const.SMALL_EXPLOSION_DISTANCE);
+        
         thrustFrequency++;
+        
         sprite.body.setZeroVelocity();            
         var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
         sprite.body.thrust(acceleration);
@@ -106402,58 +106433,74 @@ module.exports = function Player(game) {
 
     // This has to be called in the game loop for each frame
     this.update = function() {
-        sprite.body.thrust(100);
-        updateSpawn();
-        updateAcceleration();
-        updateSpin();
+        
+        if(state === 'ready')
+            sprite.body.thrust(Const.MINIMUM_SPEED);
+        
+        if(state === 'spinning')
+            sprite.body.rotateLeft(spin.force);
+
+    };
+
+    var gainControl = function() {
+        var tween = game.add.tween(spin).to(...Const.GAIN_CONTROL_BACK);
+        tween.onComplete.add(function() {
+            state = 'ready';
+        });
     };
 
     this.loseControl = function() {
-        currentTime = game.time.totalElapsedSeconds();
-        isSpinning = true;
-        spin.force = 1000;
+        state = 'spinning';
+        spin.force = Const.SPIN_AMOUNT;
+
+        game.time.events.add(2000, gainControl, this);
     };
+
 
     this.isSpinning = function() {
-        return isSpinning;
+        return state === 'spinning';
     };
 
-    // Given how the rocket ship is angled, calculate the explosion spawn coordinates
-    var updateSpawn = function() {    
+    // These coordinates are used for spawning explosion animations,
+    // Given how the rocket ship is angled, calculate the coordinates
+    var calculateRearPosition = function(radius) {    
         var xAngle = Math.cos(sprite.rotation - game.math.HALF_PI);
         var yAngle = Math.sin(sprite.rotation - game.math.HALF_PI);
         
-        explosionSpawn.x = sprite.x + xAngle * Const.SPAWN_DISTANCE;
-        explosionSpawn.y = sprite.y + yAngle * Const.SPAWN_DISTANCE;
+        var position = {};
+        position.x = sprite.x + xAngle * radius;
+        position.y = sprite.y + yAngle * radius;
+
+        return position;
     };
 
-    // Given the frequency, increase the the camera shake with higher frequency
-    var updateAcceleration = function() {
-        if(game.time.totalElapsedSeconds() > intervalMargin) {
-            intervalMargin += 1;
-            
-            if(thrustFrequency > Const.SPEED_UP_FREQUENCY) velocityBonus++; // Increase
-            else if (velocityBonus / 2 > 1) velocityBonus /= 2; // Decrease
-            else  velocityBonus = 0; // Round down to zero
-            
-            thrustFrequency = 0;
-        }
+    this.superThrust = function() {
 
-        // Go intro "instability mode" i.e. camera shakes due to high velocity
-        if(velocityBonus > Const.INSTABILITY_THRESHOLD)
-            game.camera.shake(0.002 * velocityBonus, 2000, false);
+        console.log('SUPER THRUST');
+        state = 'charging';
+        
+        // TODO: Particles
+
+        // Come to a stop
+        game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
+        sprite.loadTexture('playerFire');
+        
+        // Same as thrust() but bigger
+        var launch = function() {
+            fireEngine(Const.BIG_EXPLOSION, Const.BIG_EXPLOSION_DISTANCE);
+            sprite.body.setZeroVelocity();
+            sprite.body.thrust(Const.THRUST_FORCE * 5);
+            sprite.loadTexture('player');
+            state = 'ready';
+        };
+
+        // When fully braked launch away
+        game.time.events.add(1000, launch, this);
     };
 
-    var updateSpin = function() {
-        sprite.body.rotateLeft(spin.force);
-        
-        if(isSpinning && game.time.totalElapsedSeconds() > currentTime + 2) {                
-            var fadeOut = game.add.tween(spin).to({force: 0}, 4000, Phaser.Easing.Quintic.Out, true);
-            fadeOut.onComplete.add(function() {
-                isSpinning = false;
-            });
-        }
-        
+    this.destroy = function() {
+        sprite.destroy();
+        boomSound.destroy();
     };
 };
 },{"./Constants.js":4}],10:[function(require,module,exports){

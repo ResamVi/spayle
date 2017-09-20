@@ -46,5 +46,7 @@ module.exports = {
     SMALL_EXPLOSION: 2,
     SMALL_EXPLOSION_DISTANCE: -20,
     BIG_EXPLOSION: 6,
-    BIG_EXPLOSION_DISTANCE: -20
+    BIG_EXPLOSION_DISTANCE: -20,
+    EXPLODE_ANIMATION_SETTINGS: ['explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true],
+    ACCEL_REPEAT_DURATION: 1000
 };
