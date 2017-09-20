@@ -94,12 +94,12 @@ module.exports = function Player(game) {
     };
 
     var loseControl = function(_, duration) {
-        state = 'spinning';
-        spin.force = Const.SPIN_AMOUNT;
+        if(state === 'ready') {
+            state = 'spinning';
+            spin.force = Const.SPIN_AMOUNT;
 
-        console.log("Lost control for: " + duration);
-
-        game.time.events.add(duration, gainControl, this, duration);
+            game.time.events.add(duration, gainControl, this, duration);
+        }
     };
     
     // loseControl is both used locally and globally
@@ -123,26 +123,28 @@ module.exports = function Player(game) {
     };
 
     this.superThrust = function() {
+        if(state === 'ready') {
+            state = 'charging';
+            
+            // TODO: Particles
 
-        state = 'charging';
-        
-        // TODO: Particles
+            // Come to a stop
+            game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
+            sprite.loadTexture('playerFire');
+            
+            // Same as thrust() but bigger
+            var launch = function() {
+                fireEngine(Const.BIG_EXPLOSION, Const.BIG_EXPLOSION_DISTANCE);
+                sprite.body.setZeroVelocity();
+                sprite.body.thrust(Const.THRUST_FORCE * 5);
+                sprite.loadTexture('player');
+                state = 'ready';
+                loseControl(null, Const.SUPER_THRUST_STUN_DURATION);
+            };
 
-        // Come to a stop
-        game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
-        sprite.loadTexture('playerFire');
-        
-        // Same as thrust() but bigger
-        var launch = function() {
-            fireEngine(Const.BIG_EXPLOSION, Const.BIG_EXPLOSION_DISTANCE);
-            sprite.body.setZeroVelocity();
-            sprite.body.thrust(Const.THRUST_FORCE * 5);
-            sprite.loadTexture('player');
-            loseControl(null, Const.SUPER_THRUST_STUN_DURATION);
-        };
-
-        // When fully braked launch away
-        game.time.events.add(1000, launch, this);
+            // When fully braked launch away
+            game.time.events.add(1000, launch, this);
+        }
     };
 
     this.destroy = function() {

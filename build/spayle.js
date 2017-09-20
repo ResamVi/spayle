@@ -106049,10 +106049,10 @@ module.exports = {
     SPAWN_DISTANCE: -20,
     SPEED_UP_FREQUENCY: 1,
     INSTABILITY_THRESHOLD: 2,
+    STUN_DURATION: 2000,
 
     // Player Constants
     SHAKE_DURATION: 2000,
-    GAIN_CONTROL_BACK: [{force: 0}, 4000, Phaser.Easing.Quintic.Out, true],
     SPIN_AMOUNT: 1000,
     MINIMUM_SPEED: 100,
     SMALL_EXPLOSION: 2,
@@ -106060,7 +106060,8 @@ module.exports = {
     BIG_EXPLOSION: 6,
     BIG_EXPLOSION_DISTANCE: -20,
     EXPLODE_ANIMATION_SETTINGS: ['explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true],
-    ACCEL_REPEAT_DURATION: 1000
+    ACCEL_REPEAT_DURATION: 1000,
+    SUPER_THRUST_STUN_DURATION: 800
 };
 },{}],5:[function(require,module,exports){
 module.exports = (function(){
@@ -106312,7 +106313,7 @@ module.exports = (function(){
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, this);
-        this.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, this, 0, Const.STUN_DURATION);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, this);
         
         this.camera.follow(player.sprite, null, 0.5, 0.5);
@@ -106442,20 +106443,25 @@ module.exports = function Player(game) {
 
     };
 
-    var gainControl = function() {
-        var tween = game.add.tween(spin).to(...Const.GAIN_CONTROL_BACK);
+    var gainControl = function(duration) {
+        var tween = game.add.tween(spin);
+        tween.to({force: 0}, duration, Phaser.Easing.Quintic.Out, true);
         tween.onComplete.add(function() {
             state = 'ready';
         });
     };
 
-    this.loseControl = function() {
-        state = 'spinning';
-        spin.force = Const.SPIN_AMOUNT;
+    var loseControl = function(_, duration) {
+        if(state === 'ready') {
+            state = 'spinning';
+            spin.force = Const.SPIN_AMOUNT;
 
-        game.time.events.add(2000, gainControl, this);
+            game.time.events.add(duration, gainControl, this, duration);
+        }
     };
-
+    
+    // loseControl is both used locally and globally
+    this.loseControl = loseControl;
 
     this.isSpinning = function() {
         return state === 'spinning';
@@ -106475,27 +106481,28 @@ module.exports = function Player(game) {
     };
 
     this.superThrust = function() {
+        if(state === 'ready') {
+            state = 'charging';
+            
+            // TODO: Particles
 
-        console.log('SUPER THRUST');
-        state = 'charging';
-        
-        // TODO: Particles
+            // Come to a stop
+            game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
+            sprite.loadTexture('playerFire');
+            
+            // Same as thrust() but bigger
+            var launch = function() {
+                fireEngine(Const.BIG_EXPLOSION, Const.BIG_EXPLOSION_DISTANCE);
+                sprite.body.setZeroVelocity();
+                sprite.body.thrust(Const.THRUST_FORCE * 5);
+                sprite.loadTexture('player');
+                state = 'ready';
+                loseControl(null, Const.SUPER_THRUST_STUN_DURATION);
+            };
 
-        // Come to a stop
-        game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
-        sprite.loadTexture('playerFire');
-        
-        // Same as thrust() but bigger
-        var launch = function() {
-            fireEngine(Const.BIG_EXPLOSION, Const.BIG_EXPLOSION_DISTANCE);
-            sprite.body.setZeroVelocity();
-            sprite.body.thrust(Const.THRUST_FORCE * 5);
-            sprite.loadTexture('player');
-            state = 'ready';
-        };
-
-        // When fully braked launch away
-        game.time.events.add(1000, launch, this);
+            // When fully braked launch away
+            game.time.events.add(1000, launch, this);
+        }
     };
 
     this.destroy = function() {
