@@ -32,7 +32,7 @@ module.exports = (function(){
         planet.scale.setTo(0.1, 0.1);
         planet.pivot.set(Const.ORBIT_RADIUS);
 
-        // Player
+        // Player (only used for displayal; not to actually control)
         player = new Player(this);
 
         // Title
@@ -87,7 +87,8 @@ module.exports = (function(){
             countdown.play();
         }, this);
         countdown.onStop.add(function() {
-            this.state.start('play', false, false, player);
+            player.destroy();
+            this.state.start('play', false, false);
         }, this);
         
     }

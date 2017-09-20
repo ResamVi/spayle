@@ -9,6 +9,10 @@ module.exports = function Player(game) {
     sprite.angle = Const.PLAYER_START_ANGLE;
     this.sprite = sprite;
 
+    // Grant access to this object's physics body
+    game.physics.p2.enable(sprite);
+    this.body = sprite.body;
+
     // The coordinates of the explosion spawn are used when the animation is triggered
     var explosionSpawn = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'empty');
     explosionSpawn.anchor.setTo(0.5);
@@ -25,6 +29,12 @@ module.exports = function Player(game) {
     var isSpinning = false;
     var currentTime = 0;
     var spin = {force: 0};
+
+    this.destroy = function() {
+        explosionSpawn.destroy();
+        sprite.destroy();
+        boomSound.destroy();
+    };
 
     // Do animation, camera and sound effects
     var fireEngine = function() {
@@ -49,7 +59,6 @@ module.exports = function Player(game) {
 
     // This has to be called in the game loop for each frame
     this.update = function() {
-        
         sprite.body.thrust(100);
         updateSpawn();
         updateAcceleration();
@@ -80,13 +89,14 @@ module.exports = function Player(game) {
         if(game.time.totalElapsedSeconds() > intervalMargin) {
             intervalMargin += 1;
             
-            if(thrustFrequency > Const.SPEED_UP_FREQUENCY) this.velocityBonus++; // Increase
+            if(thrustFrequency > Const.SPEED_UP_FREQUENCY) velocityBonus++; // Increase
             else if (velocityBonus / 2 > 1) velocityBonus /= 2; // Decrease
             else  velocityBonus = 0; // Round down to zero
             
             thrustFrequency = 0;
         }
 
+        // Go intro "instability mode" i.e. camera shakes due to high velocity
         if(velocityBonus > Const.INSTABILITY_THRESHOLD)
             game.camera.shake(0.002 * velocityBonus, 2000, false);
     };

@@ -1,6 +1,7 @@
 module.exports = (function(){
     
     var Const = require('./Constants.js');
+    var Player = require('./Player.js');
 
     var arrowkeys;
     
@@ -8,14 +9,9 @@ module.exports = (function(){
     
     var mainMusic;
 
-    // Receive already loaded player from menu scene
-    function init(args) {
-        player = args;
-        this.physics.p2.enable(player.sprite);
-        player.body = player.sprite.body;
-    }
-
     function create() {
+
+        player = new Player(this);
 
         // Music
         mainMusic = this.add.audio('mainMusic');
@@ -25,11 +21,12 @@ module.exports = (function(){
 
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
-
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.loseControl, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, this);
+        
         this.camera.follow(player.sprite, null, 0.5, 0.5);
 
+        // Launch rocket away to start game
         player.body.thrust(Const.LAUNCH_FORCE);
     }
     
@@ -38,7 +35,7 @@ module.exports = (function(){
 
         player.update();
 
-        if (!player.isSpinning() && arrowkeys.left.isDown) 
+        if (!player.isSpinning() && arrowkeys.left.isDown) // Put logic into player object
             player.body.rotateLeft(Const.ROTATION_SPEED);
         else if (!player.isSpinning() && arrowkeys.right.isDown)
             player.body.rotateRight(Const.ROTATION_SPEED);
@@ -64,5 +61,5 @@ module.exports = (function(){
         }
     }
 
-    return { init: init, create: create, update: update, render: render};
+    return { /* init: init, */ create: create, update: update, render: render};
 })();

@@ -106194,7 +106194,7 @@ module.exports = (function(){
         planet.scale.setTo(0.1, 0.1);
         planet.pivot.set(Const.ORBIT_RADIUS);
 
-        // Player
+        // Player (only used for displayal; not to actually control)
         player = new Player(this);
 
         // Title
@@ -106249,7 +106249,8 @@ module.exports = (function(){
             countdown.play();
         }, this);
         countdown.onStop.add(function() {
-            this.state.start('play', false, false, player);
+            player.destroy();
+            this.state.start('play', false, false);
         }, this);
         
     }
@@ -106277,6 +106278,7 @@ module.exports = (function(){
 module.exports = (function(){
     
     var Const = require('./Constants.js');
+    var Player = require('./Player.js');
 
     var arrowkeys;
     
@@ -106284,14 +106286,9 @@ module.exports = (function(){
     
     var mainMusic;
 
-    // Receive already loaded player from menu scene
-    function init(args) {
-        player = args;
-        this.physics.p2.enable(player.sprite);
-        player.body = player.sprite.body;
-    }
-
     function create() {
+
+        player = new Player(this);
 
         // Music
         mainMusic = this.add.audio('mainMusic');
@@ -106301,11 +106298,12 @@ module.exports = (function(){
 
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
-
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.loseControl, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, this);
+        
         this.camera.follow(player.sprite, null, 0.5, 0.5);
 
+        // Launch rocket away to start game
         player.body.thrust(Const.LAUNCH_FORCE);
     }
     
@@ -106314,7 +106312,7 @@ module.exports = (function(){
 
         player.update();
 
-        if (!player.isSpinning() && arrowkeys.left.isDown) 
+        if (!player.isSpinning() && arrowkeys.left.isDown) // Put logic into player object
             player.body.rotateLeft(Const.ROTATION_SPEED);
         else if (!player.isSpinning() && arrowkeys.right.isDown)
             player.body.rotateRight(Const.ROTATION_SPEED);
@@ -106340,9 +106338,9 @@ module.exports = (function(){
         }
     }
 
-    return { init: init, create: create, update: update, render: render};
+    return { /* init: init, */ create: create, update: update, render: render};
 })();
-},{"./Constants.js":4}],9:[function(require,module,exports){
+},{"./Constants.js":4,"./Player.js":9}],9:[function(require,module,exports){
 module.exports = function Player(game) {
     
     // To use constants in this module
@@ -106353,6 +106351,10 @@ module.exports = function Player(game) {
     sprite.anchor.setTo(0.5);
     sprite.angle = Const.PLAYER_START_ANGLE;
     this.sprite = sprite;
+
+    // Grant access to this object's physics body
+    game.physics.p2.enable(sprite);
+    this.body = sprite.body;
 
     // The coordinates of the explosion spawn are used when the animation is triggered
     var explosionSpawn = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'empty');
@@ -106370,6 +106372,12 @@ module.exports = function Player(game) {
     var isSpinning = false;
     var currentTime = 0;
     var spin = {force: 0};
+
+    this.destroy = function() {
+        explosionSpawn.destroy();
+        sprite.destroy();
+        boomSound.destroy();
+    };
 
     // Do animation, camera and sound effects
     var fireEngine = function() {
@@ -106394,7 +106402,6 @@ module.exports = function Player(game) {
 
     // This has to be called in the game loop for each frame
     this.update = function() {
-        
         sprite.body.thrust(100);
         updateSpawn();
         updateAcceleration();
@@ -106425,13 +106432,14 @@ module.exports = function Player(game) {
         if(game.time.totalElapsedSeconds() > intervalMargin) {
             intervalMargin += 1;
             
-            if(thrustFrequency > Const.SPEED_UP_FREQUENCY) this.velocityBonus++; // Increase
+            if(thrustFrequency > Const.SPEED_UP_FREQUENCY) velocityBonus++; // Increase
             else if (velocityBonus / 2 > 1) velocityBonus /= 2; // Decrease
             else  velocityBonus = 0; // Round down to zero
             
             thrustFrequency = 0;
         }
 
+        // Go intro "instability mode" i.e. camera shakes due to high velocity
         if(velocityBonus > Const.INSTABILITY_THRESHOLD)
             game.camera.shake(0.002 * velocityBonus, 2000, false);
     };
