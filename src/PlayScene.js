@@ -3,7 +3,6 @@ module.exports = (function(){
     var Const = require('./Constants.js');
 
     var arrowkeys;
-    var wasd;
     
     var player;
     
@@ -26,17 +25,8 @@ module.exports = (function(){
 
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
-        wasd = {
-            right: this.input.keyboard.addKey(Phaser.Keyboard.D),
-            left: this.input.keyboard.addKey(Phaser.Keyboard.A)
-        };
 
-        var test = function() {
-            console.log('OW');
-            player.body.thrustLeft(100000);
-        };
-
-        this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(test, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.loseControl, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, this);
         this.camera.follow(player.sprite, null, 0.5, 0.5);
 
@@ -46,18 +36,13 @@ module.exports = (function(){
     
     function update() { // TODO: Create a proper game loop here
 
-        console.log(player.body.angularVelocity);
-
         player.update();
 
-        // Keep the player moving
-        player.body.thrust(100);
-
-        if (arrowkeys.left.isDown || wasd.left.isDown) 
+        if (!player.isSpinning() && arrowkeys.left.isDown) 
             player.body.rotateLeft(Const.ROTATION_SPEED);
-        else if (arrowkeys.right.isDown || wasd.right.isDown)
+        else if (!player.isSpinning() && arrowkeys.right.isDown)
             player.body.rotateRight(Const.ROTATION_SPEED);
-        else
+        else if (!player.isSpinning())
             player.body.setZeroRotation();
     }
 

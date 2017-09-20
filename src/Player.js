@@ -22,6 +22,10 @@ module.exports = function Player(game) {
     var intervalMargin = 0;
     var velocityBonus = 0;
 
+    var isSpinning = false;
+    var currentTime = 0;
+    var spin = {force: 0};
+
     // Do animation, camera and sound effects
     var fireEngine = function() {
         var explosion = game.add.sprite(explosionSpawn.x, explosionSpawn.y, 'explosionAtlas');
@@ -43,15 +47,23 @@ module.exports = function Player(game) {
         sprite.body.thrust(acceleration);
     };
 
-    this.loseControl = function() {
-        console.log('OW');
-        sprite.body.thrustLeft(100);
-    };
-
     // This has to be called in the game loop for each frame
     this.update = function() {
+        
+        sprite.body.thrust(100);
         updateSpawn();
         updateAcceleration();
+        updateSpin();
+    };
+
+    this.loseControl = function() {
+        currentTime = game.time.totalElapsedSeconds();
+        isSpinning = true;
+        spin.force = 1000;
+    };
+
+    this.isSpinning = function() {
+        return isSpinning;
     };
 
     // Given how the rocket ship is angled, calculate the explosion spawn coordinates
@@ -77,5 +89,17 @@ module.exports = function Player(game) {
 
         if(velocityBonus > Const.INSTABILITY_THRESHOLD)
             game.camera.shake(0.002 * velocityBonus, 2000, false);
+    };
+
+    var updateSpin = function() {
+        sprite.body.rotateLeft(spin.force);
+        
+        if(isSpinning && game.time.totalElapsedSeconds() > currentTime + 2) {                
+            var fadeOut = game.add.tween(spin).to({force: 0}, 4000, Phaser.Easing.Quintic.Out, true);
+            fadeOut.onComplete.add(function() {
+                isSpinning = false;
+            });
+        }
+        
     };
 };
