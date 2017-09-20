@@ -57,6 +57,7 @@ module.exports = (function(){
         this.load.image('redPlanet', 'assets/red_planet.png');
         this.load.image('moon', 'assets/moon.png');
         this.load.image('player', 'assets/player.png');
+        this.load.image('playerFire', 'assets/player_fire.png');
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
