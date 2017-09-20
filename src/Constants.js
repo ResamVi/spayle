@@ -37,10 +37,10 @@ module.exports = {
     SPAWN_DISTANCE: -20,
     SPEED_UP_FREQUENCY: 1,
     INSTABILITY_THRESHOLD: 2,
+    STUN_DURATION: 2000,
 
     // Player Constants
     SHAKE_DURATION: 2000,
-    GAIN_CONTROL_BACK: [{force: 0}, 4000, Phaser.Easing.Quintic.Out, true],
     SPIN_AMOUNT: 1000,
     MINIMUM_SPEED: 100,
     SMALL_EXPLOSION: 2,
@@ -48,5 +48,6 @@ module.exports = {
     BIG_EXPLOSION: 6,
     BIG_EXPLOSION_DISTANCE: -20,
     EXPLODE_ANIMATION_SETTINGS: ['explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true],
-    ACCEL_REPEAT_DURATION: 1000
+    ACCEL_REPEAT_DURATION: 1000,
+    SUPER_THRUST_STUN_DURATION: 800
 };

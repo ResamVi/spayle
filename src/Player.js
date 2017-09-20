@@ -85,20 +85,25 @@ module.exports = function Player(game) {
 
     };
 
-    var gainControl = function() {
-        var tween = game.add.tween(spin).to(...Const.GAIN_CONTROL_BACK);
+    var gainControl = function(duration) {
+        var tween = game.add.tween(spin);
+        tween.to({force: 0}, duration, Phaser.Easing.Quintic.Out, true);
         tween.onComplete.add(function() {
             state = 'ready';
         });
     };
 
-    this.loseControl = function() {
+    var loseControl = function(_, duration) {
         state = 'spinning';
         spin.force = Const.SPIN_AMOUNT;
 
-        game.time.events.add(2000, gainControl, this);
-    };
+        console.log("Lost control for: " + duration);
 
+        game.time.events.add(duration, gainControl, this, duration);
+    };
+    
+    // loseControl is both used locally and globally
+    this.loseControl = loseControl;
 
     this.isSpinning = function() {
         return state === 'spinning';
@@ -119,7 +124,6 @@ module.exports = function Player(game) {
 
     this.superThrust = function() {
 
-        console.log('SUPER THRUST');
         state = 'charging';
         
         // TODO: Particles
@@ -134,7 +138,7 @@ module.exports = function Player(game) {
             sprite.body.setZeroVelocity();
             sprite.body.thrust(Const.THRUST_FORCE * 5);
             sprite.loadTexture('player');
-            state = 'ready';
+            loseControl(null, Const.SUPER_THRUST_STUN_DURATION);
         };
 
         // When fully braked launch away

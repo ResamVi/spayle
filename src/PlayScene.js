@@ -22,7 +22,7 @@ module.exports = (function(){
         // Controls
         arrowkeys = this.input.keyboard.createCursorKeys();
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, this);
-        this.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, this, 0, Const.STUN_DURATION);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, this);
         
         this.camera.follow(player.sprite, null, 0.5, 0.5);
