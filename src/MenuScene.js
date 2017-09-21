@@ -67,6 +67,9 @@ module.exports = (function(){
     // TODO: Camer fade out
     function play() {
         
+        // Scale camera out for dramatic effect
+        this.add.tween(this.camera.scale).to({x: 0.5, y: 0.5}, 7000, Phaser.Easing.Cubic.InOut, true);
+
         // Fade out all menu items
         for(var sprite of [title, startButton, optionButton, backButton]) {
             var t = this.add.tween(sprite).to(...Const.FADE_OUT);
@@ -107,7 +110,7 @@ module.exports = (function(){
     }
 
     function render() {
-        
+        console.log(this.camera.scale);
         
     }
 

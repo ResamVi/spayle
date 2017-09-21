@@ -52,7 +52,6 @@ module.exports = (function(){
         this.load.audio('boom', 'assets/boom.mp3');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
         this.load.image('empty', 'assets/empty.png');
-        this.load.image('aimSight', 'assets/dotted_line.png');
         this.load.image('bullet', 'assets/bullet.png');
         this.load.image('background', 'assets/background.png');
         this.load.image('redPlanet', 'assets/red_planet.png');
