@@ -20,12 +20,34 @@ module.exports = function Player(game) {
     // Keep track of velocity which increases with thrustFrequency
     var thrustFrequency = 0;
     var velocityBonus = 0;
+    var shotsMade = 0;
 
-    // Possible states: 'ready', 'spinning', 'charging'
+    // Possible states: 'ready', 'spinning', 'charging', 'aiming'
     var state = 'ready';
     
     // This value is tweened, therefore object notation needed
     var spin = {force: 0}; 
+
+    // Add aim sight animation to rocket
+    var aimSight = game.add.sprite(-4, 40, 'lineAtlas');
+    aimSight.alpha = Const.INVISIBLE;
+    aimSight.anchor.setTo(1);
+    aimSight.scale.x *= -1;
+    aimSight.scale.y *= -1;
+    aimSight.animations.add('aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true).play();
+    sprite.addChild(aimSight);
+    
+    // 
+    var bulletSpawn = game.add.sprite(0, 0, 'empty');
+    var weapon = game.add.weapon(6, 'bullet');
+    weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+    weapon.bulletSpeed = Const.BULLET_SPEED;
+    weapon.bulletAngleOffset = 90;
+    weapon.trackSprite(bulletSpawn);
+
+    //game.world.wrap(sprite.body, 16); TODO:
+
+    // ---- FUNCTIONS ----
 
     // Given the frequency, increase the the camera shake with higher frequency
     var trackFrequency = function() {    
@@ -48,7 +70,7 @@ module.exports = function Player(game) {
     };
 
     // Keep track of thrust frequency and adjust "instability mode" accordingly
-    game.time.events.repeat(Const.ACCEL_REPEAT_DURATION, Number.POSITIVE_INFINITY, trackFrequency, this);
+    game.time.events.repeat(Const.UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
 
     // Do animation, camera and sound effects
     var fireEngine = function(explosionSize, distanceFromShip) {
@@ -65,23 +87,47 @@ module.exports = function Player(game) {
 
     // Apply the physics
     this.thrust = function() {
+        
         fireEngine(Const.SMALL_EXPLOSION, Const.SMALL_EXPLOSION_DISTANCE);
+
+        if(state === 'ready') {    
+            thrustFrequency++;
+            
+            sprite.body.setZeroVelocity();            
+            var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
+            sprite.body.thrust(acceleration);
         
-        thrustFrequency++;
-        
-        sprite.body.setZeroVelocity();            
-        var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
-        sprite.body.thrust(acceleration);
+        } else if(state === 'aiming') {
+            shotsMade++;
+            
+            weapon.fireAngle = Const.AIM_BACKWARDS + sprite.angle;
+            weapon.fire();
+            
+            sprite.body.thrust(Const.RECOIL_FORCE);
+            
+            if(shotsMade < Const.MAGAZINE_SIZE) {
+                game.time.events.add(Const.RECOVER_TIME, function() {
+                    game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 100, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
+                }, this);
+            } else {
+                sprite.body.thrust(Const.RECOIL_FORCE * 2);
+                aimSight.alpha = Const.INVISIBLE;
+                shotsMade = 0;
+                state = 'ready';
+            }
+        }
     };
 
     // This has to be called in the game loop for each frame
     this.update = function() {
-        
+
         if(state === 'ready')
             sprite.body.thrust(Const.MINIMUM_SPEED);
         
         if(state === 'spinning')
             sprite.body.rotateLeft(spin.force);
+
+        updateBulletSpawn();
 
     };
 
@@ -102,11 +148,17 @@ module.exports = function Player(game) {
         }
     };
     
-    // loseControl is both used locally and globally
+    // loseControl is both used locally and globally TODO: Rename
     this.loseControl = loseControl;
 
     this.isSpinning = function() {
         return state === 'spinning';
+    };
+
+    var updateBulletSpawn = function() {
+        var position = calculateRearPosition(-50);
+        bulletSpawn.x = position.x;
+        bulletSpawn.y = position.y;
     };
 
     // These coordinates are used for spawning explosion animations,
@@ -144,6 +196,20 @@ module.exports = function Player(game) {
 
             // When fully braked launch away
             game.time.events.add(1000, launch, this);
+        }
+    };
+
+    this.snipe = function() {
+        if(state === 'ready') {
+            state = 'aiming';
+
+            // Come to a stop
+            game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
+
+            // Aim
+            game.add.tween(aimSight).to({alpha: Const.VISIBLE}, 500, 'Linear', true);
+
+            // Shooting is done via space button (and thus handled in this.thrust())
         }
     };
 

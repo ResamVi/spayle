@@ -24,6 +24,7 @@ module.exports = {
     BUTTON_X: 180,
     START_BUTTON: ['yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png'],
     OPTION_BUTTON: ['grey_button02.png', 'grey_button01.png', 'grey_button02.png'],
+    VISIBLE: 1,
     INVISIBLE: 0,
 
     TITLE_BOUNCE: [{x: 1.1, y: 1.1}, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true],
@@ -43,11 +44,19 @@ module.exports = {
     SHAKE_DURATION: 2000,
     SPIN_AMOUNT: 1000,
     MINIMUM_SPEED: 100,
+    
     SMALL_EXPLOSION: 2,
     SMALL_EXPLOSION_DISTANCE: -20,
     BIG_EXPLOSION: 6,
     BIG_EXPLOSION_DISTANCE: -20,
     EXPLODE_ANIMATION_SETTINGS: ['explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true],
-    ACCEL_REPEAT_DURATION: 1000,
-    SUPER_THRUST_STUN_DURATION: 800
+    
+    UPDATE_INTERVAL: 1000,
+    SUPER_THRUST_STUN_DURATION: 800,
+
+    BULLET_SPEED: 800,
+    AIM_BACKWARDS: 90,
+    RECOIL_FORCE: 20000,
+    RECOVER_TIME: 100,
+    MAGAZINE_SIZE: 3
 };

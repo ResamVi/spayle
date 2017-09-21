@@ -50,9 +50,10 @@ module.exports = (function(){
         this.load.audio('mainMusic', 'assets/main.mp3');
         this.load.audio('ignition', 'assets/ignition.mp3');
         this.load.audio('boom', 'assets/boom.mp3');
-        this.load.audio('boom', 'assets/boom.mp3');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
         this.load.image('empty', 'assets/empty.png');
+        this.load.image('aimSight', 'assets/dotted_line.png');
+        this.load.image('bullet', 'assets/bullet.png');
         this.load.image('background', 'assets/background.png');
         this.load.image('redPlanet', 'assets/red_planet.png');
         this.load.image('moon', 'assets/moon.png');
@@ -61,6 +62,7 @@ module.exports = (function(){
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
+        this.load.atlasJSONHash('lineAtlas', 'assets/dotted_line_animation.png', 'assets/dotted_line_animation.json');
 
         // Everything above has been put into queue, now start loading
         this.load.start();

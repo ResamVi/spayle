@@ -64,6 +64,7 @@ module.exports = (function(){
         return button;
     }
 
+    // TODO: Camer fade out
     function play() {
         
         // Fade out all menu items
