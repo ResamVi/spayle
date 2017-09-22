@@ -1,9 +1,10 @@
 # SPAYLE - HTML5 Shoot 'em up game
 
 <div align="center">
-We'll shoot you into hostile space with no means of defense,<br />
-however what they didn't know is your propellant is a bit of the explosive-y kind.<br />
-Soooo... align your rocket ship JUUUST right and explode-fart their faces - **spa**ce flight with st**yle**!
+Your mission is to explore hostile outer space. However the engineers of your rocket ship decided it<br />
+was best to stick all the defensive measures on the BACK of your rocket. <br />
+Soooo... you're the pilot, tasked to lead this mission: Navigate and align your rocket ship JUUUST right 
+and explode-fart their faces with all the means you got on board - __spa__ce flight with st__yle__!
 </div>
 
 ![spayle](https://user-images.githubusercontent.com/6261556/30281106-d344a6be-9711-11e7-941d-245fc6af33df.png)
