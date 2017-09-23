@@ -106295,12 +106295,7 @@ module.exports = (function(){
         planet.rotation += Const.ORBIT_SPEED;
     }
 
-    function render() {
-        console.log(this.camera.scale);
-        
-    }
-
-    return { create: create, update: update, render: render};
+    return { create: create, update: update};
 })();
 },{"./Constants.js":4,"./Player.js":9}],8:[function(require,module,exports){
 module.exports = (function(){
@@ -106321,7 +106316,7 @@ module.exports = (function(){
         // Music
         mainMusic = this.add.audio('mainMusic');
         mainMusic.onDecoded.add(function() {
-            mainMusic.play();
+            mainMusic.play('', 0, 1, true);
         }, this);
 
         // Controls
@@ -106330,6 +106325,9 @@ module.exports = (function(){
         this.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, this);
         this.input.keyboard.addKey(Phaser.Keyboard.E).onDown.add(player.snipe, this);
         this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, this);
+        this.input.keyboard.addKey(Phaser.Keyboard.R).onDown.add(function() {
+            this.add.tween(this.camera.scale).to({x: 1, y: 1}, 7000, Phaser.Easing.Cubic.InOut, true);
+        }, this);
         
         this.camera.follow(player.sprite, null, 0.5, 0.5);
 
@@ -106349,6 +106347,28 @@ module.exports = (function(){
         else if (!player.isSpinning())
             player.body.setZeroRotation();
     }
+
+    /* function screenWrap (sprite) {
+        
+            if (sprite.x < 0)
+            {
+                sprite.x = game.width;
+            }
+            else if (sprite.x > game.width)
+            {
+                sprite.x = 0;
+            }
+        
+            if (sprite.y < 0)
+            {
+                sprite.y = game.height;
+            }
+            else if (sprite.y > game.height)
+            {
+                sprite.y = 0;
+            }
+        
+        } */
 
     function render() {
         
@@ -106376,6 +106396,9 @@ module.exports = function Player(game) {
     // To use constants in this module
     var Const = require('./Constants.js');
     
+    // To fire bullets
+    var Weapon = require('./Weapon.js');
+
     // This object keeps track and exposes the sprite
     var sprite = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player');
     sprite.anchor.setTo(0.5);
@@ -106410,15 +106433,8 @@ module.exports = function Player(game) {
     aimSight.animations.add('aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true).play();
     sprite.addChild(aimSight);
     
-    // 
-    var bulletSpawn = game.add.sprite(0, 0, 'empty');
-    var weapon = game.add.weapon(6, 'bullet');
-    weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-    weapon.bulletSpeed = Const.BULLET_SPEED;
-    weapon.bulletAngleOffset = 90;
-    weapon.trackSprite(bulletSpawn);
-
-    //game.world.wrap(sprite.body, 16); TODO:
+    // Responsible for bullet spawns their angle/velocity and kill properties
+    var weapon = new Weapon(sprite, game);
 
     // ---- FUNCTIONS ----
 
@@ -106445,6 +106461,7 @@ module.exports = function Player(game) {
     // Keep track of thrust frequency and adjust "instability mode" accordingly
     game.time.events.repeat(Const.UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
 
+    // TODO: Put into Engine
     // Do animation, camera and sound effects
     var fireEngine = function(explosionSize, distanceFromShip) {
         var position = calculateRearPosition(distanceFromShip);
@@ -106463,7 +106480,7 @@ module.exports = function Player(game) {
         
         fireEngine(Const.SMALL_EXPLOSION, Const.SMALL_EXPLOSION_DISTANCE);
 
-        if(state === 'ready') {    
+        if(state === 'ready' || state === 'spinning') {    
             thrustFrequency++;
             
             sprite.body.setZeroVelocity();            
@@ -106473,7 +106490,6 @@ module.exports = function Player(game) {
         } else if(state === 'aiming') {
             shotsMade++;
             
-            weapon.fireAngle = Const.AIM_BACKWARDS + sprite.angle;
             weapon.fire();
             
             sprite.body.thrust(Const.RECOIL_FORCE);
@@ -106499,9 +106515,6 @@ module.exports = function Player(game) {
         
         if(state === 'spinning')
             sprite.body.rotateLeft(spin.force);
-
-        updateBulletSpawn();
-
     };
 
     var gainControl = function(duration) {
@@ -106526,12 +106539,6 @@ module.exports = function Player(game) {
 
     this.isSpinning = function() {
         return state === 'spinning';
-    };
-
-    var updateBulletSpawn = function() {
-        var position = calculateRearPosition(-50);
-        bulletSpawn.x = position.x;
-        bulletSpawn.y = position.y;
     };
 
     // These coordinates are used for spawning explosion animations,
@@ -106591,7 +106598,7 @@ module.exports = function Player(game) {
         boomSound.destroy();
     };
 };
-},{"./Constants.js":4}],10:[function(require,module,exports){
+},{"./Constants.js":4,"./Weapon.js":11}],10:[function(require,module,exports){
 module.exports = (function(){
     
     const FADE_IN_DURATION = 1000;
@@ -106626,4 +106633,43 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{}]},{},[6]);
+},{}],11:[function(require,module,exports){
+module.exports = function Weapon(trackedSprite, game) {
+
+    var Const = require('./Constants.js');
+
+    this.fire = function() {
+        var position = calculateCoordinates(-20);
+
+        var bullet = game.add.sprite(position.x, position.y, 'bullet');
+        bullet.anchor.setTo(0.5);
+        bullet.angle = trackedSprite.angle + 180;
+        game.physics.arcade.enable(bullet);
+        
+        var velocity = calculateVelocity(Const.BULLET_SPEED);        
+        bullet.body.velocity.x = velocity.x;
+        bullet.body.velocity.y = velocity.y;
+    };
+
+    var calculateVelocity = function (speed) {
+        var velocity = {};
+        
+        velocity.x = Math.cos(trackedSprite.rotation + Math.PI / 2) * speed;
+        velocity.y = Math.sin(trackedSprite.rotation + Math.PI / 2) * speed;
+
+        return velocity;
+    };
+
+    var calculateCoordinates = function(radius) {    
+        var xAngle = Math.cos(trackedSprite.rotation - game.math.HALF_PI);
+        var yAngle = Math.sin(trackedSprite.rotation - game.math.HALF_PI);
+        
+        var position = {};
+        position.x = trackedSprite.x + xAngle * radius;
+        position.y = trackedSprite.y + yAngle * radius;
+
+        return position;
+    };
+
+};
+},{"./Constants.js":4}]},{},[6]);

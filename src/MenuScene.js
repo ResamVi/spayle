@@ -109,10 +109,5 @@ module.exports = (function(){
         planet.rotation += Const.ORBIT_SPEED;
     }
 
-    function render() {
-        console.log(this.camera.scale);
-        
-    }
-
-    return { create: create, update: update, render: render};
+    return { create: create, update: update};
 })();

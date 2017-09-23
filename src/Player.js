@@ -3,6 +3,9 @@ module.exports = function Player(game) {
     // To use constants in this module
     var Const = require('./Constants.js');
     
+    // To fire bullets
+    var Weapon = require('./Weapon.js');
+
     // This object keeps track and exposes the sprite
     var sprite = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player');
     sprite.anchor.setTo(0.5);
@@ -37,15 +40,8 @@ module.exports = function Player(game) {
     aimSight.animations.add('aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true).play();
     sprite.addChild(aimSight);
     
-    // 
-    var bulletSpawn = game.add.sprite(0, 0, 'empty');
-    var weapon = game.add.weapon(6, 'bullet');
-    weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-    weapon.bulletSpeed = Const.BULLET_SPEED;
-    weapon.bulletAngleOffset = 90;
-    weapon.trackSprite(bulletSpawn);
-
-    //game.world.wrap(sprite.body, 16); TODO:
+    // Responsible for bullet spawns their angle/velocity and kill properties
+    var weapon = new Weapon(sprite, game);
 
     // ---- FUNCTIONS ----
 
@@ -72,6 +68,7 @@ module.exports = function Player(game) {
     // Keep track of thrust frequency and adjust "instability mode" accordingly
     game.time.events.repeat(Const.UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
 
+    // TODO: Put into Engine
     // Do animation, camera and sound effects
     var fireEngine = function(explosionSize, distanceFromShip) {
         var position = calculateRearPosition(distanceFromShip);
@@ -90,7 +87,7 @@ module.exports = function Player(game) {
         
         fireEngine(Const.SMALL_EXPLOSION, Const.SMALL_EXPLOSION_DISTANCE);
 
-        if(state === 'ready') {    
+        if(state === 'ready' || state === 'spinning') {    
             thrustFrequency++;
             
             sprite.body.setZeroVelocity();            
@@ -100,7 +97,6 @@ module.exports = function Player(game) {
         } else if(state === 'aiming') {
             shotsMade++;
             
-            weapon.fireAngle = Const.AIM_BACKWARDS + sprite.angle;
             weapon.fire();
             
             sprite.body.thrust(Const.RECOIL_FORCE);
@@ -126,9 +122,6 @@ module.exports = function Player(game) {
         
         if(state === 'spinning')
             sprite.body.rotateLeft(spin.force);
-
-        updateBulletSpawn();
-
     };
 
     var gainControl = function(duration) {
@@ -153,12 +146,6 @@ module.exports = function Player(game) {
 
     this.isSpinning = function() {
         return state === 'spinning';
-    };
-
-    var updateBulletSpawn = function() {
-        var position = calculateRearPosition(-50);
-        bulletSpawn.x = position.x;
-        bulletSpawn.y = position.y;
     };
 
     // These coordinates are used for spawning explosion animations,
