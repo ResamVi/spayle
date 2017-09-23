@@ -17,8 +17,8 @@ module.exports = (function(){
     var centerX;
     var centerY;
 
-    function create() {
-        
+    function create()
+    {    
         // Center of screen (not the world!)
         centerX = this.camera.width / 2;
         centerY = this.camera.height / 2;
@@ -65,8 +65,8 @@ module.exports = (function(){
     }
 
     // TODO: Camer fade out
-    function play() {
-        
+    function play()
+    {
         // Scale camera out for dramatic effect
         this.add.tween(this.camera.scale).to({x: 0.5, y: 0.5}, 7000, Phaser.Easing.Cubic.InOut, true);
 
@@ -97,15 +97,18 @@ module.exports = (function(){
         
     }
 
-    function moveUp() {
+    function moveUp()
+    {
         this.add.tween(this.camera).to(...Const.MAIN_MENU);
     }
 
-    function moveDown() {
+    function moveDown()
+    {
         this.add.tween(this.camera).to(...Const.OPTION_MENU);
     }
 
-    function update() {
+    function update()
+    {
         planet.rotation += Const.ORBIT_SPEED;
     }
 

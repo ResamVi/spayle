@@ -1,13 +1,13 @@
 module.exports = (function(){
     
-    const WORLD_BOUNDS = 10000;
+    var Const = require('./Constants.js');
 
     function create() {
         
         // World settings
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.physics.startSystem(Phaser.Physics.P2JS);
-        this.world.setBounds(0,0, WORLD_BOUNDS, WORLD_BOUNDS);
+        this.world.setBounds(0,0, Const.WORLD_BOUNDS, Const.WORLD_BOUNDS);
 
         this.state.start('load');
     }

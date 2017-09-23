@@ -1,4 +1,5 @@
-module.exports = (function(){
+module.exports = (function() 
+{
     
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
@@ -9,8 +10,8 @@ module.exports = (function(){
     
     var mainMusic;
 
-    function create() {
-
+    function create()
+    {
         player = new Player(this);
 
         // Music
@@ -36,8 +37,8 @@ module.exports = (function(){
     }
     
     
-    function update() { // TODO: Create a proper game loop here
-
+    function update() 
+    {
         player.update();
 
         if (!player.isSpinning() && arrowkeys.left.isDown) // Put logic into player object
@@ -48,30 +49,8 @@ module.exports = (function(){
             player.body.setZeroRotation();
     }
 
-    /* function screenWrap (sprite) {
-        
-            if (sprite.x < 0)
-            {
-                sprite.x = game.width;
-            }
-            else if (sprite.x > game.width)
-            {
-                sprite.x = 0;
-            }
-        
-            if (sprite.y < 0)
-            {
-                sprite.y = game.height;
-            }
-            else if (sprite.y > game.height)
-            {
-                sprite.y = 0;
-            }
-        
-        } */
-
-    function render() {
-        
+    function render()
+    {
         if(Const.DEBUG_MODE) {
             var x = player.body.velocity.x;
             var y = player.body.velocity.y;
@@ -88,5 +67,5 @@ module.exports = (function(){
         }
     }
 
-    return { /* init: init, */ create: create, update: update, render: render};
+    return {create: create, update: update, render: render};
 })();

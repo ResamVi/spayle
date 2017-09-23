@@ -3,6 +3,9 @@ module.exports = {
     // DEBUG MODE
     DEBUG_MODE: true,
 
+    // BootScene Constants
+    WORLD_BOUNDS: 10000,
+
     // MenuScene Constants
     PLAYER_START_Y: 270,
     PLAYER_START_X: 205,

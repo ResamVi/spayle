@@ -1,5 +1,5 @@
-module.exports = function Player(game) {
-    
+module.exports = function Player(game)
+{    
     // To use constants in this module
     var Const = require('./Constants.js');
     
@@ -46,8 +46,8 @@ module.exports = function Player(game) {
     // ---- FUNCTIONS ----
 
     // Given the frequency, increase the the camera shake with higher frequency
-    var trackFrequency = function() {    
-
+    var trackFrequency = function()
+    {    
         // Increase
         if (thrustFrequency > Const.SPEED_UP_FREQUENCY) 
             velocityBonus++;
@@ -70,7 +70,8 @@ module.exports = function Player(game) {
 
     // TODO: Put into Engine
     // Do animation, camera and sound effects
-    var fireEngine = function(explosionSize, distanceFromShip) {
+    var fireEngine = function(explosionSize, distanceFromShip)
+    {
         var position = calculateRearPosition(distanceFromShip);
         
         var explosion = game.add.sprite(position.x, position.y, 'explosionAtlas');
@@ -83,8 +84,8 @@ module.exports = function Player(game) {
     };
 
     // Apply the physics
-    this.thrust = function() {
-        
+    this.thrust = function()
+    {    
         fireEngine(Const.SMALL_EXPLOSION, Const.SMALL_EXPLOSION_DISTANCE);
 
         if(state === 'ready' || state === 'spinning') {    
@@ -115,8 +116,8 @@ module.exports = function Player(game) {
     };
 
     // This has to be called in the game loop for each frame
-    this.update = function() {
-
+    this.update = function()
+    {
         if(state === 'ready')
             sprite.body.thrust(Const.MINIMUM_SPEED);
         
@@ -124,7 +125,8 @@ module.exports = function Player(game) {
             sprite.body.rotateLeft(spin.force);
     };
 
-    var gainControl = function(duration) {
+    var gainControl = function(duration)
+    {
         var tween = game.add.tween(spin);
         tween.to({force: 0}, duration, Phaser.Easing.Quintic.Out, true);
         tween.onComplete.add(function() {
@@ -132,7 +134,8 @@ module.exports = function Player(game) {
         });
     };
 
-    var loseControl = function(_, duration) {
+    var loseControl = function(_, duration)
+    {
         if(state === 'ready') {
             state = 'spinning';
             spin.force = Const.SPIN_AMOUNT;
@@ -140,17 +143,17 @@ module.exports = function Player(game) {
             game.time.events.add(duration, gainControl, this, duration);
         }
     };
-    
-    // loseControl is both used locally and globally TODO: Rename
     this.loseControl = loseControl;
 
-    this.isSpinning = function() {
+    this.isSpinning = function()
+    {
         return state === 'spinning';
     };
 
     // These coordinates are used for spawning explosion animations,
     // Given how the rocket ship is angled, calculate the coordinates
-    var calculateRearPosition = function(radius) {    
+    var calculateRearPosition = function(radius)
+    {    
         var xAngle = Math.cos(sprite.rotation - game.math.HALF_PI);
         var yAngle = Math.sin(sprite.rotation - game.math.HALF_PI);
         
@@ -161,7 +164,8 @@ module.exports = function Player(game) {
         return position;
     };
 
-    this.superThrust = function() {
+    this.superThrust = function()
+    {
         if(state === 'ready') {
             state = 'charging';
             
@@ -186,7 +190,8 @@ module.exports = function Player(game) {
         }
     };
 
-    this.snipe = function() {
+    this.snipe = function()
+    {
         if(state === 'ready') {
             state = 'aiming';
 
@@ -200,7 +205,8 @@ module.exports = function Player(game) {
         }
     };
 
-    this.destroy = function() {
+    this.destroy = function()
+    {
         sprite.destroy();
         boomSound.destroy();
     };
