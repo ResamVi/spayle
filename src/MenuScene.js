@@ -64,7 +64,6 @@ module.exports = (function(){
         return button;
     }
 
-    // TODO: Camer fade out
     function play()
     {
         // Scale camera out for dramatic effect

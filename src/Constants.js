@@ -61,5 +61,8 @@ module.exports = {
     AIM_BACKWARDS: 90,
     RECOIL_FORCE: 20000,
     RECOVER_TIME: 100,
-    MAGAZINE_SIZE: 3
+    MAGAZINE_SIZE: 3,
+
+    // Enemy Constants
+    SIGHT_RANGE: 500
 };

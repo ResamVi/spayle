@@ -105995,25 +105995,28 @@ PIXI.canUseNewCanvasBlendModes = function () {
 },{"_process":1}],3:[function(require,module,exports){
 module.exports = (function(){
     
-    const WORLD_BOUNDS = 10000;
+    var Const = require('./Constants.js');
 
     function create() {
         
         // World settings
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.physics.startSystem(Phaser.Physics.P2JS);
-        this.world.setBounds(0,0, WORLD_BOUNDS, WORLD_BOUNDS);
+        this.world.setBounds(0,0, Const.WORLD_BOUNDS, Const.WORLD_BOUNDS);
 
         this.state.start('load');
     }
 
     return { create: create};
 })();
-},{}],4:[function(require,module,exports){
+},{"./Constants.js":4}],4:[function(require,module,exports){
 module.exports = {
     
     // DEBUG MODE
     DEBUG_MODE: true,
+
+    // BootScene Constants
+    WORLD_BOUNDS: 10000,
 
     // MenuScene Constants
     PLAYER_START_Y: 270,
@@ -106070,9 +106073,80 @@ module.exports = {
     AIM_BACKWARDS: 90,
     RECOIL_FORCE: 20000,
     RECOVER_TIME: 100,
-    MAGAZINE_SIZE: 3
+    MAGAZINE_SIZE: 3,
+
+    // Enemy Constants
+    SIGHT_RANGE: 500
 };
 },{}],5:[function(require,module,exports){
+module.exports = function Enemy(game) {
+
+    // To use constants in this module
+    var Const = require('./Constants.js');
+
+    // This object keeps track and exposes the sprite
+    var sprite = game.add.sprite(600, 400, 'enemy_many');
+    sprite.anchor.setTo(0.5);
+    this.sprite = sprite;
+
+    // Grant access to this object's physics body
+    game.physics.p2.enable(sprite);
+    /* sprite.body.angularDamping = 0;
+    sprite.body.angularVelocity = Math.random() * 10 - 5; */
+    sprite.body.damping = 0.8;
+    sprite.body.fixedRotation = true;
+    this.body = sprite.body;
+
+    // Possible states: 'ready'
+    var state = 'ready';
+
+    this.update = function(player)
+    {
+        console.log(velocity());
+        sprite.body.rotation = 0;
+        if(state === 'ready' && playerInRange(player.sprite)) {
+            state = 'moving';
+            move(player);
+        }
+
+        if(velocity() < 10) {
+            state = 'ready';
+        }
+    };
+
+    var move = function(player)
+    {
+        if(Math.random() >= 0.5) {
+            if(player.sprite.x - sprite.x > 0) {
+                sprite.body.thrustRight(10000);
+            }else{
+                sprite.body.thrustLeft(10000);
+            }
+        }else {
+            if(player.sprite.y - sprite.y > 0) {
+                sprite.body.thrust(-10000);
+            }else{
+                sprite.body.thrust(10000);
+            }
+        }
+        
+        
+    };
+
+    var velocity = function()
+    {
+        var x = sprite.body.velocity.x;
+        var y = sprite.body.velocity.y;
+        
+        return Math.round(Math.sqrt(x * x, y * y));
+    };
+
+    var playerInRange = function(player)
+    {
+        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.SIGHT_RANGE;
+    };
+};
+},{"./Constants.js":4}],6:[function(require,module,exports){
 module.exports = (function(){
     
     var progressText;
@@ -106133,6 +106207,8 @@ module.exports = (function(){
         this.load.image('moon', 'assets/moon.png');
         this.load.image('player', 'assets/player.png');
         this.load.image('playerFire', 'assets/player_fire.png');
+        this.load.image('enemy_many', 'assets/enemy_many.png');
+        this.load.image('enemy_bullet', 'assets/enemy_bullet.png');
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
@@ -106170,7 +106246,7 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{"./Constants.js":4}],6:[function(require,module,exports){
+},{"./Constants.js":4}],7:[function(require,module,exports){
 var Phaser = require('phaser-ce');
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
@@ -106183,7 +106259,7 @@ game.state.add('play', require('./PlayScene.js'));
 
 game.state.start('boot');
 
-},{"./BootScene.js":3,"./LoadScene.js":5,"./MenuScene.js":7,"./PlayScene.js":8,"./SplashScene.js":10,"phaser-ce":2}],7:[function(require,module,exports){
+},{"./BootScene.js":3,"./LoadScene.js":6,"./MenuScene.js":8,"./PlayScene.js":9,"./SplashScene.js":11,"phaser-ce":2}],8:[function(require,module,exports){
 module.exports = (function(){
 
     const Const = require('./Constants.js');
@@ -106203,8 +106279,8 @@ module.exports = (function(){
     var centerX;
     var centerY;
 
-    function create() {
-        
+    function create()
+    {    
         // Center of screen (not the world!)
         centerX = this.camera.width / 2;
         centerY = this.camera.height / 2;
@@ -106250,9 +106326,8 @@ module.exports = (function(){
         return button;
     }
 
-    // TODO: Camer fade out
-    function play() {
-        
+    function play()
+    {
         // Scale camera out for dramatic effect
         this.add.tween(this.camera.scale).to({x: 0.5, y: 0.5}, 7000, Phaser.Easing.Cubic.InOut, true);
 
@@ -106283,35 +106358,43 @@ module.exports = (function(){
         
     }
 
-    function moveUp() {
+    function moveUp()
+    {
         this.add.tween(this.camera).to(...Const.MAIN_MENU);
     }
 
-    function moveDown() {
+    function moveDown()
+    {
         this.add.tween(this.camera).to(...Const.OPTION_MENU);
     }
 
-    function update() {
+    function update()
+    {
         planet.rotation += Const.ORBIT_SPEED;
     }
 
     return { create: create, update: update};
 })();
-},{"./Constants.js":4,"./Player.js":9}],8:[function(require,module,exports){
-module.exports = (function(){
+},{"./Constants.js":4,"./Player.js":10}],9:[function(require,module,exports){
+module.exports = (function() 
+{
     
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
+    var Enemy = require('./Enemy.js');
 
     var arrowkeys;
     
     var player;
-    
+    var enemy;
+
     var mainMusic;
 
-    function create() {
-
+    function create()
+    {
         player = new Player(this);
+
+        enemy = new Enemy(this);
 
         // Music
         mainMusic = this.add.audio('mainMusic');
@@ -106332,12 +106415,12 @@ module.exports = (function(){
         this.camera.follow(player.sprite, null, 0.5, 0.5);
 
         // Launch rocket away to start game
-        player.body.thrust(Const.LAUNCH_FORCE);
+        //player.body.thrust(Const.LAUNCH_FORCE);
     }
     
     
-    function update() { // TODO: Create a proper game loop here
-
+    function update() 
+    {
         player.update();
 
         if (!player.isSpinning() && arrowkeys.left.isDown) // Put logic into player object
@@ -106346,32 +106429,12 @@ module.exports = (function(){
             player.body.rotateRight(Const.ROTATION_SPEED);
         else if (!player.isSpinning())
             player.body.setZeroRotation();
+
+        enemy.update(player);
     }
 
-    /* function screenWrap (sprite) {
-        
-            if (sprite.x < 0)
-            {
-                sprite.x = game.width;
-            }
-            else if (sprite.x > game.width)
-            {
-                sprite.x = 0;
-            }
-        
-            if (sprite.y < 0)
-            {
-                sprite.y = game.height;
-            }
-            else if (sprite.y > game.height)
-            {
-                sprite.y = 0;
-            }
-        
-        } */
-
-    function render() {
-        
+    function render()
+    {
         if(Const.DEBUG_MODE) {
             var x = player.body.velocity.x;
             var y = player.body.velocity.y;
@@ -106388,11 +106451,11 @@ module.exports = (function(){
         }
     }
 
-    return { /* init: init, */ create: create, update: update, render: render};
+    return {create: create, update: update, render: render};
 })();
-},{"./Constants.js":4,"./Player.js":9}],9:[function(require,module,exports){
-module.exports = function Player(game) {
-    
+},{"./Constants.js":4,"./Enemy.js":5,"./Player.js":10}],10:[function(require,module,exports){
+module.exports = function Player(game)
+{    
     // To use constants in this module
     var Const = require('./Constants.js');
     
@@ -106439,8 +106502,8 @@ module.exports = function Player(game) {
     // ---- FUNCTIONS ----
 
     // Given the frequency, increase the the camera shake with higher frequency
-    var trackFrequency = function() {    
-
+    var trackFrequency = function()
+    {    
         // Increase
         if (thrustFrequency > Const.SPEED_UP_FREQUENCY) 
             velocityBonus++;
@@ -106463,7 +106526,8 @@ module.exports = function Player(game) {
 
     // TODO: Put into Engine
     // Do animation, camera and sound effects
-    var fireEngine = function(explosionSize, distanceFromShip) {
+    var fireEngine = function(explosionSize, distanceFromShip)
+    {
         var position = calculateRearPosition(distanceFromShip);
         
         var explosion = game.add.sprite(position.x, position.y, 'explosionAtlas');
@@ -106476,8 +106540,8 @@ module.exports = function Player(game) {
     };
 
     // Apply the physics
-    this.thrust = function() {
-        
+    this.thrust = function()
+    {    
         fireEngine(Const.SMALL_EXPLOSION, Const.SMALL_EXPLOSION_DISTANCE);
 
         if(state === 'ready' || state === 'spinning') {    
@@ -106508,8 +106572,8 @@ module.exports = function Player(game) {
     };
 
     // This has to be called in the game loop for each frame
-    this.update = function() {
-
+    this.update = function()
+    {
         if(state === 'ready')
             sprite.body.thrust(Const.MINIMUM_SPEED);
         
@@ -106517,7 +106581,8 @@ module.exports = function Player(game) {
             sprite.body.rotateLeft(spin.force);
     };
 
-    var gainControl = function(duration) {
+    var gainControl = function(duration)
+    {
         var tween = game.add.tween(spin);
         tween.to({force: 0}, duration, Phaser.Easing.Quintic.Out, true);
         tween.onComplete.add(function() {
@@ -106525,7 +106590,8 @@ module.exports = function Player(game) {
         });
     };
 
-    var loseControl = function(_, duration) {
+    var loseControl = function(_, duration)
+    {
         if(state === 'ready') {
             state = 'spinning';
             spin.force = Const.SPIN_AMOUNT;
@@ -106533,17 +106599,17 @@ module.exports = function Player(game) {
             game.time.events.add(duration, gainControl, this, duration);
         }
     };
-    
-    // loseControl is both used locally and globally TODO: Rename
     this.loseControl = loseControl;
 
-    this.isSpinning = function() {
+    this.isSpinning = function()
+    {
         return state === 'spinning';
     };
 
     // These coordinates are used for spawning explosion animations,
     // Given how the rocket ship is angled, calculate the coordinates
-    var calculateRearPosition = function(radius) {    
+    var calculateRearPosition = function(radius)
+    {    
         var xAngle = Math.cos(sprite.rotation - game.math.HALF_PI);
         var yAngle = Math.sin(sprite.rotation - game.math.HALF_PI);
         
@@ -106554,7 +106620,8 @@ module.exports = function Player(game) {
         return position;
     };
 
-    this.superThrust = function() {
+    this.superThrust = function()
+    {
         if(state === 'ready') {
             state = 'charging';
             
@@ -106579,7 +106646,8 @@ module.exports = function Player(game) {
         }
     };
 
-    this.snipe = function() {
+    this.snipe = function()
+    {
         if(state === 'ready') {
             state = 'aiming';
 
@@ -106593,12 +106661,13 @@ module.exports = function Player(game) {
         }
     };
 
-    this.destroy = function() {
+    this.destroy = function()
+    {
         sprite.destroy();
         boomSound.destroy();
     };
 };
-},{"./Constants.js":4,"./Weapon.js":11}],10:[function(require,module,exports){
+},{"./Constants.js":4,"./Weapon.js":12}],11:[function(require,module,exports){
 module.exports = (function(){
     
     const FADE_IN_DURATION = 1000;
@@ -106633,7 +106702,7 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module.exports = function Weapon(trackedSprite, game) {
 
     var Const = require('./Constants.js');
@@ -106672,4 +106741,4 @@ module.exports = function Weapon(trackedSprite, game) {
     };
 
 };
-},{"./Constants.js":4}]},{},[6]);
+},{"./Constants.js":4}]},{},[7]);

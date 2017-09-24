@@ -3,16 +3,20 @@ module.exports = (function()
     
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
+    var Enemy = require('./Enemy.js');
 
     var arrowkeys;
     
     var player;
-    
+    var enemy;
+
     var mainMusic;
 
     function create()
     {
         player = new Player(this);
+
+        enemy = new Enemy(this);
 
         // Music
         mainMusic = this.add.audio('mainMusic');
@@ -33,7 +37,7 @@ module.exports = (function()
         this.camera.follow(player.sprite, null, 0.5, 0.5);
 
         // Launch rocket away to start game
-        player.body.thrust(Const.LAUNCH_FORCE);
+        //player.body.thrust(Const.LAUNCH_FORCE);
     }
     
     
@@ -47,6 +51,8 @@ module.exports = (function()
             player.body.rotateRight(Const.ROTATION_SPEED);
         else if (!player.isSpinning())
             player.body.setZeroRotation();
+
+        enemy.update(player);
     }
 
     function render()
