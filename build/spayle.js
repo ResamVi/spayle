@@ -106076,7 +106076,8 @@ module.exports = {
     MAGAZINE_SIZE: 3,
 
     // Enemy Constants
-    SIGHT_RANGE: 500
+    SIGHT_RANGE: 500,
+    ENEMY_THRUST_FORCE: 5000
 };
 },{}],5:[function(require,module,exports){
 module.exports = function Enemy(game) {
@@ -106091,22 +106092,18 @@ module.exports = function Enemy(game) {
 
     // Grant access to this object's physics body
     game.physics.p2.enable(sprite);
-    /* sprite.body.angularDamping = 0;
-    sprite.body.angularVelocity = Math.random() * 10 - 5; */
     sprite.body.damping = 0.8;
     sprite.body.fixedRotation = true;
     this.body = sprite.body;
 
-    // Possible states: 'ready'
+    // Possible states: 'ready', 'attacking'
     var state = 'ready';
 
     this.update = function(player)
     {
-        console.log(velocity());
-        sprite.body.rotation = 0;
         if(state === 'ready' && playerInRange(player.sprite)) {
-            state = 'moving';
-            move(player);
+            state = 'attacking';
+            attack(player);
         }
 
         if(velocity() < 10) {
@@ -106114,23 +106111,13 @@ module.exports = function Enemy(game) {
         }
     };
 
-    var move = function(player)
+    var attack = function(player)
     {
-        if(Math.random() >= 0.5) {
-            if(player.sprite.x - sprite.x > 0) {
-                sprite.body.thrustRight(10000);
-            }else{
-                sprite.body.thrustLeft(10000);
-            }
-        }else {
-            if(player.sprite.y - sprite.y > 0) {
-                sprite.body.thrust(-10000);
-            }else{
-                sprite.body.thrust(10000);
-            }
-        }
+        var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y)
+        var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI/2; // in [-pi/4, pi/4]
         
-        
+        sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
+        sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
     var velocity = function()
@@ -106207,6 +106194,7 @@ module.exports = (function(){
         this.load.image('moon', 'assets/moon.png');
         this.load.image('player', 'assets/player.png');
         this.load.image('playerFire', 'assets/player_fire.png');
+        this.load.image('enemy_boss', 'assets/enemy_boss.png');
         this.load.image('enemy_many', 'assets/enemy_many.png');
         this.load.image('enemy_bullet', 'assets/enemy_bullet.png');
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
@@ -106431,6 +106419,24 @@ module.exports = (function()
             player.body.setZeroRotation();
 
         enemy.update(player);
+
+        // Debugging
+        if(Const.DEBUG_MODE) {
+            if (arrowkeys.up.isDown) {
+                this.camera.y -= 8;
+            }
+            else if (arrowkeys.down.isDown) {
+                this.camera.y += 8;
+            }
+        
+            if (arrowkeys.left.isDown) {
+                this.camera.x -= 8;
+            }
+            else if (arrowkeys.right.isDown) {
+                this.camera.x += 8;
+            }
+        
+        }
     }
 
     function render()
@@ -106446,6 +106452,9 @@ module.exports = (function()
             this.game.debug.cameraInfo(this.camera, 32, 32);
             this.game.debug.spriteCoords(player.sprite, 32, 500);
             this.game.debug.body(player.sprite);
+
+            this.game.camera.scale.setTo(0.5);
+            this.game.camera.unfollow();
 
             this.game.debug.text('Elapsed seconds: ' + this.game.time.totalElapsedSeconds(), 32, 400);
         }

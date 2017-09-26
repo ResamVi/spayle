@@ -53,6 +53,24 @@ module.exports = (function()
             player.body.setZeroRotation();
 
         enemy.update(player);
+
+        // Debugging
+        if(Const.DEBUG_MODE) {
+            if (arrowkeys.up.isDown) {
+                this.camera.y -= 8;
+            }
+            else if (arrowkeys.down.isDown) {
+                this.camera.y += 8;
+            }
+        
+            if (arrowkeys.left.isDown) {
+                this.camera.x -= 8;
+            }
+            else if (arrowkeys.right.isDown) {
+                this.camera.x += 8;
+            }
+        
+        }
     }
 
     function render()
@@ -68,6 +86,9 @@ module.exports = (function()
             this.game.debug.cameraInfo(this.camera, 32, 32);
             this.game.debug.spriteCoords(player.sprite, 32, 500);
             this.game.debug.body(player.sprite);
+
+            this.game.camera.scale.setTo(0.5);
+            this.game.camera.unfollow();
 
             this.game.debug.text('Elapsed seconds: ' + this.game.time.totalElapsedSeconds(), 32, 400);
         }
