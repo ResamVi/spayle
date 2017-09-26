@@ -64,5 +64,6 @@ module.exports = {
     MAGAZINE_SIZE: 3,
 
     // Enemy Constants
-    SIGHT_RANGE: 500
+    SIGHT_RANGE: 500,
+    ENEMY_THRUST_FORCE: 5000
 };
