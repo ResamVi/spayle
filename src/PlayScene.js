@@ -37,7 +37,7 @@ module.exports = (function()
         this.camera.follow(player.sprite, null, 0.5, 0.5);
 
         // Launch rocket away to start game
-        //player.body.thrust(Const.LAUNCH_FORCE);
+        /* player.body.thrust(Const.LAUNCH_FORCE); */
     }
     
     
@@ -53,21 +53,22 @@ module.exports = (function()
             player.body.setZeroRotation();
 
         enemy.update(player);
+        this.world.bringToTop(enemy.sprite);
 
         // Debugging
         if(Const.DEBUG_MODE) {
             if (arrowkeys.up.isDown) {
-                this.camera.y -= 8;
+                this.camera.y -= Const.CAM_SPEED;
             }
             else if (arrowkeys.down.isDown) {
-                this.camera.y += 8;
+                this.camera.y += Const.CAM_SPEED;
             }
         
             if (arrowkeys.left.isDown) {
-                this.camera.x -= 8;
+                this.camera.x -= Const.CAM_SPEED;
             }
             else if (arrowkeys.right.isDown) {
-                this.camera.x += 8;
+                this.camera.x += Const.CAM_SPEED;
             }
         
         }

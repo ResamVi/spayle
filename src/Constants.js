@@ -2,6 +2,7 @@ module.exports = {
     
     // DEBUG MODE
     DEBUG_MODE: true,
+    CAM_SPEED: 16,
 
     // BootScene Constants
     WORLD_BOUNDS: 10000,

@@ -106014,6 +106014,7 @@ module.exports = {
     
     // DEBUG MODE
     DEBUG_MODE: true,
+    CAM_SPEED: 16,
 
     // BootScene Constants
     WORLD_BOUNDS: 10000,
@@ -106086,7 +106087,7 @@ module.exports = function Enemy(game) {
     var Const = require('./Constants.js');
 
     // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(600, 400, 'enemy_many');
+    var sprite = game.add.sprite(2000, 400, 'enemy_boss');
     sprite.anchor.setTo(0.5);
     this.sprite = sprite;
 
@@ -106099,8 +106100,16 @@ module.exports = function Enemy(game) {
     // Possible states: 'ready', 'attacking'
     var state = 'ready';
 
+    // Group stays inside this circle
+    var graphics = game.add.graphics(0, 0);
+
     this.update = function(player)
     {
+        graphics.clear();
+        graphics.beginFill(0xff6500);
+        graphics.drawCircle(sprite.x, sprite.y, 1500);
+        graphics.endFill();
+
         if(state === 'ready' && playerInRange(player.sprite)) {
             state = 'attacking';
             attack(player);
@@ -106403,7 +106412,7 @@ module.exports = (function()
         this.camera.follow(player.sprite, null, 0.5, 0.5);
 
         // Launch rocket away to start game
-        //player.body.thrust(Const.LAUNCH_FORCE);
+        /* player.body.thrust(Const.LAUNCH_FORCE); */
     }
     
     
@@ -106419,21 +106428,22 @@ module.exports = (function()
             player.body.setZeroRotation();
 
         enemy.update(player);
+        this.world.bringToTop(enemy.sprite);
 
         // Debugging
         if(Const.DEBUG_MODE) {
             if (arrowkeys.up.isDown) {
-                this.camera.y -= 8;
+                this.camera.y -= Const.CAM_SPEED;
             }
             else if (arrowkeys.down.isDown) {
-                this.camera.y += 8;
+                this.camera.y += Const.CAM_SPEED;
             }
         
             if (arrowkeys.left.isDown) {
-                this.camera.x -= 8;
+                this.camera.x -= Const.CAM_SPEED;
             }
             else if (arrowkeys.right.isDown) {
-                this.camera.x += 8;
+                this.camera.x += Const.CAM_SPEED;
             }
         
         }

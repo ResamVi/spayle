@@ -4,7 +4,7 @@ module.exports = function Enemy(game) {
     var Const = require('./Constants.js');
 
     // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(600, 400, 'enemy_many');
+    var sprite = game.add.sprite(2000, 400, 'enemy_boss');
     sprite.anchor.setTo(0.5);
     this.sprite = sprite;
 
@@ -17,8 +17,16 @@ module.exports = function Enemy(game) {
     // Possible states: 'ready', 'attacking'
     var state = 'ready';
 
+    // Group stays inside this circle
+    var graphics = game.add.graphics(0, 0);
+
     this.update = function(player)
     {
+        graphics.clear();
+        graphics.beginFill(0xff6500);
+        graphics.drawCircle(sprite.x, sprite.y, 1500);
+        graphics.endFill();
+
         if(state === 'ready' && playerInRange(player.sprite)) {
             state = 'attacking';
             attack(player);
