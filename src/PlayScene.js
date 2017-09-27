@@ -3,12 +3,14 @@ module.exports = (function()
     
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
-    var Enemy = require('./Enemy.js');
+    var MotherEnemy = require('./MotherEnemy.js');
+    var MinionEnemy = require('./MinionEnemy.js');
 
     var arrowkeys;
     
     var player;
     var enemy;
+    var minion;
 
     var mainMusic;
 
@@ -16,8 +18,9 @@ module.exports = (function()
     {
         player = new Player(this);
 
-        enemy = new Enemy(this);
-
+        enemy = new MotherEnemy(this);
+        minion = new MinionEnemy(this, enemy);
+        
         // Music
         mainMusic = this.add.audio('mainMusic');
         mainMusic.onDecoded.add(function() {

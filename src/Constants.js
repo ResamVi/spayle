@@ -66,5 +66,7 @@ module.exports = {
 
     // Enemy Constants
     SIGHT_RANGE: 500,
-    ENEMY_THRUST_FORCE: 5000
+    ENEMY_THRUST_FORCE: 5000,
+    INFLUENCE_RADIUS: 1500,
+    
 };

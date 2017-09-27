@@ -106078,71 +106078,11 @@ module.exports = {
 
     // Enemy Constants
     SIGHT_RANGE: 500,
-    ENEMY_THRUST_FORCE: 5000
+    ENEMY_THRUST_FORCE: 5000,
+    INFLUENCE_RADIUS: 1500,
+    
 };
 },{}],5:[function(require,module,exports){
-module.exports = function Enemy(game) {
-
-    // To use constants in this module
-    var Const = require('./Constants.js');
-
-    // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(2000, 400, 'enemy_boss');
-    sprite.anchor.setTo(0.5);
-    this.sprite = sprite;
-
-    // Grant access to this object's physics body
-    game.physics.p2.enable(sprite);
-    sprite.body.damping = 0.8;
-    sprite.body.fixedRotation = true;
-    this.body = sprite.body;
-
-    // Possible states: 'ready', 'attacking'
-    var state = 'ready';
-
-    // Group stays inside this circle
-    var graphics = game.add.graphics(0, 0);
-
-    this.update = function(player)
-    {
-        graphics.clear();
-        graphics.beginFill(0xff6500);
-        graphics.drawCircle(sprite.x, sprite.y, 1500);
-        graphics.endFill();
-
-        if(state === 'ready' && playerInRange(player.sprite)) {
-            state = 'attacking';
-            attack(player);
-        }
-
-        if(velocity() < 10) {
-            state = 'ready';
-        }
-    };
-
-    var attack = function(player)
-    {
-        var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y)
-        var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI/2; // in [-pi/4, pi/4]
-        
-        sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
-        sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
-    };
-
-    var velocity = function()
-    {
-        var x = sprite.body.velocity.x;
-        var y = sprite.body.velocity.y;
-        
-        return Math.round(Math.sqrt(x * x, y * y));
-    };
-
-    var playerInRange = function(player)
-    {
-        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.SIGHT_RANGE;
-    };
-};
-},{"./Constants.js":4}],6:[function(require,module,exports){
 module.exports = (function(){
     
     var progressText;
@@ -106243,7 +106183,7 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{"./Constants.js":4}],7:[function(require,module,exports){
+},{"./Constants.js":4}],6:[function(require,module,exports){
 var Phaser = require('phaser-ce');
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
@@ -106256,7 +106196,7 @@ game.state.add('play', require('./PlayScene.js'));
 
 game.state.start('boot');
 
-},{"./BootScene.js":3,"./LoadScene.js":6,"./MenuScene.js":8,"./PlayScene.js":9,"./SplashScene.js":11,"phaser-ce":2}],8:[function(require,module,exports){
+},{"./BootScene.js":3,"./LoadScene.js":5,"./MenuScene.js":7,"./PlayScene.js":10,"./SplashScene.js":12,"phaser-ce":2}],7:[function(require,module,exports){
 module.exports = (function(){
 
     const Const = require('./Constants.js');
@@ -106372,18 +106312,185 @@ module.exports = (function(){
 
     return { create: create, update: update};
 })();
-},{"./Constants.js":4,"./Player.js":10}],9:[function(require,module,exports){
+},{"./Constants.js":4,"./Player.js":11}],8:[function(require,module,exports){
+module.exports = function MinionEnemy(game, mother) {
+    
+    // To use constants in this module
+    var Const = require('./Constants.js');
+
+    // This object keeps track and exposes the sprite
+    var sprite = game.add.sprite(2000, 400, 'enemy_many');
+    sprite.anchor.setTo(0.5);
+    this.sprite = sprite;
+
+    // Grant access to this object's physics body
+    game.physics.p2.enable(sprite);
+    sprite.body.damping = 0.8;
+    sprite.body.fixedRotation = true;
+    this.body = sprite.body;
+
+    // Possible states: 'following', 'attacking', 'returning'
+    var state = 'following';
+
+    // Group stays inside this circle
+    var graphics = game.add.graphics(0, 0);
+
+    this.update = function(player)
+    {
+        graphics.clear();
+        graphics.beginFill(0xff6500);
+        graphics.drawCircle(sprite.x, sprite.y, 1500);
+        graphics.endFill();
+
+        if(playerInRange(player.sprite)) {
+            state = 'attacking';
+            attack(player);
+        }else if(!closeToMother()) {
+            state = 'returning';
+            goBack();
+        }
+
+        if(state !== 'attacking') {
+            
+        }
+    };
+
+    var attack = function(player)
+    {
+        var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
+        var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI/2; // in [-pi/4, pi/4]
+        
+        sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
+        sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
+    };
+
+    var velocity = function()
+    {
+        var x = sprite.body.velocity.x;
+        var y = sprite.body.velocity.y;
+        
+        return Math.round(Math.sqrt(x * x, y * y));
+    };
+
+    var playerInRange = function(player)
+    {
+        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.SIGHT_RANGE;
+    };
+
+    var closeToMother = function()
+    {
+        return Phaser.Math.distance(sprite.x, sprite.y, mother.sprite.x, mother.sprite.y) < Const.SIGHT_RANGE;
+    };
+};
+},{"./Constants.js":4}],9:[function(require,module,exports){
+module.exports = function MotherEnemy(game) {
+
+    // To use constants in this module
+    var Const = require('./Constants.js');
+
+    // This object keeps track and exposes the sprite
+    var sprite = game.add.sprite(2000, 800, 'enemy_boss');
+    sprite.anchor.setTo(0.5);
+    this.sprite = sprite;
+
+    // Grant access to this object's physics body
+    game.physics.p2.enable(sprite);
+    sprite.body.damping = 0.8;
+    sprite.body.fixedRotation = true;
+    this.body = sprite.body;
+
+    // Possible states: 'ready', 'moving', 'attacking'
+    var state = 'ready';
+
+    // Group stays inside this circle
+    var graphics = game.add.graphics(0, 0);
+    graphics.boundsPadding = 10;
+
+    this.update = function(player)
+    {
+        graphics.clear();
+        graphics.beginFill(0xff6500);
+        graphics.drawCircle(sprite.x, sprite.y, Const.INFLUENCE_RADIUS);
+        graphics.endFill();
+
+        if(state === 'ready' && playerInRange(player.sprite)) {
+            state = 'attacking';
+            attack(player);
+        }else if(state === 'ready') {
+            state = 'moving';
+            moving();
+        }
+        
+        if(velocity() < 10) {
+            state = 'ready';
+        }
+    };
+
+    var attack = function(player)
+    {
+        var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
+        var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI/2; // in [-pi/4, pi/4]
+        
+        sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
+        sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
+    };
+
+    var moving = function()
+    {
+        console.log(sprite.x + ", " + sprite.y);
+        
+        // Stay inside bounds bounds
+        if(sprite.y < Const.INFLUENCE_RADIUS/2) {
+            sprite.body.rotation = Math.PI;
+        } else if(sprite.y > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
+            sprite.body.rotation = 0;
+        } else if(sprite.x < Const.INFLUENCE_RADIUS/2) {
+            sprite.body.rotation = Phaser.Math.HALF_PI;
+        } else if(sprite.x > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
+            sprite.body.rotation = Math.PI + Phaser.Math.HALF_PI;
+        
+        // Random
+        }else {
+            sprite.body.rotation = Phaser.Math.PI2 * Math.random() - Math.PI;
+        }
+        
+        
+        
+        sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
+    };
+
+    var spawnEnemy = function()
+    {
+
+    };
+
+    var velocity = function()
+    {
+        var x = sprite.body.velocity.x;
+        var y = sprite.body.velocity.y;
+        
+        return Math.round(Math.sqrt(x * x, y * y));
+    };
+
+    var playerInRange = function(player)
+    {
+        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.SIGHT_RANGE;
+    };
+};
+},{"./Constants.js":4}],10:[function(require,module,exports){
 module.exports = (function() 
 {
     
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
-    var Enemy = require('./Enemy.js');
+    var MotherEnemy = require('./MotherEnemy.js');
+    var MinionEnemy = require('./MinionEnemy.js');
 
     var arrowkeys;
     
     var player;
     var enemy;
+    var minion;
 
     var mainMusic;
 
@@ -106391,8 +106498,9 @@ module.exports = (function()
     {
         player = new Player(this);
 
-        enemy = new Enemy(this);
-
+        enemy = new MotherEnemy(this);
+        minion = new MinionEnemy(this, enemy);
+        
         // Music
         mainMusic = this.add.audio('mainMusic');
         mainMusic.onDecoded.add(function() {
@@ -106472,7 +106580,7 @@ module.exports = (function()
 
     return {create: create, update: update, render: render};
 })();
-},{"./Constants.js":4,"./Enemy.js":5,"./Player.js":10}],10:[function(require,module,exports){
+},{"./Constants.js":4,"./MinionEnemy.js":8,"./MotherEnemy.js":9,"./Player.js":11}],11:[function(require,module,exports){
 module.exports = function Player(game)
 {    
     // To use constants in this module
@@ -106686,7 +106794,7 @@ module.exports = function Player(game)
         boomSound.destroy();
     };
 };
-},{"./Constants.js":4,"./Weapon.js":12}],11:[function(require,module,exports){
+},{"./Constants.js":4,"./Weapon.js":13}],12:[function(require,module,exports){
 module.exports = (function(){
     
     const FADE_IN_DURATION = 1000;
@@ -106721,7 +106829,7 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = function Weapon(trackedSprite, game) {
 
     var Const = require('./Constants.js');
@@ -106760,4 +106868,4 @@ module.exports = function Weapon(trackedSprite, game) {
     };
 
 };
-},{"./Constants.js":4}]},{},[7]);
+},{"./Constants.js":4}]},{},[6]);
