@@ -14,30 +14,32 @@ module.exports = function MinionEnemy(game, mother) {
     sprite.body.fixedRotation = true;
     this.body = sprite.body;
 
-    // Possible states: 'following', 'attacking', 'returning'
-    var state = 'following';
-
-    // Group stays inside this circle
-    var graphics = game.add.graphics(0, 0);
+    // Possible states: 'ready', 'attacking', 'returning'
+    var state = 'ready';
 
     this.update = function(player)
     {
-        graphics.clear();
-        graphics.beginFill(0xff6500);
-        graphics.drawCircle(sprite.x, sprite.y, 1500);
-        graphics.endFill();
-
-        if(playerInRange(player.sprite)) {
+        // Decisions
+        if(state === 'ready' && playerInRange(player.sprite)) {
             state = 'attacking';
             attack(player);
-        }else if(!closeToMother()) {
+        }else if(state === 'ready' && !closeToMother()) {
             state = 'returning';
-            goBack();
+            returnBack();
+        }else if(state === 'ready') {
+            state = 'roam';
+            roam();
         }
 
-        if(state !== 'attacking') {
-            
+        // When coming to a close stop make a new decision
+        if(velocity() < 10) {
+            state = 'ready';
         }
+    };
+    var returnBack = function() {
+        var angleToMother = Phaser.Math.angleBetween(sprite.x, sprite.y, mother.sprite.x, mother.sprite.y);
+        sprite.body.rotation = angleToMother + Phaser.Math.HALF_PI;
+        sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
     var attack = function(player)
@@ -46,6 +48,25 @@ module.exports = function MinionEnemy(game, mother) {
         var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI/2; // in [-pi/4, pi/4]
         
         sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
+        sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
+    };
+
+    var roam = function()
+    {   
+        // Stay inside bounds bounds
+        if(sprite.y < Const.INFLUENCE_RADIUS/2) {
+            sprite.body.rotation = Math.PI;
+        } else if(sprite.y > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
+            sprite.body.rotation = 0;
+        } else if(sprite.x < Const.INFLUENCE_RADIUS/2) {
+            sprite.body.rotation = Phaser.Math.HALF_PI;
+        } else if(sprite.x > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
+            sprite.body.rotation = Math.PI + Phaser.Math.HALF_PI;
+        
+        // Random
+        }else {
+            sprite.body.rotation = Phaser.Math.PI2 * Math.random() - Math.PI;
+        }
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
@@ -59,7 +80,7 @@ module.exports = function MinionEnemy(game, mother) {
 
     var playerInRange = function(player)
     {
-        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.SIGHT_RANGE;
+        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.INFLUENCE_RADIUS;
     };
 
     var closeToMother = function()

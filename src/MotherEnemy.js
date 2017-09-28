@@ -2,6 +2,7 @@ module.exports = function MotherEnemy(game) {
 
     // To use constants in this module
     var Const = require('./Constants.js');
+    var MinionEnemy = require('./MinionEnemy.js');
 
     // This object keeps track and exposes the sprite
     var sprite = game.add.sprite(2000, 800, 'enemy_boss');
@@ -14,12 +15,14 @@ module.exports = function MotherEnemy(game) {
     sprite.body.fixedRotation = true;
     this.body = sprite.body;
 
-    // Possible states: 'ready', 'moving', 'attacking'
+    // Possible states: 'ready', 'roam', 'attacking'
     var state = 'ready';
 
     // Group stays inside this circle
     var graphics = game.add.graphics(0, 0);
     graphics.boundsPadding = 10;
+
+    var minions = [];
 
     this.update = function(player)
     {
@@ -28,14 +31,16 @@ module.exports = function MotherEnemy(game) {
         graphics.drawCircle(sprite.x, sprite.y, Const.INFLUENCE_RADIUS);
         graphics.endFill();
 
+        // Possible decisions
         if(state === 'ready' && playerInRange(player.sprite)) {
             state = 'attacking';
             attack(player);
         }else if(state === 'ready') {
-            state = 'moving';
-            moving();
+            state = 'roam';
+            roam();
         }
         
+        // When coming to a (close) stop make a new decision
         if(velocity() < 10) {
             state = 'ready';
         }
@@ -50,10 +55,8 @@ module.exports = function MotherEnemy(game) {
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
-    var moving = function()
-    {
-        console.log(sprite.x + ", " + sprite.y);
-        
+    var roam = function()
+    {   
         // Stay inside bounds bounds
         if(sprite.y < Const.INFLUENCE_RADIUS/2) {
             sprite.body.rotation = Math.PI;
@@ -76,7 +79,9 @@ module.exports = function MotherEnemy(game) {
 
     var spawnEnemy = function()
     {
-
+        /* if(Math.random() < 0.2) {
+            var minion = new MinionEnemy(game, this);
+        } */
     };
 
     var velocity = function()
