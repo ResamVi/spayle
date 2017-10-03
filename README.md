@@ -17,6 +17,8 @@ Version 0.1: <a href="#">Released soon</a>
 
 ### Play the current build
 
+You need to have <a href="https://nodejs.org/en/">Node.js</a> installed to play.
+
 ```sh
 npm install
 ```
