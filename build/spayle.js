@@ -106319,7 +106319,9 @@ module.exports = function MinionEnemy(game, mother) {
     var Const = require('./Constants.js');
 
     // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(2000, 400, 'enemy_many');
+    var xOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
+    var yOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
+    var sprite = game.add.sprite(mother.sprite.x + xOffset, mother.sprite.y + yOffset, 'enemy_many');
     sprite.anchor.setTo(0.5);
     this.sprite = sprite;
 
@@ -106329,11 +106331,12 @@ module.exports = function MinionEnemy(game, mother) {
     sprite.body.fixedRotation = true;
     this.body = sprite.body;
 
-    // Possible states: 'ready', 'attacking', 'returning'
+    // Possible states: 'ready', 'attacking', 'returning', 'following'
     var state = 'ready';
 
-    this.update = function(player)
+    this.update = function(player, motherAngle)
     {
+        
         // Decisions
         if(state === 'ready' && playerInRange(player.sprite)) {
             state = 'attacking';
@@ -106342,8 +106345,8 @@ module.exports = function MinionEnemy(game, mother) {
             state = 'returning';
             returnBack();
         }else if(state === 'ready') {
-            state = 'roam';
-            roam();
+            state = 'following';
+            follow(motherAngle);
         }
 
         // When coming to a close stop make a new decision
@@ -106366,22 +106369,25 @@ module.exports = function MinionEnemy(game, mother) {
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
-    var roam = function()
+    var follow = function(motherAngle)
     {   
+        var angle;
+        
         // Stay inside bounds bounds
-        if(sprite.y < Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = Math.PI;
+        if (sprite.y < Const.INFLUENCE_RADIUS/2) {
+            angle = Math.PI;
         } else if(sprite.y > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = 0;
+            angle = 0;
         } else if(sprite.x < Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = Phaser.Math.HALF_PI;
+            angle = Phaser.Math.HALF_PI;
         } else if(sprite.x > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = Math.PI + Phaser.Math.HALF_PI;
+            angle = Math.PI + Phaser.Math.HALF_PI;
         
         // Random
-        }else {
-            sprite.body.rotation = Phaser.Math.PI2 * Math.random() - Math.PI;
+        } else {
+            angle = motherAngle + Math.PI/6 * (Math.random() * 2 - 1);
         }
+        sprite.body.rotation = angle;
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
@@ -106395,12 +106401,12 @@ module.exports = function MinionEnemy(game, mother) {
 
     var playerInRange = function(player)
     {
-        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.INFLUENCE_RADIUS;
+        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.SIGHT_RANGE;
     };
 
     var closeToMother = function()
     {
-        return Phaser.Math.distance(sprite.x, sprite.y, mother.sprite.x, mother.sprite.y) < Const.SIGHT_RANGE;
+        return Phaser.Math.distance(sprite.x, sprite.y, mother.sprite.x, mother.sprite.y) < Const.INFLUENCE_RADIUS/2;
     };
 };
 },{"./Constants.js":4}],9:[function(require,module,exports){
@@ -106411,7 +106417,7 @@ module.exports = function MotherEnemy(game) {
     var MinionEnemy = require('./MinionEnemy.js');
 
     // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(2000, 800, 'enemy_boss');
+    var sprite = game.add.sprite(2000, 2000, 'enemy_boss');
     sprite.anchor.setTo(0.5);
     this.sprite = sprite;
 
@@ -106429,6 +106435,13 @@ module.exports = function MotherEnemy(game) {
     graphics.boundsPadding = 10;
 
     var minions = [];
+    for(var i = 0; i < 3; i++) {
+        var minion = new MinionEnemy(game, this);
+        minions.push(minion);
+    }
+
+    // 
+    var currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
 
     this.update = function(player)
     {
@@ -106446,6 +106459,10 @@ module.exports = function MotherEnemy(game) {
             roam();
         }
         
+        for(var i = 0; i < minions.length; i++) {
+            minions[i].update(player, currentAngle);
+        }
+
         // When coming to a (close) stop make a new decision
         if(velocity() < 10) {
             state = 'ready';
@@ -106464,22 +106481,22 @@ module.exports = function MotherEnemy(game) {
     var roam = function()
     {   
         // Stay inside bounds bounds
-        if(sprite.y < Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = Math.PI;
+        if (sprite.y < Const.INFLUENCE_RADIUS/2) {
+            currentAngle = Math.PI;
         } else if(sprite.y > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = 0;
+            currentAngle = 0;
         } else if(sprite.x < Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = Phaser.Math.HALF_PI;
+            currentAngle = Phaser.Math.HALF_PI;
         } else if(sprite.x > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = Math.PI + Phaser.Math.HALF_PI;
+            currentAngle = Math.PI + Phaser.Math.HALF_PI;
         
         // Random
-        }else {
-            sprite.body.rotation = Phaser.Math.PI2 * Math.random() - Math.PI;
+        } else {
+            var offset = Math.PI/6 * (Math.random() * 2 - 1);
+            currentAngle = currentAngle + offset;
         }
         
-        
-        
+        sprite.body.rotation = currentAngle;
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
@@ -106559,7 +106576,6 @@ module.exports = (function()
             player.body.setZeroRotation();
 
         enemy.update(player);
-        minion.update(player);
 
         this.world.bringToTop(enemy.sprite);
 

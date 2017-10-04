@@ -5,7 +5,7 @@ module.exports = function MotherEnemy(game) {
     var MinionEnemy = require('./MinionEnemy.js');
 
     // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(2000, 800, 'enemy_boss');
+    var sprite = game.add.sprite(2000, 2000, 'enemy_boss');
     sprite.anchor.setTo(0.5);
     this.sprite = sprite;
 
@@ -23,6 +23,10 @@ module.exports = function MotherEnemy(game) {
     graphics.boundsPadding = 10;
 
     var minions = [];
+    for(var i = 0; i < 3; i++) {
+        var minion = new MinionEnemy(game, this);
+        minions.push(minion);
+    }
 
     // 
     var currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
@@ -43,6 +47,10 @@ module.exports = function MotherEnemy(game) {
             roam();
         }
         
+        for(var i = 0; i < minions.length; i++) {
+            minions[i].update(player, currentAngle);
+        }
+
         // When coming to a (close) stop make a new decision
         if(velocity() < 10) {
             state = 'ready';
