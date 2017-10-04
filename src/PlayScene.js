@@ -4,13 +4,11 @@ module.exports = (function()
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
     var MotherEnemy = require('./MotherEnemy.js');
-    var MinionEnemy = require('./MinionEnemy.js');
 
     var arrowkeys;
     
     var player;
     var enemy;
-    var minion;
 
     var mainMusic;
 
@@ -19,7 +17,6 @@ module.exports = (function()
         player = new Player(this);
 
         enemy = new MotherEnemy(this);
-        minion = new MinionEnemy(this, enemy);
         
         // Music
         mainMusic = this.add.audio('mainMusic');
@@ -56,6 +53,7 @@ module.exports = (function()
             player.body.setZeroRotation();
 
         enemy.update(player);
+
         this.world.bringToTop(enemy.sprite);
 
         // Debugging

@@ -1,32 +1,41 @@
 {
-  "name": "spayle",
-  "version": "1.0.0",
-  "description": "Shoot 'em up game of the differnt sort. Written with phaser",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "spayle": "node ./server/nodejs_server.js",
-	  "watch" : "watchify ./src/MainGame.js -o ./build/spayle.js -v"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ResamVi/spayle.git"
-  },
-  "keywords": [
-    "game",
-    "shoot-em-up",
-    "phaser",
-    "javascript"
-  ],
-  "author": "Julien Midedji",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/ResamVi/spayle/issues"
-  },
-  "homepage": "https://github.com/ResamVi/spayle#readme",
-  "dependencies": {
-    "express": "^4.15.4",
-    "phaser-ce": "^2.8.5",
-    "watchify": "^3.9.0"
-  }
+    "app_name": "spayle",
+    "author": "Julien Midedji",
+    "bugs": {
+        "url": "https://github.com/ResamVi/spayle/issues"
+    },
+    "dependencies": {
+        "express": "^4.15.4",
+        "phaser-ce": "^2.8.5",
+        "watchify": "^3.9.0"
+    },
+    "description": "Shoot 'em up game of the differnt sort. Written with phaser",
+    "homepage": "https://github.com/ResamVi/spayle#readme",
+    "keywords": [
+        "game",
+        "shoot",
+        "em",
+        "up",
+        "phaser",
+        "javascript"
+    ],
+    "license": "MIT",
+    "main": "build/spayle.html",
+    "name": "spayle",
+    "node-main": "server\\nodejs_server.js",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ResamVi/spayle.git"
+    },
+    "scripts": {
+        "spayle": "node ./server/nodejs_server.js",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "watch": "watchify ./src/MainGame.js -o ./build/spayle.js -v"
+    },
+    "version": "1.0.0",
+    "webkit": {},
+    "window": {
+        "id": "spayle",
+        "title": "spayle"
+    }
 }

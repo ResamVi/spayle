@@ -24,6 +24,9 @@ module.exports = function MotherEnemy(game) {
 
     var minions = [];
 
+    // 
+    var currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
+
     this.update = function(player)
     {
         graphics.clear();
@@ -58,22 +61,22 @@ module.exports = function MotherEnemy(game) {
     var roam = function()
     {   
         // Stay inside bounds bounds
-        if(sprite.y < Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = Math.PI;
+        if (sprite.y < Const.INFLUENCE_RADIUS/2) {
+            currentAngle = Math.PI;
         } else if(sprite.y > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = 0;
+            currentAngle = 0;
         } else if(sprite.x < Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = Phaser.Math.HALF_PI;
+            currentAngle = Phaser.Math.HALF_PI;
         } else if(sprite.x > Const.WORLD_BOUNDS - Const.INFLUENCE_RADIUS/2) {
-            sprite.body.rotation = Math.PI + Phaser.Math.HALF_PI;
+            currentAngle = Math.PI + Phaser.Math.HALF_PI;
         
         // Random
-        }else {
-            sprite.body.rotation = Phaser.Math.PI2 * Math.random() - Math.PI;
+        } else {
+            var offset = Math.PI/6 * (Math.random() * 2 - 1);
+            currentAngle = currentAngle + offset;
         }
         
-        
-        
+        sprite.body.rotation = currentAngle;
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
