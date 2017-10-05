@@ -15,7 +15,6 @@ module.exports = (function()
     function create()
     {
         player = new Player(this);
-
         enemy = new MotherEnemy(this);
         
         // Music
@@ -54,7 +53,7 @@ module.exports = (function()
 
         enemy.update(player);
 
-        this.world.bringToTop(enemy.sprite);
+        this.world.bringToTop(enemy.sprite); // TODO: Debug only
 
         // Debugging
         if(Const.DEBUG_MODE) {
@@ -71,28 +70,24 @@ module.exports = (function()
             else if (arrowkeys.right.isDown) {
                 this.camera.x += Const.CAM_SPEED;
             }
-        
         }
     }
 
     function render()
     {
         if(Const.DEBUG_MODE) {
+            this.game.camera.scale.setTo(0.5);
+            this.game.camera.unfollow();
+            
             var x = player.body.velocity.x;
             var y = player.body.velocity.y;
             var v = Math.round(Math.sqrt(x*x + y*y));
+
+            enemy.debug();
             
-            this.game.debug.spriteInfo(player.sprite, 32, 180);
-            this.game.debug.body(player);
-            this.game.debug.text('Velocity: ' + v , 32, 550);
-            this.game.debug.cameraInfo(this.camera, 32, 32);
-            this.game.debug.spriteCoords(player.sprite, 32, 500);
-            this.game.debug.body(player.sprite);
-
-            this.game.camera.scale.setTo(0.5);
-            this.game.camera.unfollow();
-
-            this.game.debug.text('Elapsed seconds: ' + this.game.time.totalElapsedSeconds(), 32, 400);
+            this.game.debug.text('Play coordinates: ' + Math.round(player.sprite.x) + ', ' + Math.round(player.sprite.y), 32, 510);
+            this.game.debug.text('Camera coordinates: ' + this.game.camera.x + ', ' + this.game.camera.x, 32, 530);
+            this.game.debug.text('Player velocity: ' + v , 32, 550);
         }
     }
 

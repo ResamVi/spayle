@@ -15,20 +15,21 @@ module.exports = function MotherEnemy(game) {
     sprite.body.fixedRotation = true;
     this.body = sprite.body;
 
-    // Possible states: 'ready', 'roam', 'attacking'
-    var state = 'ready';
+    // Possible states: 'READY', 'ROAM', 'ATTACKING'
+    var state = 'READY';
 
     // Group stays inside this circle
     var graphics = game.add.graphics(0, 0);
     graphics.boundsPadding = 10;
 
+    // Each mother gets 3 minions to start with
     var minions = [];
     for(var i = 0; i < 3; i++) {
-        var minion = new MinionEnemy(game, this);
+        var minion = new MinionEnemy(game, sprite);
         minions.push(minion);
     }
 
-    // 
+    // Select a random angle to start travelling
     var currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
 
     this.update = function(player)
@@ -39,21 +40,24 @@ module.exports = function MotherEnemy(game) {
         graphics.endFill();
 
         // Possible decisions
-        if(state === 'ready' && playerInRange(player.sprite)) {
-            state = 'attacking';
+        if(state === 'READY' && playerInRange(player.sprite)) {
+            state = 'ATTACKING';
             attack(player);
-        }else if(state === 'ready') {
-            state = 'roam';
+        }else if(state === 'READY') {
+            state = 'ROAM';
             roam();
         }
         
+        spawnEnemy();
+
+        // Update its minions (they should choose a similar angle to their mother)
         for(var i = 0; i < minions.length; i++) {
             minions[i].update(player, currentAngle);
         }
 
-        // When coming to a (close) stop make a new decision
+        // When coming to a (near) stop make a new decision
         if(velocity() < 10) {
-            state = 'ready';
+            state = 'READY';
         }
     };
 
@@ -90,9 +94,10 @@ module.exports = function MotherEnemy(game) {
 
     var spawnEnemy = function()
     {
-        /* if(Math.random() < 0.2) {
-            var minion = new MinionEnemy(game, this);
-        } */
+        if(Math.random() < 0.005) {
+            var minion = new MinionEnemy(game, sprite);
+            minions.push(minion);
+        }
     };
 
     var velocity = function()
@@ -106,5 +111,21 @@ module.exports = function MotherEnemy(game) {
     var playerInRange = function(player)
     {
         return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.SIGHT_RANGE;
+    };
+    
+    // ----------------- DEBUG -----------------
+    var debugState;
+    if(Const.DEBUG_MODE) {
+        debugState = game.add.bitmapText(0, -80, 'menuFont', '', 30);
+        debugState.anchor.set(0.5);
+        sprite.addChild(debugState);
+    }
+    this.debug = function() {
+        if(Const.DEBUG_MODE) {
+            debugState.text = state;
+            for(var i = 0; i < minions.length; i++) {
+                minions[i].debug();
+            }
+        }
     };
 };

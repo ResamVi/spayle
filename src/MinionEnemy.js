@@ -6,7 +6,7 @@ module.exports = function MinionEnemy(game, mother) {
     // This object keeps track and exposes the sprite
     var xOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
     var yOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
-    var sprite = game.add.sprite(mother.sprite.x + xOffset, mother.sprite.y + yOffset, 'enemy_many');
+    var sprite = game.add.sprite(mother.x + xOffset, mother.y + yOffset, 'enemy_many');
     sprite.anchor.setTo(0.5);
     this.sprite = sprite;
 
@@ -16,31 +16,31 @@ module.exports = function MinionEnemy(game, mother) {
     sprite.body.fixedRotation = true;
     this.body = sprite.body;
 
-    // Possible states: 'ready', 'attacking', 'returning', 'following'
-    var state = 'ready';
+    // Possible states: 'READY', 'ATTACKING', 'RETURNING', 'FOLLOWING'
+    var state = 'READY';
 
     this.update = function(player, motherAngle)
     {
         
         // Decisions
-        if(state === 'ready' && playerInRange(player.sprite)) {
-            state = 'attacking';
+        if(state === 'READY' && playerInRange(player.sprite)) {
+            state = 'ATTACKING';
             attack(player);
-        }else if(state === 'ready' && !closeToMother()) {
-            state = 'returning';
+        }else if(state === 'READY' && !closeToMother()) {
+            state = 'RETURNING';
             returnBack();
-        }else if(state === 'ready') {
-            state = 'following';
+        }else if(state === 'READY') {
+            state = 'FOLLOWING';
             follow(motherAngle);
         }
 
         // When coming to a close stop make a new decision
         if(velocity() < 10) {
-            state = 'ready';
+            state = 'READY';
         }
     };
     var returnBack = function() {
-        var angleToMother = Phaser.Math.angleBetween(sprite.x, sprite.y, mother.sprite.x, mother.sprite.y);
+        var angleToMother = Phaser.Math.angleBetween(sprite.x, sprite.y, mother.x, mother.y);
         sprite.body.rotation = angleToMother + Phaser.Math.HALF_PI;
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
@@ -91,6 +91,19 @@ module.exports = function MinionEnemy(game, mother) {
 
     var closeToMother = function()
     {
-        return Phaser.Math.distance(sprite.x, sprite.y, mother.sprite.x, mother.sprite.y) < Const.INFLUENCE_RADIUS/2;
+        return Phaser.Math.distance(sprite.x, sprite.y, mother.x, mother.y) < Const.INFLUENCE_RADIUS/2;
+    };
+
+    // ----------------- DEBUG -----------------
+    var debugState;
+    if(Const.DEBUG_MODE) {
+        debugState = game.add.bitmapText(0, -80, 'menuFont', '', 30);
+        debugState.anchor.set(0.5);
+        sprite.addChild(debugState);
+    }
+    this.debug = function() {
+        if(Const.DEBUG_MODE) {
+            debugState.text = state;
+        }
     };
 };
