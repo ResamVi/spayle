@@ -24,9 +24,11 @@ module.exports = function MotherEnemy(game) {
 
     // Each mother gets 3 minions to start with
     var minions = [];
+    var group = game.add.group();
     for(var i = 0; i < 3; i++) {
         var minion = new MinionEnemy(game, sprite);
         minions.push(minion);
+        group.add(minion.sprite);
     }
 
     // Select a random angle to start travelling
