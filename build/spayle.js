@@ -106083,6 +106083,19 @@ module.exports = {
     
 };
 },{}],5:[function(require,module,exports){
+module.exports = {
+
+    
+
+    /**
+     * FIRST: Create groups for minions
+     * SECOND: Create a line to the closest enemy
+     * THIRD: Calculate schnittpunkt
+     * LOOK: https://gamedevelopment.tutsplus.com/tutorials/positioning-on-screen-indicators-to-point-to-off-screen-targets--gamedev-6644
+     * 
+     */
+};
+},{}],6:[function(require,module,exports){
 module.exports = (function(){
     
     var progressText;
@@ -106146,6 +106159,8 @@ module.exports = (function(){
         this.load.image('enemy_boss', 'assets/enemy_boss.png');
         this.load.image('enemy_many', 'assets/enemy_many.png');
         this.load.image('enemy_bullet', 'assets/enemy_bullet.png');
+        this.load.image('warning', 'assets/warning.png');
+        this.load.image('line', 'assets/line.png');
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
@@ -106183,7 +106198,7 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{"./Constants.js":4}],6:[function(require,module,exports){
+},{"./Constants.js":4}],7:[function(require,module,exports){
 var Phaser = require('phaser-ce');
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
@@ -106196,7 +106211,7 @@ game.state.add('play', require('./PlayScene.js'));
 
 game.state.start('boot');
 
-},{"./BootScene.js":3,"./LoadScene.js":5,"./MenuScene.js":7,"./PlayScene.js":10,"./SplashScene.js":12,"phaser-ce":2}],7:[function(require,module,exports){
+},{"./BootScene.js":3,"./LoadScene.js":6,"./MenuScene.js":8,"./PlayScene.js":11,"./SplashScene.js":13,"phaser-ce":2}],8:[function(require,module,exports){
 module.exports = (function(){
 
     const Const = require('./Constants.js');
@@ -106312,7 +106327,7 @@ module.exports = (function(){
 
     return { create: create, update: update};
 })();
-},{"./Constants.js":4,"./Player.js":11}],8:[function(require,module,exports){
+},{"./Constants.js":4,"./Player.js":12}],9:[function(require,module,exports){
 module.exports = function MinionEnemy(game, mother) {
     
     // To use constants in this module
@@ -106422,7 +106437,7 @@ module.exports = function MinionEnemy(game, mother) {
         }
     };
 };
-},{"./Constants.js":4}],9:[function(require,module,exports){
+},{"./Constants.js":4}],10:[function(require,module,exports){
 module.exports = function MotherEnemy(game) {
 
     // To use constants in this module
@@ -106449,9 +106464,11 @@ module.exports = function MotherEnemy(game) {
 
     // Each mother gets 3 minions to start with
     var minions = [];
+    var group = game.add.group();
     for(var i = 0; i < 3; i++) {
         var minion = new MinionEnemy(game, sprite);
         minions.push(minion);
+        group.add(minion.sprite);
     }
 
     // Select a random angle to start travelling
@@ -106554,18 +106571,22 @@ module.exports = function MotherEnemy(game) {
         }
     };
 };
-},{"./Constants.js":4,"./MinionEnemy.js":8}],10:[function(require,module,exports){
+},{"./Constants.js":4,"./MinionEnemy.js":9}],11:[function(require,module,exports){
 module.exports = (function() 
 {
     
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
     var MotherEnemy = require('./MotherEnemy.js');
+    var Hud = require('./HUD.js');
 
     var arrowkeys;
     
     var player;
     var enemy;
+    
+    var line;
+    var warning;
 
     var mainMusic;
 
@@ -106573,6 +106594,17 @@ module.exports = (function()
     {
         player = new Player(this);
         enemy = new MotherEnemy(this);
+
+        // HUD
+        var hud = this.add.group();
+        warning = this.add.sprite(300, 0, 'warning');
+        warning.anchor.setTo(0.5);
+        hud.add(warning);
+        hud.fixedToCamera = true;
+        
+        line = this.add.sprite(this.camera.width/2, this.game.height/2, 'line');
+
+        hud.add(line);
         
         // Music
         mainMusic = this.add.audio('mainMusic');
@@ -106593,7 +106625,7 @@ module.exports = (function()
         this.camera.follow(player.sprite, null, 0.5, 0.5);
 
         // Launch rocket away to start game
-        /* player.body.thrust(Const.LAUNCH_FORCE); */
+        player.body.thrust(Const.LAUNCH_FORCE);
     }
     
     
@@ -106610,9 +106642,43 @@ module.exports = (function()
 
         enemy.update(player);
 
-        this.world.bringToTop(enemy.sprite); // TODO: Debug only
+        /* var dy = (enemy.sprite.y - player.sprite.y);
+        var dx = Math.abs(enemy.sprite.x - player.sprite.x);
+        
+        var m = dy / dx; */
 
-        // Debugging
+        // Y Coord
+        /* if(m*400 + 300 < 20)
+            warning.y = 20;
+        else if(m*400 + 300 > 570)
+            warning.y = 570;
+        else
+            warning.y = m*400 + 300;
+
+        console.log(warning.y); */
+        
+        // X Coord
+        var dy = Math.abs(enemy.sprite.y - player.sprite.y);
+        var dx = enemy.sprite.x - player.sprite.x;
+        
+        var m = dy / dx;
+        
+        if(300 / m + 400 > 780) {
+            warning.x = 780;
+        }else if(300 / m + 400 < 0) {
+            warning.x = 0;
+        }else{
+            warning.x = 300 / m + 400;
+        }
+        console.log("DX/DY: " + dx + ", " + dy);
+        console.log(warning.x);
+
+
+        //console.log(-Phaser.Math.radToDeg(Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y)));
+        line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y);
+
+        // ---------------------------------- DEBUG ----------------------------------
+        this.world.bringToTop(enemy.sprite); // TODO: Debug only
         if(Const.DEBUG_MODE) {
             if (arrowkeys.up.isDown) {
                 this.camera.y -= Const.CAM_SPEED;
@@ -106633,15 +106699,15 @@ module.exports = (function()
     function render()
     {
         if(Const.DEBUG_MODE) {
-            this.game.camera.scale.setTo(0.5);
-            this.game.camera.unfollow();
-            
+            /* this.game.camera.scale.setTo(0.5); */
+            /* this.game.camera.unfollow(); */
+
             var x = player.body.velocity.x;
             var y = player.body.velocity.y;
             var v = Math.round(Math.sqrt(x*x + y*y));
 
             enemy.debug();
-            
+
             this.game.debug.text('Play coordinates: ' + Math.round(player.sprite.x) + ', ' + Math.round(player.sprite.y), 32, 510);
             this.game.debug.text('Camera coordinates: ' + this.game.camera.x + ', ' + this.game.camera.x, 32, 530);
             this.game.debug.text('Player velocity: ' + v , 32, 550);
@@ -106650,7 +106716,7 @@ module.exports = (function()
 
     return {create: create, update: update, render: render};
 })();
-},{"./Constants.js":4,"./MotherEnemy.js":9,"./Player.js":11}],11:[function(require,module,exports){
+},{"./Constants.js":4,"./HUD.js":5,"./MotherEnemy.js":10,"./Player.js":12}],12:[function(require,module,exports){
 module.exports = function Player(game)
 {    
     // To use constants in this module
@@ -106864,7 +106930,7 @@ module.exports = function Player(game)
         boomSound.destroy();
     };
 };
-},{"./Constants.js":4,"./Weapon.js":13}],12:[function(require,module,exports){
+},{"./Constants.js":4,"./Weapon.js":14}],13:[function(require,module,exports){
 module.exports = (function(){
     
     const FADE_IN_DURATION = 1000;
@@ -106899,7 +106965,7 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = function Weapon(trackedSprite, game) {
 
     var Const = require('./Constants.js');
@@ -106938,4 +107004,4 @@ module.exports = function Weapon(trackedSprite, game) {
     };
 
 };
-},{"./Constants.js":4}]},{},[6]);
+},{"./Constants.js":4}]},{},[7]);
