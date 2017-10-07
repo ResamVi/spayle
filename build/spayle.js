@@ -106012,6 +106012,11 @@ module.exports = (function(){
 },{"./Constants.js":4}],4:[function(require,module,exports){
 module.exports = {
     
+    GAME_WIDTH: 800,
+    GAME_HEIGHT: 600,
+    CENTER_CAMERA_X: 300,
+    CENTER_CAMERA_Y: 400,
+
     // DEBUG MODE
     DEBUG_MODE: true,
     CAM_SPEED: 16,
@@ -106083,19 +106088,6 @@ module.exports = {
     
 };
 },{}],5:[function(require,module,exports){
-module.exports = {
-
-    
-
-    /**
-     * FIRST: Create groups for minions
-     * SECOND: Create a line to the closest enemy
-     * THIRD: Calculate schnittpunkt
-     * LOOK: https://gamedevelopment.tutsplus.com/tutorials/positioning-on-screen-indicators-to-point-to-off-screen-targets--gamedev-6644
-     * 
-     */
-};
-},{}],6:[function(require,module,exports){
 module.exports = (function(){
     
     var progressText;
@@ -106161,6 +106153,7 @@ module.exports = (function(){
         this.load.image('enemy_bullet', 'assets/enemy_bullet.png');
         this.load.image('warning', 'assets/warning.png');
         this.load.image('line', 'assets/line.png');
+        this.load.image('arrow', 'assets/arrow.png');
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
@@ -106198,10 +106191,11 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{"./Constants.js":4}],7:[function(require,module,exports){
+},{"./Constants.js":4}],6:[function(require,module,exports){
 var Phaser = require('phaser-ce');
+var Const = require('./Constants.js');
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
+var game = new Phaser.Game(Const.GAME_WIDTH, Const.GAME_HEIGHT, Phaser.AUTO, '');
 
 game.state.add('splash', require('./SplashScene.js'));
 game.state.add('boot', require('./BootScene.js'));
@@ -106211,7 +106205,7 @@ game.state.add('play', require('./PlayScene.js'));
 
 game.state.start('boot');
 
-},{"./BootScene.js":3,"./LoadScene.js":6,"./MenuScene.js":8,"./PlayScene.js":11,"./SplashScene.js":13,"phaser-ce":2}],8:[function(require,module,exports){
+},{"./BootScene.js":3,"./Constants.js":4,"./LoadScene.js":5,"./MenuScene.js":7,"./PlayScene.js":10,"./SplashScene.js":12,"phaser-ce":2}],7:[function(require,module,exports){
 module.exports = (function(){
 
     const Const = require('./Constants.js');
@@ -106327,7 +106321,7 @@ module.exports = (function(){
 
     return { create: create, update: update};
 })();
-},{"./Constants.js":4,"./Player.js":12}],9:[function(require,module,exports){
+},{"./Constants.js":4,"./Player.js":11}],8:[function(require,module,exports){
 module.exports = function MinionEnemy(game, mother) {
     
     // To use constants in this module
@@ -106437,7 +106431,7 @@ module.exports = function MinionEnemy(game, mother) {
         }
     };
 };
-},{"./Constants.js":4}],10:[function(require,module,exports){
+},{"./Constants.js":4}],9:[function(require,module,exports){
 module.exports = function MotherEnemy(game) {
 
     // To use constants in this module
@@ -106571,14 +106565,13 @@ module.exports = function MotherEnemy(game) {
         }
     };
 };
-},{"./Constants.js":4,"./MinionEnemy.js":9}],11:[function(require,module,exports){
+},{"./Constants.js":4,"./MinionEnemy.js":8}],10:[function(require,module,exports){
 module.exports = (function() 
 {
     
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
     var MotherEnemy = require('./MotherEnemy.js');
-    var Hud = require('./HUD.js');
 
     var arrowkeys;
     
@@ -106587,6 +106580,7 @@ module.exports = (function()
     
     var line;
     var warning;
+    var arrow;
 
     var mainMusic;
 
@@ -106597,10 +106591,15 @@ module.exports = (function()
 
         // HUD
         var hud = this.add.group();
-        warning = this.add.sprite(300, 0, 'warning');
+        hud.fixedToCamera = true;
+
+        warning = this.add.sprite(300, 600-36, 'warning');
         warning.anchor.setTo(0.5);
         hud.add(warning);
-        hud.fixedToCamera = true;
+        
+        arrow = this.add.sprite(this.camera.width/2, this.game.height/2, 'arrow');
+        arrow.anchor.setTo(0.5);
+        hud.add(arrow);
         
         line = this.add.sprite(this.camera.width/2, this.game.height/2, 'line');
 
@@ -106642,39 +106641,10 @@ module.exports = (function()
 
         enemy.update(player);
 
-        /* var dy = (enemy.sprite.y - player.sprite.y);
-        var dx = Math.abs(enemy.sprite.x - player.sprite.x);
-        
-        var m = dy / dx; */
 
-        // Y Coord
-        /* if(m*400 + 300 < 20)
-            warning.y = 20;
-        else if(m*400 + 300 > 570)
-            warning.y = 570;
-        else
-            warning.y = m*400 + 300;
+        updateWarning();
 
-        console.log(warning.y); */
         
-        // X Coord
-        var dy = Math.abs(enemy.sprite.y - player.sprite.y);
-        var dx = enemy.sprite.x - player.sprite.x;
-        
-        var m = dy / dx;
-        
-        if(300 / m + 400 > 780) {
-            warning.x = 780;
-        }else if(300 / m + 400 < 0) {
-            warning.x = 0;
-        }else{
-            warning.x = 300 / m + 400;
-        }
-        console.log("DX/DY: " + dx + ", " + dy);
-        console.log(warning.x);
-
-
-        //console.log(-Phaser.Math.radToDeg(Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y)));
         line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y);
 
         // ---------------------------------- DEBUG ----------------------------------
@@ -106694,6 +106664,35 @@ module.exports = (function()
                 this.camera.x += Const.CAM_SPEED;
             }
         }
+    }
+
+    function updateWarning()
+    {    
+        // Angle
+        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y); 
+
+        // Y Coord
+        var ySlope = (enemy.sprite.y - player.sprite.y) / Math.abs(enemy.sprite.x - player.sprite.x);
+        var yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
+        
+        if(yCoord < 7)
+            arrow.y = 7;
+        else if(yCoord > Const.GAME_HEIGHT)
+            arrow.y = Const.GAME_HEIGHT - 7;
+        else
+            arrow.y = yCoord;
+        
+        // X Coord
+        var xSlope = Math.abs(enemy.sprite.y - player.sprite.y) / (enemy.sprite.x - player.sprite.x);
+        var xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
+
+        if(xCoord > Const.GAME_WIDTH)
+            arrow.x = Const.GAME_WIDTH - 7;
+        else if(xCoord < 7)
+            arrow.x = 7;
+        else
+            arrow.x = xCoord;
+        
     }
 
     function render()
@@ -106716,7 +106715,7 @@ module.exports = (function()
 
     return {create: create, update: update, render: render};
 })();
-},{"./Constants.js":4,"./HUD.js":5,"./MotherEnemy.js":10,"./Player.js":12}],12:[function(require,module,exports){
+},{"./Constants.js":4,"./MotherEnemy.js":9,"./Player.js":11}],11:[function(require,module,exports){
 module.exports = function Player(game)
 {    
     // To use constants in this module
@@ -106930,7 +106929,7 @@ module.exports = function Player(game)
         boomSound.destroy();
     };
 };
-},{"./Constants.js":4,"./Weapon.js":14}],13:[function(require,module,exports){
+},{"./Constants.js":4,"./Weapon.js":13}],12:[function(require,module,exports){
 module.exports = (function(){
     
     const FADE_IN_DURATION = 1000;
@@ -106965,7 +106964,7 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = function Weapon(trackedSprite, game) {
 
     var Const = require('./Constants.js');
@@ -107004,4 +107003,4 @@ module.exports = function Weapon(trackedSprite, game) {
     };
 
 };
-},{"./Constants.js":4}]},{},[7]);
+},{"./Constants.js":4}]},{},[6]);

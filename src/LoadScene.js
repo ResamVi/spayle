@@ -63,6 +63,7 @@ module.exports = (function(){
         this.load.image('enemy_bullet', 'assets/enemy_bullet.png');
         this.load.image('warning', 'assets/warning.png');
         this.load.image('line', 'assets/line.png');
+        this.load.image('arrow', 'assets/arrow.png');
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');

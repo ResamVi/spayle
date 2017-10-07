@@ -4,7 +4,6 @@ module.exports = (function()
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
     var MotherEnemy = require('./MotherEnemy.js');
-    var Hud = require('./HUD.js');
 
     var arrowkeys;
     
@@ -13,6 +12,7 @@ module.exports = (function()
     
     var line;
     var warning;
+    var arrow;
 
     var mainMusic;
 
@@ -23,10 +23,15 @@ module.exports = (function()
 
         // HUD
         var hud = this.add.group();
-        warning = this.add.sprite(300, 0, 'warning');
+        hud.fixedToCamera = true;
+
+        warning = this.add.sprite(300, 600-36, 'warning');
         warning.anchor.setTo(0.5);
         hud.add(warning);
-        hud.fixedToCamera = true;
+        
+        arrow = this.add.sprite(this.camera.width/2, this.game.height/2, 'arrow');
+        arrow.anchor.setTo(0.5);
+        hud.add(arrow);
         
         line = this.add.sprite(this.camera.width/2, this.game.height/2, 'line');
 
@@ -68,39 +73,10 @@ module.exports = (function()
 
         enemy.update(player);
 
-        /* var dy = (enemy.sprite.y - player.sprite.y);
-        var dx = Math.abs(enemy.sprite.x - player.sprite.x);
-        
-        var m = dy / dx; */
 
-        // Y Coord
-        /* if(m*400 + 300 < 20)
-            warning.y = 20;
-        else if(m*400 + 300 > 570)
-            warning.y = 570;
-        else
-            warning.y = m*400 + 300;
+        updateWarning();
 
-        console.log(warning.y); */
         
-        // X Coord
-        var dy = Math.abs(enemy.sprite.y - player.sprite.y);
-        var dx = enemy.sprite.x - player.sprite.x;
-        
-        var m = dy / dx;
-        
-        if(300 / m + 400 > 780) {
-            warning.x = 780;
-        }else if(300 / m + 400 < 0) {
-            warning.x = 0;
-        }else{
-            warning.x = 300 / m + 400;
-        }
-        console.log("DX/DY: " + dx + ", " + dy);
-        console.log(warning.x);
-
-
-        //console.log(-Phaser.Math.radToDeg(Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y)));
         line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y);
 
         // ---------------------------------- DEBUG ----------------------------------
@@ -120,6 +96,35 @@ module.exports = (function()
                 this.camera.x += Const.CAM_SPEED;
             }
         }
+    }
+
+    function updateWarning()
+    {    
+        // Angle
+        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y); 
+
+        // Y Coord
+        var ySlope = (enemy.sprite.y - player.sprite.y) / Math.abs(enemy.sprite.x - player.sprite.x);
+        var yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
+        
+        if(yCoord < 7)
+            arrow.y = 7;
+        else if(yCoord > Const.GAME_HEIGHT)
+            arrow.y = Const.GAME_HEIGHT - 7;
+        else
+            arrow.y = yCoord;
+        
+        // X Coord
+        var xSlope = Math.abs(enemy.sprite.y - player.sprite.y) / (enemy.sprite.x - player.sprite.x);
+        var xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
+
+        if(xCoord > Const.GAME_WIDTH)
+            arrow.x = Const.GAME_WIDTH - 7;
+        else if(xCoord < 7)
+            arrow.x = 7;
+        else
+            arrow.x = xCoord;
+        
     }
 
     function render()
