@@ -10,6 +10,7 @@ module.exports = (function(){
     var startButton;
     var optionButton;
     var backButton;
+    var instructions;
 
     var menuMusic;
     var startMusic;
@@ -47,6 +48,9 @@ module.exports = (function(){
         startButton = createButton.call(this, 0, 1.5, play, 'buttonAtlas', ...Const.START_BUTTON);
         optionButton = createButton.call(this, 120, 1.5, moveDown, 'buttonAtlas', ...Const.OPTION_BUTTON);
         backButton = createButton.call(this, 850, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
+
+        // Instructions
+        instructions = this.add.sprite(10,10, 'instructions');
 
         // Music
         menuMusic = this.add.audio('menuMusic');

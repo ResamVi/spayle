@@ -106138,6 +106138,7 @@ module.exports = (function(){
         this.load.audio('startMusic', 'assets/start.mp3');
         this.load.audio('menuMusic', 'assets/menu.mp3');
         this.load.audio('mainMusic', 'assets/main.mp3');
+        this.load.image('instructions', 'assets/instructions.png');
         this.load.audio('ignition', 'assets/ignition.mp3');
         this.load.audio('boom', 'assets/boom.mp3');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
@@ -106218,6 +106219,7 @@ module.exports = (function(){
     var startButton;
     var optionButton;
     var backButton;
+    var instructions;
 
     var menuMusic;
     var startMusic;
@@ -106255,6 +106257,9 @@ module.exports = (function(){
         startButton = createButton.call(this, 0, 1.5, play, 'buttonAtlas', ...Const.START_BUTTON);
         optionButton = createButton.call(this, 120, 1.5, moveDown, 'buttonAtlas', ...Const.OPTION_BUTTON);
         backButton = createButton.call(this, 850, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
+
+        // Instructions
+        instructions = this.add.sprite(10,10, 'instructions');
 
         // Music
         menuMusic = this.add.audio('menuMusic');
@@ -106464,6 +106469,7 @@ module.exports = function MotherEnemy(game) {
         minions.push(minion);
         group.add(minion.sprite);
     }
+    this.group = group;
 
     // Select a random angle to start travelling
     var currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
@@ -106533,6 +106539,7 @@ module.exports = function MotherEnemy(game) {
         if(Math.random() < 0.005) {
             var minion = new MinionEnemy(game, sprite);
             minions.push(minion);
+            group.add(minion.sprite);
         }
     };
 
@@ -106601,9 +106608,8 @@ module.exports = (function()
         arrow.anchor.setTo(0.5);
         hud.add(arrow);
         
-        line = this.add.sprite(this.camera.width/2, this.game.height/2, 'line');
-
-        hud.add(line);
+        /* line = this.add.sprite(this.camera.width/2, this.game.height/2, 'line');
+        hud.add(line); */
         
         // Music
         mainMusic = this.add.audio('mainMusic');
@@ -106641,13 +106647,21 @@ module.exports = (function()
 
         enemy.update(player);
 
-
-        updateWarning();
-
+        var shortestDistance  = Phaser.Math.distance(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y);;
+        var closestEnemy = enemy;
         
-        line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y);
+        enemy.group.forEach(function(child) {
+            var d = Phaser.Math.distance(player.sprite.x, player.sprite.y, child.x, child.y);
+            if(d < shortestDistance) {
+                shortestDistance = d;
+                closestEnemy = child;
+            }
+        });
+
+        updateWarning(closestEnemy);
 
         // ---------------------------------- DEBUG ----------------------------------
+        /* line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y); */
         this.world.bringToTop(enemy.sprite); // TODO: Debug only
         if(Const.DEBUG_MODE) {
             if (arrowkeys.up.isDown) {
@@ -106666,13 +106680,13 @@ module.exports = (function()
         }
     }
 
-    function updateWarning()
+    function updateWarning(enemy)
     {    
         // Angle
-        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y); 
+        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.x, enemy.y); 
 
         // Y Coord
-        var ySlope = (enemy.sprite.y - player.sprite.y) / Math.abs(enemy.sprite.x - player.sprite.x);
+        var ySlope = (enemy.y - player.sprite.y) / Math.abs(enemy.x - player.sprite.x);
         var yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
         
         if(yCoord < 7)
@@ -106683,7 +106697,7 @@ module.exports = (function()
             arrow.y = yCoord;
         
         // X Coord
-        var xSlope = Math.abs(enemy.sprite.y - player.sprite.y) / (enemy.sprite.x - player.sprite.x);
+        var xSlope = Math.abs(enemy.y - player.sprite.y) / (enemy.x - player.sprite.x);
         var xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
 
         if(xCoord > Const.GAME_WIDTH)
