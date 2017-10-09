@@ -1,5 +1,10 @@
 module.exports = {
     
+    GAME_WIDTH: 800,
+    GAME_HEIGHT: 600,
+    CENTER_CAMERA_X: 300,
+    CENTER_CAMERA_Y: 400,
+
     // DEBUG MODE
     DEBUG_MODE: true,
     CAM_SPEED: 16,

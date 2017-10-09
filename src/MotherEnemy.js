@@ -30,6 +30,7 @@ module.exports = function MotherEnemy(game) {
         minions.push(minion);
         group.add(minion.sprite);
     }
+    this.group = group;
 
     // Select a random angle to start travelling
     var currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
@@ -99,6 +100,7 @@ module.exports = function MotherEnemy(game) {
         if(Math.random() < 0.005) {
             var minion = new MinionEnemy(game, sprite);
             minions.push(minion);
+            group.add(minion.sprite);
         }
     };
 

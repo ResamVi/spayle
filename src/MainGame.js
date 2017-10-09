@@ -1,6 +1,7 @@
 var Phaser = require('phaser-ce');
+var Const = require('./Constants.js');
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '');
+var game = new Phaser.Game(Const.GAME_WIDTH, Const.GAME_HEIGHT, Phaser.AUTO, '');
 
 game.state.add('splash', require('./SplashScene.js'));
 game.state.add('boot', require('./BootScene.js'));
