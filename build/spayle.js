@@ -106089,6 +106089,84 @@ module.exports = {
     
 };
 },{}],5:[function(require,module,exports){
+module.exports = function HUD(game, player, enemy) {
+
+    var Const = require('./Constants.js');
+
+    var warning;
+    var arrow;
+
+    // HUD
+    var hud = game.add.group();
+    hud.fixedToCamera = true;
+
+    warning = game.add.sprite(300, 600-36, 'warning');
+    warning.anchor.setTo(0.5);
+    hud.add(warning);
+    
+    arrow = game.add.sprite(game.camera.width/2, game.game.height/2, 'arrow');
+    arrow.anchor.setTo(0.5);
+    hud.add(arrow);
+    
+    this.update = function update() {
+        focusPointer(getNearestEnemy());
+    };
+
+    function getNearestEnemy() {
+        var shortestDistance  = Number.POSITIVE_INFINITY;
+        var closestEnemy;
+
+        enemy.group.forEach(function(child) {
+            var d = Phaser.Math.distance(player.sprite.x, player.sprite.y, child.x, child.y);
+            if(d < shortestDistance) {
+                shortestDistance = d;
+                closestEnemy = child;
+            }
+        });
+        
+        if(shortestDistance < Const.WARNING_RADIUS)
+            return closestEnemy;
+    }
+    
+    function focusPointer(enemy)
+    {    
+        if(enemy === undefined) {
+            warning.alpha = 0;
+            arrow.alpha = 0;
+            return;
+        } else {
+            warning.alpha = 1;
+            arrow.alpha = 1;
+        }
+
+        // Angle
+        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.x, enemy.y); 
+
+        // Y Coord
+        var ySlope = (enemy.y - player.sprite.y) / Math.abs(enemy.x - player.sprite.x);
+        var yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
+        
+        if(yCoord < 7)
+            arrow.y = 7;
+        else if(yCoord > Const.GAME_HEIGHT)
+            arrow.y = Const.GAME_HEIGHT - 7;
+        else
+            arrow.y = yCoord;
+        
+        // X Coord
+        var xSlope = Math.abs(enemy.y - player.sprite.y) / (enemy.x - player.sprite.x);
+        var xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
+
+        if(xCoord > Const.GAME_WIDTH)
+            arrow.x = Const.GAME_WIDTH - 7;
+        else if(xCoord < 7)
+            arrow.x = 7;
+        else
+            arrow.x = xCoord;
+        
+    }
+};
+},{"./Constants.js":4}],6:[function(require,module,exports){
 module.exports = (function(){
     
     var progressText;
@@ -106193,7 +106271,7 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{"./Constants.js":4}],6:[function(require,module,exports){
+},{"./Constants.js":4}],7:[function(require,module,exports){
 var Phaser = require('phaser-ce');
 var Const = require('./Constants.js');
 
@@ -106207,7 +106285,7 @@ game.state.add('play', require('./PlayScene.js'));
 
 game.state.start('boot');
 
-},{"./BootScene.js":3,"./Constants.js":4,"./LoadScene.js":5,"./MenuScene.js":7,"./PlayScene.js":10,"./SplashScene.js":12,"phaser-ce":2}],7:[function(require,module,exports){
+},{"./BootScene.js":3,"./Constants.js":4,"./LoadScene.js":6,"./MenuScene.js":8,"./PlayScene.js":11,"./SplashScene.js":13,"phaser-ce":2}],8:[function(require,module,exports){
 module.exports = (function(){
 
     const Const = require('./Constants.js');
@@ -106327,7 +106405,7 @@ module.exports = (function(){
 
     return { create: create, update: update};
 })();
-},{"./Constants.js":4,"./Player.js":11}],8:[function(require,module,exports){
+},{"./Constants.js":4,"./Player.js":12}],9:[function(require,module,exports){
 module.exports = function MinionEnemy(game, mother) {
     
     // To use constants in this module
@@ -106437,7 +106515,7 @@ module.exports = function MinionEnemy(game, mother) {
         }
     };
 };
-},{"./Constants.js":4}],9:[function(require,module,exports){
+},{"./Constants.js":4}],10:[function(require,module,exports){
 module.exports = function MotherEnemy(game) {
 
     // To use constants in this module
@@ -106573,22 +106651,22 @@ module.exports = function MotherEnemy(game) {
         }
     };
 };
-},{"./Constants.js":4,"./MinionEnemy.js":8}],10:[function(require,module,exports){
+},{"./Constants.js":4,"./MinionEnemy.js":9}],11:[function(require,module,exports){
 module.exports = (function() 
 {
     
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
     var MotherEnemy = require('./MotherEnemy.js');
+    var Hud = require('./Hud.js');
 
     var arrowkeys;
     
     var player;
     var enemy;
     
-    var line;
-    var warning;
-    var arrow;
+    var hud;
+    /* var line; */
 
     var mainMusic;
 
@@ -106596,19 +106674,8 @@ module.exports = (function()
     {
         player = new Player(this);
         enemy = new MotherEnemy(this);
+        hud = new Hud(this, player, enemy);
 
-        // HUD
-        var hud = this.add.group();
-        hud.fixedToCamera = true;
-
-        warning = this.add.sprite(300, 600-36, 'warning');
-        warning.anchor.setTo(0.5);
-        hud.add(warning);
-        
-        arrow = this.add.sprite(this.camera.width/2, this.game.height/2, 'arrow');
-        arrow.anchor.setTo(0.5);
-        hud.add(arrow);
-        
         /* line = this.add.sprite(this.camera.width/2, this.game.height/2, 'line');
         hud.add(line); */
         
@@ -106648,7 +106715,7 @@ module.exports = (function()
 
         enemy.update(player);
 
-        focusPointer(getNearestEnemy());
+        hud.update();
 
         // ---------------------------------- DEBUG ----------------------------------
         /* line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y); */
@@ -106668,64 +106735,6 @@ module.exports = (function()
                 this.camera.x += Const.CAM_SPEED;
             }
         }
-    }
-
-
-    function getNearestEnemy() {
-        var shortestDistance  = Phaser.Math.distance(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y);;
-        var closestEnemy = enemy;
-        
-
-        enemy.group.forEach(function(child) {
-            var d = Phaser.Math.distance(player.sprite.x, player.sprite.y, child.x, child.y);
-            if(d < shortestDistance) {
-                shortestDistance = d;
-                closestEnemy = child;
-            }
-        });
-        console.log(shortestDistance);
-        if(shortestDistance > Const.WARNING_RADIUS) {
-            return null;
-        }else{
-            return closestEnemy;
-        }
-    }
-    function focusPointer(enemy)
-    {    
-        if(enemy === null) {
-            warning.alpha = 0;
-            arrow.alpha = 0;
-            return;
-        } else {
-            warning.alpha = 1;
-            arrow.alpha = 1;
-        }
-
-        // Angle
-        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.x, enemy.y); 
-
-        // Y Coord
-        var ySlope = (enemy.y - player.sprite.y) / Math.abs(enemy.x - player.sprite.x);
-        var yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
-        
-        if(yCoord < 7)
-            arrow.y = 7;
-        else if(yCoord > Const.GAME_HEIGHT)
-            arrow.y = Const.GAME_HEIGHT - 7;
-        else
-            arrow.y = yCoord;
-        
-        // X Coord
-        var xSlope = Math.abs(enemy.y - player.sprite.y) / (enemy.x - player.sprite.x);
-        var xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
-
-        if(xCoord > Const.GAME_WIDTH)
-            arrow.x = Const.GAME_WIDTH - 7;
-        else if(xCoord < 7)
-            arrow.x = 7;
-        else
-            arrow.x = xCoord;
-        
     }
 
     function render()
@@ -106748,7 +106757,7 @@ module.exports = (function()
 
     return {create: create, update: update, render: render};
 })();
-},{"./Constants.js":4,"./MotherEnemy.js":9,"./Player.js":11}],11:[function(require,module,exports){
+},{"./Constants.js":4,"./Hud.js":5,"./MotherEnemy.js":10,"./Player.js":12}],12:[function(require,module,exports){
 module.exports = function Player(game)
 {    
     // To use constants in this module
@@ -106962,7 +106971,7 @@ module.exports = function Player(game)
         boomSound.destroy();
     };
 };
-},{"./Constants.js":4,"./Weapon.js":13}],12:[function(require,module,exports){
+},{"./Constants.js":4,"./Weapon.js":14}],13:[function(require,module,exports){
 module.exports = (function(){
     
     const FADE_IN_DURATION = 1000;
@@ -106997,7 +107006,7 @@ module.exports = (function(){
     
     return { preload: preload, create: create};
 })();
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = function Weapon(trackedSprite, game) {
 
     var Const = require('./Constants.js');
@@ -107036,4 +107045,4 @@ module.exports = function Weapon(trackedSprite, game) {
     };
 
 };
-},{"./Constants.js":4}]},{},[6]);
+},{"./Constants.js":4}]},{},[7]);

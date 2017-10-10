@@ -4,15 +4,15 @@ module.exports = (function()
     var Const = require('./Constants.js');
     var Player = require('./Player.js');
     var MotherEnemy = require('./MotherEnemy.js');
+    var Hud = require('./Hud.js');
 
     var arrowkeys;
     
     var player;
     var enemy;
     
-    var line;
-    var warning;
-    var arrow;
+    var hud;
+    /* var line; */
 
     var mainMusic;
 
@@ -20,19 +20,8 @@ module.exports = (function()
     {
         player = new Player(this);
         enemy = new MotherEnemy(this);
+        hud = new Hud(this, player, enemy);
 
-        // HUD
-        var hud = this.add.group();
-        hud.fixedToCamera = true;
-
-        warning = this.add.sprite(300, 600-36, 'warning');
-        warning.anchor.setTo(0.5);
-        hud.add(warning);
-        
-        arrow = this.add.sprite(this.camera.width/2, this.game.height/2, 'arrow');
-        arrow.anchor.setTo(0.5);
-        hud.add(arrow);
-        
         /* line = this.add.sprite(this.camera.width/2, this.game.height/2, 'line');
         hud.add(line); */
         
@@ -72,7 +61,7 @@ module.exports = (function()
 
         enemy.update(player);
 
-        focusPointer(getNearestEnemy());
+        hud.update();
 
         // ---------------------------------- DEBUG ----------------------------------
         /* line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y); */
@@ -92,64 +81,6 @@ module.exports = (function()
                 this.camera.x += Const.CAM_SPEED;
             }
         }
-    }
-
-
-    function getNearestEnemy() {
-        var shortestDistance  = Phaser.Math.distance(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y);;
-        var closestEnemy = enemy;
-        
-
-        enemy.group.forEach(function(child) {
-            var d = Phaser.Math.distance(player.sprite.x, player.sprite.y, child.x, child.y);
-            if(d < shortestDistance) {
-                shortestDistance = d;
-                closestEnemy = child;
-            }
-        });
-        console.log(shortestDistance);
-        if(shortestDistance > Const.WARNING_RADIUS) {
-            return null;
-        }else{
-            return closestEnemy;
-        }
-    }
-    function focusPointer(enemy)
-    {    
-        if(enemy === null) {
-            warning.alpha = 0;
-            arrow.alpha = 0;
-            return;
-        } else {
-            warning.alpha = 1;
-            arrow.alpha = 1;
-        }
-
-        // Angle
-        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.x, enemy.y); 
-
-        // Y Coord
-        var ySlope = (enemy.y - player.sprite.y) / Math.abs(enemy.x - player.sprite.x);
-        var yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
-        
-        if(yCoord < 7)
-            arrow.y = 7;
-        else if(yCoord > Const.GAME_HEIGHT)
-            arrow.y = Const.GAME_HEIGHT - 7;
-        else
-            arrow.y = yCoord;
-        
-        // X Coord
-        var xSlope = Math.abs(enemy.y - player.sprite.y) / (enemy.x - player.sprite.x);
-        var xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
-
-        if(xCoord > Const.GAME_WIDTH)
-            arrow.x = Const.GAME_WIDTH - 7;
-        else if(xCoord < 7)
-            arrow.x = 7;
-        else
-            arrow.x = xCoord;
-        
     }
 
     function render()
