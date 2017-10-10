@@ -45,12 +45,12 @@ module.exports = (function(){
         this.add.tween(title.scale).to( ...Const.TITLE_BOUNCE);
 
         // Buttons
-        startButton = createButton.call(this, 0, 1.5, play, 'buttonAtlas', ...Const.START_BUTTON);
-        optionButton = createButton.call(this, 120, 1.5, moveDown, 'buttonAtlas', ...Const.OPTION_BUTTON);
+        startButton = createButton.call(this, -50, 1.5, play, 'buttonAtlas', ...Const.START_BUTTON);
+        optionButton = createButton.call(this, 50, 1.5, moveDown, 'buttonAtlas', ...Const.OPTION_BUTTON);
         backButton = createButton.call(this, 850, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
 
         // Instructions
-        instructions = this.add.sprite(10, 10, 'instructions');
+        instructions = this.add.sprite(10, 400, 'instructions');
 
         // Music
         menuMusic = this.add.audio('menuMusic');
@@ -74,7 +74,7 @@ module.exports = (function(){
         this.add.tween(this.camera.scale).to({x: 0.5, y: 0.5}, 7000, Phaser.Easing.Cubic.InOut, true);
 
         // Fade out all menu items
-        for(var sprite of [title, startButton, optionButton, backButton]) {
+        for(var sprite of [title, startButton, optionButton, backButton, instructions]) {
             var t = this.add.tween(sprite).to(...Const.FADE_OUT);
             t.onComplete.add(function(invisibleSprite) {
                 invisibleSprite.destroy();
