@@ -50,6 +50,7 @@ module.exports = {
     STUN_DURATION: 2000,
 
     // Player Constants
+    WARNING_RADIUS: 2000,
     SHAKE_DURATION: 2000,
     SPIN_AMOUNT: 1000,
     MINIMUM_SPEED: 100,

@@ -106062,6 +106062,7 @@ module.exports = {
     STUN_DURATION: 2000,
 
     // Player Constants
+    WARNING_RADIUS: 2000,
     SHAKE_DURATION: 2000,
     SPIN_AMOUNT: 1000,
     MINIMUM_SPEED: 100,
@@ -106259,7 +106260,7 @@ module.exports = (function(){
         backButton = createButton.call(this, 850, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
 
         // Instructions
-        instructions = this.add.sprite(10,10, 'instructions');
+        instructions = this.add.sprite(10, 10, 'instructions');
 
         // Music
         menuMusic = this.add.audio('menuMusic');
@@ -106647,18 +106648,7 @@ module.exports = (function()
 
         enemy.update(player);
 
-        var shortestDistance  = Phaser.Math.distance(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y);;
-        var closestEnemy = enemy;
-        
-        enemy.group.forEach(function(child) {
-            var d = Phaser.Math.distance(player.sprite.x, player.sprite.y, child.x, child.y);
-            if(d < shortestDistance) {
-                shortestDistance = d;
-                closestEnemy = child;
-            }
-        });
-
-        updateWarning(closestEnemy);
+        focusPointer(getNearestEnemy());
 
         // ---------------------------------- DEBUG ----------------------------------
         /* line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y); */
@@ -106680,8 +106670,37 @@ module.exports = (function()
         }
     }
 
-    function updateWarning(enemy)
+
+    function getNearestEnemy() {
+        var shortestDistance  = Phaser.Math.distance(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y);;
+        var closestEnemy = enemy;
+        
+
+        enemy.group.forEach(function(child) {
+            var d = Phaser.Math.distance(player.sprite.x, player.sprite.y, child.x, child.y);
+            if(d < shortestDistance) {
+                shortestDistance = d;
+                closestEnemy = child;
+            }
+        });
+        console.log(shortestDistance);
+        if(shortestDistance > Const.WARNING_RADIUS) {
+            return null;
+        }else{
+            return closestEnemy;
+        }
+    }
+    function focusPointer(enemy)
     {    
+        if(enemy === null) {
+            warning.alpha = 0;
+            arrow.alpha = 0;
+            return;
+        } else {
+            warning.alpha = 1;
+            arrow.alpha = 1;
+        }
+
         // Angle
         arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.x, enemy.y); 
 
