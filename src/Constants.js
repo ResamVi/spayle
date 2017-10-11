@@ -74,5 +74,9 @@ module.exports = {
     SIGHT_RANGE: 500,
     ENEMY_THRUST_FORCE: 5000,
     INFLUENCE_RADIUS: 1500,
-    
+
+    // Comments
+    LIFT_OFF: ['Succesful lift-off!', 'So long, Earth!', 'To infinity and beyond!'],
+    IDLE: ['Captain, this is boring', 'Captain, some action?', 'Captain, are we there yet?', 'Captain, when\'s the fun starting?'],
+    COMMENT_TIME_SHOWN: 2000,
 };

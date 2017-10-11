@@ -106086,33 +106086,74 @@ module.exports = {
     SIGHT_RANGE: 500,
     ENEMY_THRUST_FORCE: 5000,
     INFLUENCE_RADIUS: 1500,
-    
+
+    // Comments
+    LIFT_OFF: ['Succesful lift-off!', 'So long, Earth!', 'To infinity and beyond!'],
+    IDLE: ['Captain, this is boring', 'Captain, some action?', 'Captain, are we there yet?', 'Captain, when\'s the fun starting?'],
+    COMMENT_TIME_SHOWN: 2000,
 };
 },{}],5:[function(require,module,exports){
-module.exports = function HUD(game, player, enemy) {
-
+module.exports = function HUD(game, player, enemy)
+{
     var Const = require('./Constants.js');
-
-    var warning;
-    var arrow;
 
     // HUD
     var hud = game.add.group();
     hud.fixedToCamera = true;
 
-    warning = game.add.sprite(300, 600-36, 'warning');
+    // Warning icon
+    var warning = game.add.sprite(300, 600-36, 'warning');
     warning.anchor.setTo(0.5);
     hud.add(warning);
     
-    arrow = game.add.sprite(game.camera.width/2, game.game.height/2, 'arrow');
+    // Arrow point to enemy
+    var arrow = game.add.sprite(game.camera.width/2, game.game.height/2, 'arrow');
     arrow.anchor.setTo(0.5);
     hud.add(arrow);
+
+    // Crew comments
+    var comments = game.add.bitmapText(game.camera.width / 2, 20, 'font', '', 20);
+    comments.anchor.setTo(0.5);
+    hud.add(comments);
+
+    // Start off with a comment, give random comments in some intervals
+    game.time.events.add(100, function() {
+        
+        
+
+        // Text appear
+        comments.text = Const.LIFT_OFF[Math.floor(Math.random() * Const.LIFT_OFF.length)];
+        
+        // Text disappear
+        game.time.events.add(Const.COMMENT_TIME_SHOWN, function() {
+            comments.text = '';
+        });
+
+        // Repeat
+        game.time.events.repeat(5000, Number.POSITIVE_INFINITY, giveComment, this);
+    }, this);
     
-    this.update = function update() {
+    this.update = function update()
+    {
         focusPointer(getNearestEnemy());
     };
 
-    function getNearestEnemy() {
+    function giveComment()
+    {
+        game.time.events.add(Math.random() * 5000, function() {
+            
+            // Text appear
+            comments.text = Const.IDLE[Math.floor(Math.random() * Const.IDLE.length)];
+
+            // Text disappear
+            game.time.events.add(Const.COMMENT_TIME_SHOWN, function() {
+                comments.text = '';
+            });
+        }, this);
+    }
+
+    function getNearestEnemy()
+    {
         var shortestDistance  = Number.POSITIVE_INFINITY;
         var closestEnemy;
 
@@ -106162,8 +106203,7 @@ module.exports = function HUD(game, player, enemy) {
         else if(xCoord < 7)
             arrow.x = 7;
         else
-            arrow.x = xCoord;
-        
+            arrow.x = xCoord;        
     }
 };
 },{"./Constants.js":4}],6:[function(require,module,exports){
