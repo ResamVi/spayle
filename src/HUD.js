@@ -21,10 +21,12 @@ module.exports = function HUD(game, player, enemy)
     comments.anchor.setTo(0.5);
     hud.add(comments);
 
-    // Start off with a comment, give random comments in some intervals
+    // Start off with a comment
     game.time.events.add(100, function() {
-        
-        
+
+        var beep = game.add.audio('roger');
+        beep.volume = 0.5;
+        beep.play();
 
         // Text appear
         comments.text = Const.LIFT_OFF[Math.floor(Math.random() * Const.LIFT_OFF.length)];
@@ -34,8 +36,6 @@ module.exports = function HUD(game, player, enemy)
             comments.text = '';
         });
 
-        // Repeat
-        game.time.events.repeat(5000, Number.POSITIVE_INFINITY, giveComment, this);
     }, this);
     
     this.update = function update()

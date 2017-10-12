@@ -77,6 +77,5 @@ module.exports = {
 
     // Comments
     LIFT_OFF: ['Succesful lift-off!', 'So long, Earth!', 'To infinity and beyond!'],
-    IDLE: ['Captain, this is boring', 'Captain, some action?', 'Captain, are we there yet?', 'Captain, when\'s the fun starting?'],
     COMMENT_TIME_SHOWN: 2000,
 };
