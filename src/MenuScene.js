@@ -50,7 +50,7 @@ module.exports = (function(){
         backButton = createButton.call(this, 850, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
 
         // Instructions
-        instructions = this.add.sprite(10, 400, 'instructions');
+        instructions = this.add.sprite(30, 870, 'instructions');
 
         // Music
         menuMusic = this.add.audio('menuMusic');
