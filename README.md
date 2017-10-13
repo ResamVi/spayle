@@ -11,21 +11,28 @@ and explode-fart their faces with all the means you got on board - <strong>sp</s
 
 ![spayle](https://user-images.githubusercontent.com/6261556/30281106-d344a6be-9711-11e7-941d-245fc6af33df.png)
 
+### Play now
+<a href="https://resamvi.de/spayle">On my website</a>
+
 ### Download
 
-Version 0.1: <a href="#">Released soon</a>
+| Version 1.0.0-alpha |  |
+| ------------- | ------------- |
+| Windows (32-bit)  | <a href="https://github.com/ResamVi/spayle/releases/download/1.0.0-alpha/windows-x32.zip">Download</a><br>    |
+| Mac (64-bit)  | <a href="https://github.com/ResamVi/spayle/releases/download/1.0.0-alpha/mac-x64.zip">Download</a> |
+| Linux (32-bit) | <a href="https://github.com/ResamVi/spayle/releases/download/1.0.0-alpha/linux-x32.tar">Download</a> |
 
 ### Play the current build
 
 You need to have <a href="https://nodejs.org/en/">Node.js</a> installed to play.
 
-```sh
+```
 npm install
 ```
 Will install phaser-ce, express and watchify.
 
 Now run `run.sh` to start a node server. It will display
-```sh
+```
 Server running.
 Ready to play: Type in "localhost:3000" in your favourite browser.
 ```
