@@ -78,10 +78,25 @@ module.exports = function Player(game)
         explosion.anchor.setTo(0.5);
         explosion.scale.setTo(explosionSize, explosionSize);
         explosion.animations.add(...Const.EXPLODE_ANIMATION_SETTINGS).play();
-        
+
+        game.global.enemies.group.forEach(function(enemy) { // TODO: WTF?
+            if(checkOverlap(enemy, explosion)) {
+                console.log("HEUREKA");
+            }
+        });
+
+
         boomSound.play();
         game.camera.shake(0.01, 100, false);
     };
+
+    function checkOverlap(spriteA, spriteB)
+    {    
+        var boundsA = spriteA.getBounds();
+        var boundsB = spriteB.getBounds();
+    
+        return Phaser.Rectangle.intersects(boundsA, boundsB);
+    }
 
     // Apply the physics
     this.thrust = function()

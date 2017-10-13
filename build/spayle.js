@@ -106089,7 +106089,6 @@ module.exports = {
 
     // Comments
     LIFT_OFF: ['Succesful lift-off!', 'So long, Earth!', 'To infinity and beyond!'],
-    IDLE: ['Captain, this is boring', 'Captain, some action?', 'Captain, are we there yet?', 'Captain, when\'s the fun starting?'],
     COMMENT_TIME_SHOWN: 2000,
 };
 },{}],5:[function(require,module,exports){
@@ -106116,10 +106115,12 @@ module.exports = function HUD(game, player, enemy)
     comments.anchor.setTo(0.5);
     hud.add(comments);
 
-    // Start off with a comment, give random comments in some intervals
+    // Start off with a comment
     game.time.events.add(100, function() {
-        
-        
+
+        var beep = game.add.audio('roger');
+        beep.volume = 0.5;
+        beep.play();
 
         // Text appear
         comments.text = Const.LIFT_OFF[Math.floor(Math.random() * Const.LIFT_OFF.length)];
@@ -106129,8 +106130,6 @@ module.exports = function HUD(game, player, enemy)
             comments.text = '';
         });
 
-        // Repeat
-        game.time.events.repeat(5000, Number.POSITIVE_INFINITY, giveComment, this);
     }, this);
     
     this.update = function update()
@@ -106257,9 +106256,12 @@ module.exports = (function(){
         this.load.audio('startMusic', 'assets/start.mp3');
         this.load.audio('menuMusic', 'assets/menu.mp3');
         this.load.audio('mainMusic', 'assets/main.mp3');
-        this.load.image('instructions', 'assets/instructions.png');
+        this.load.audio('startMusic', 'assets/start.mp3');
         this.load.audio('ignition', 'assets/ignition.mp3');
         this.load.audio('boom', 'assets/boom.mp3');
+        this.load.audio('roger', 'assets/rogerbeep.mp3');
+
+        this.load.image('instructions', 'assets/instructions.png');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
         this.load.image('empty', 'assets/empty.png');
         this.load.image('bullet', 'assets/bullet.png');
@@ -106274,7 +106276,9 @@ module.exports = (function(){
         this.load.image('warning', 'assets/warning.png');
         this.load.image('line', 'assets/line.png');
         this.load.image('arrow', 'assets/arrow.png');
+        
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
+        
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
         this.load.atlasJSONHash('lineAtlas', 'assets/dotted_line_animation.png', 'assets/dotted_line_animation.json');
@@ -106378,7 +106382,7 @@ module.exports = (function(){
         backButton = createButton.call(this, 850, 1.5, moveUp, 'buttonAtlas', ...Const.OPTION_BUTTON);
 
         // Instructions
-        instructions = this.add.sprite(10, 400, 'instructions');
+        instructions = this.add.sprite(30, 870, 'instructions');
 
         // Music
         menuMusic = this.add.audio('menuMusic');
@@ -106716,6 +106720,10 @@ module.exports = (function()
         enemy = new MotherEnemy(this);
         hud = new Hud(this, player, enemy);
 
+        this.global = {
+            enemies: enemy
+        };
+
         /* line = this.add.sprite(this.camera.width/2, this.game.height/2, 'line');
         hud.add(line); */
         
@@ -106878,10 +106886,25 @@ module.exports = function Player(game)
         explosion.anchor.setTo(0.5);
         explosion.scale.setTo(explosionSize, explosionSize);
         explosion.animations.add(...Const.EXPLODE_ANIMATION_SETTINGS).play();
-        
+
+        game.global.enemies.group.forEach(function(enemy) { // TODO: WTF?
+            if(checkOverlap(enemy, explosion)) {
+                console.log("HEUREKA");
+            }
+        });
+
+
         boomSound.play();
         game.camera.shake(0.01, 100, false);
     };
+
+    function checkOverlap(spriteA, spriteB)
+    {    
+        var boundsA = spriteA.getBounds();
+        var boundsB = spriteB.getBounds();
+    
+        return Phaser.Rectangle.intersects(boundsA, boundsB);
+    }
 
     // Apply the physics
     this.thrust = function()

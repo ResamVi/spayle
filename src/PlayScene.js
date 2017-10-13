@@ -22,6 +22,10 @@ module.exports = (function()
         enemy = new MotherEnemy(this);
         hud = new Hud(this, player, enemy);
 
+        this.global = {
+            enemies: enemy
+        };
+
         /* line = this.add.sprite(this.camera.width/2, this.game.height/2, 'line');
         hud.add(line); */
         

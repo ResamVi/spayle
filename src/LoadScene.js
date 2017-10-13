@@ -48,9 +48,12 @@ module.exports = (function(){
         this.load.audio('startMusic', 'assets/start.mp3');
         this.load.audio('menuMusic', 'assets/menu.mp3');
         this.load.audio('mainMusic', 'assets/main.mp3');
-        this.load.image('instructions', 'assets/instructions.png');
+        this.load.audio('startMusic', 'assets/start.mp3');
         this.load.audio('ignition', 'assets/ignition.mp3');
         this.load.audio('boom', 'assets/boom.mp3');
+        this.load.audio('roger', 'assets/rogerbeep.mp3');
+
+        this.load.image('instructions', 'assets/instructions.png');
         this.load.image('dot', 'assets/dot.png'); // debug purposes only
         this.load.image('empty', 'assets/empty.png');
         this.load.image('bullet', 'assets/bullet.png');
@@ -65,7 +68,9 @@ module.exports = (function(){
         this.load.image('warning', 'assets/warning.png');
         this.load.image('line', 'assets/line.png');
         this.load.image('arrow', 'assets/arrow.png');
+        
         this.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
+        
         this.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         this.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
         this.load.atlasJSONHash('lineAtlas', 'assets/dotted_line_animation.png', 'assets/dotted_line_animation.json');
