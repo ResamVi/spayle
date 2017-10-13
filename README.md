@@ -9,10 +9,13 @@ Soooo... you're the pilot, tasked to lead this mission: Navigate and align your 
 and explode-fart their faces with all the means you got on board - <strong>sp</strong>ace flight with st<strong>yle</strong>!
 </div>
 
-![spayle](https://user-images.githubusercontent.com/6261556/30281106-d344a6be-9711-11e7-941d-245fc6af33df.png)
+![spayle2](https://user-images.githubusercontent.com/6261556/31543397-21020cf8-b016-11e7-8071-c3fb19c5d803.gif)
+
+![spayle1](https://user-images.githubusercontent.com/6261556/31543338-e5aa1998-b015-11e7-99cf-2ae10088db15.gif)
 
 ### Play now
-<a href="https://resamvi.de/spayle">On my website</a>
+
+The latest release is available <a href="https://resamvi.de/spayle">on my website.</a>
 
 ### Download
 
