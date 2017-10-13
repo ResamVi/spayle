@@ -9,4 +9,10 @@ game.state.add('load', require('./LoadScene.js'));
 game.state.add('menu', require('./MenuScene.js'));
 game.state.add('play', require('./PlayScene.js'));
 
-game.state.start('boot');
+game.state.start('splash');
+
+// TODO: remove speed up
+// TODO: keep camera shake with higher frequency, instead use "heated mode"
+// TODO: holding space gives bigger thrust
+// TODO: Center splash, warning signal
+// TODO: Get screen size and use that as game constraints

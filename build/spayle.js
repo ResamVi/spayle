@@ -106327,7 +106327,7 @@ game.state.add('load', require('./LoadScene.js'));
 game.state.add('menu', require('./MenuScene.js'));
 game.state.add('play', require('./PlayScene.js'));
 
-game.state.start('boot');
+game.state.start('splash');
 
 },{"./BootScene.js":3,"./Constants.js":4,"./LoadScene.js":6,"./MenuScene.js":8,"./PlayScene.js":11,"./SplashScene.js":13,"phaser-ce":2}],8:[function(require,module,exports){
 module.exports = (function(){

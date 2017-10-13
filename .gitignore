@@ -5,3 +5,6 @@ defs/
 wip/
 node_modules/
 .eslintignore
+build/package.json
+build/web2exe.json
+releases/
