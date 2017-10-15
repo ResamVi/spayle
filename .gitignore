@@ -8,3 +8,7 @@ node_modules/
 build/package.json
 build/web2exe.json
 releases/
+build/assets/background.png
+build/assets/background2.png
+build/assets/ignition.mp3
+build/assets/ignition2.mp3
