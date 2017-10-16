@@ -1,7 +1,7 @@
-module.exports = function HUD(game, player, enemy)
-{
-    var Const = require('./Constants.js');
+import Const from './Constants';
 
+export default function(this : any, game : Phaser.Game, player : any, enemy : any)
+{
     // HUD
     var hud = game.add.group();
     hud.fixedToCamera = true;
@@ -12,7 +12,7 @@ module.exports = function HUD(game, player, enemy)
     hud.add(warning);
     
     // Arrow point to enemy
-    var arrow = game.add.sprite(game.camera.width/2, game.game.height/2, 'arrow');
+    var arrow = game.add.sprite(game.camera.width/2, game.height/2, 'arrow');
     arrow.anchor.setTo(0.5);
     hud.add(arrow);
 
@@ -36,7 +36,7 @@ module.exports = function HUD(game, player, enemy)
             comments.text = '';
         });
 
-    }, this);
+    });
     
     this.update = function update()
     {
@@ -45,16 +45,16 @@ module.exports = function HUD(game, player, enemy)
 
     function giveComment()
     {
-        game.time.events.add(Math.random() * 5000, function() {
-            
-            // Text appear
-            comments.text = Const.IDLE[Math.floor(Math.random() * Const.IDLE.length)];
-
-            // Text disappear
-            game.time.events.add(Const.COMMENT_TIME_SHOWN, function() {
-                comments.text = '';
-            });
-        }, this);
+        // game.time.events.add(Math.random() * 5000, function() {
+        //
+        //     // Text appear
+        //     comments.text = Const.IDLE[Math.floor(Math.random() * Const.IDLE.length)];
+        //
+        //     // Text disappear
+        //     game.time.events.add(Const.COMMENT_TIME_SHOWN, function() {
+        //         comments.text = '';
+        //     });
+        // }, this);
     }
 
     function getNearestEnemy()

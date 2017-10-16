@@ -1,11 +1,8 @@
-module.exports = function Player(game)
-{    
-    // To use constants in this module
-    var Const = require('./Constants.js');
-    
-    // To fire bullets
-    var Weapon = require('./Weapon.js');
+import Const from './Constants';
+import Weapon from './Weapon';
 
+export default function(this : any, game : Phaser.Game)
+{
     // This object keeps track and exposes the sprite
     var sprite = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player');
     sprite.anchor.setTo(0.5);
@@ -70,32 +67,34 @@ module.exports = function Player(game)
 
     // TODO: Put into Engine
     // Do animation, camera and sound effects
-    var fireEngine = function(explosionSize, distanceFromShip)
+    var fireEngine = function(explosionSize : number, distanceFromShip : number)
     {
         var position = calculateRearPosition(distanceFromShip);
         
         var explosion = game.add.sprite(position.x, position.y, 'explosionAtlas');
         explosion.anchor.setTo(0.5);
         explosion.scale.setTo(explosionSize, explosionSize);
-        explosion.animations.add(...Const.EXPLODE_ANIMATION_SETTINGS).play();
+        explosion.animations.add('explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true).play();
 
-        game.global.enemies.group.forEach(function(enemy) { // TODO: WTF?
-            if(checkOverlap(enemy, explosion)) {
-                console.log("HEUREKA");
-            }
-        });
+        // game.global.enemies.group.forEach(function(enemy) { // TODO: WTF?
+        //     if(checkOverlap(enemy, explosion)) {
+        //         console.log("HEUREKA");
+        //     }
+        // });
 
 
         boomSound.play();
         game.camera.shake(0.01, 100, false);
     };
 
-    function checkOverlap(spriteA, spriteB)
+    function checkOverlap(spriteA : Phaser.Sprite, spriteB : Phaser.Sprite)
     {    
         var boundsA = spriteA.getBounds();
         var boundsB = spriteB.getBounds();
-    
-        return Phaser.Rectangle.intersects(boundsA, boundsB);
+
+        return false;
+
+        // return Phaser.Rectangle.intersects(boundsA, boundsB);
     }
 
     // Apply the physics
@@ -119,7 +118,7 @@ module.exports = function Player(game)
             
             if(shotsMade < Const.MAGAZINE_SIZE) {
                 game.time.events.add(Const.RECOVER_TIME, function() {
-                    game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 100, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
+                    game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
                 }, this);
             } else {
                 sprite.body.thrust(Const.RECOIL_FORCE * 2);
@@ -140,7 +139,7 @@ module.exports = function Player(game)
             sprite.body.rotateLeft(spin.force);
     };
 
-    var gainControl = function(duration)
+    var gainControl = function(duration : number)
     {
         var tween = game.add.tween(spin);
         tween.to({force: 0}, duration, Phaser.Easing.Quintic.Out, true);
@@ -149,13 +148,13 @@ module.exports = function Player(game)
         });
     };
 
-    var loseControl = function(_, duration)
+    var loseControl = function(_ : any, duration : number)
     {
         if(state === 'ready') {
             state = 'spinning';
             spin.force = Const.SPIN_AMOUNT;
 
-            game.time.events.add(duration, gainControl, this, duration);
+            game.time.events.add(duration, gainControl, undefined, duration);
         }
     };
     this.loseControl = loseControl;
@@ -167,16 +166,15 @@ module.exports = function Player(game)
 
     // These coordinates are used for spawning explosion animations,
     // Given how the rocket ship is angled, calculate the coordinates
-    var calculateRearPosition = function(radius)
+    var calculateRearPosition = function(radius : number) : {x : number, y : number}
     {    
-        var xAngle = Math.cos(sprite.rotation - game.math.HALF_PI);
-        var yAngle = Math.sin(sprite.rotation - game.math.HALF_PI);
+        var xAngle = Math.cos(sprite.rotation - Phaser.Math.HALF_PI);
+        var yAngle = Math.sin(sprite.rotation - Phaser.Math.HALF_PI);
         
-        var position = {};
-        position.x = sprite.x + xAngle * radius;
-        position.y = sprite.y + yAngle * radius;
-
-        return position;
+        return {
+            x: sprite.x + xAngle * radius,
+            y: sprite.y + yAngle * radius
+        };
     };
 
     this.superThrust = function()
@@ -187,7 +185,7 @@ module.exports = function Player(game)
             // TODO: Particles
 
             // Come to a stop
-            game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
+            game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
             sprite.loadTexture('playerFire');
             
             // Same as thrust() but bigger
@@ -211,7 +209,7 @@ module.exports = function Player(game)
             state = 'aiming';
 
             // Come to a stop
-            game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.OUT, true); // TODO: Constant
+            game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
 
             // Aim
             game.add.tween(aimSight).to({alpha: Const.VISIBLE}, 500, 'Linear', true);

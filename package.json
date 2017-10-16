@@ -5,8 +5,10 @@
         "url": "https://github.com/ResamVi/spayle/issues"
     },
     "dependencies": {
+        "browserify": "^14.4.0",
         "express": "^4.15.4",
         "phaser-ce": "^2.8.5",
+        "tsify": "^3.0.3",
         "watchify": "^3.9.0"
     },
     "description": "Shoot 'em up game of the differnt sort. Written with phaser",
@@ -28,9 +30,10 @@
         "url": "git+https://github.com/ResamVi/spayle.git"
     },
     "scripts": {
-        "spayle": "node ./server/nodejs_server.js",
+        "server": "node ./server/nodejs_server.js",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "watch": "watchify ./src/MainGame.js -o ./build/spayle.js -v"
+        "watch": "watchify src/MainGame.ts -p [ tsify ] --o build/spayle.js -v",
+        "build": "browserify src/MainGame.ts -p [ tsify ] --o build/spayle.js -v"
     },
     "version": "1.0.0",
     "webkit": {},
