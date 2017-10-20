@@ -24,3 +24,5 @@ game.state.start('splash');
 // TODO: Center splash, warning signal
 // TODO: Get screen size and use that as game constraints
 // TODO: Change vars to lets
+// TODO: Use webpack
+// TODO: Combine package.json inside build
