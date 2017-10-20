@@ -1,1 +1,1 @@
-watchify src/MainGame.ts -p [ tsify ] --o build/spayle.js -v
+webpack --watch

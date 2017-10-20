@@ -69,8 +69,8 @@
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = {
+exports.__esModule = true;
+exports["default"] = {
     GAME_WIDTH: 800,
     GAME_HEIGHT: 600,
     CENTER_CAMERA_X: 300,
@@ -131,7 +131,7 @@ exports.default = {
     INFLUENCE_RADIUS: 1500,
     // Comments
     LIFT_OFF: ['Succesful lift-off!', 'So long, Earth!', 'To infinity and beyond!'],
-    COMMENT_TIME_SHOWN: 2000,
+    COMMENT_TIME_SHOWN: 2000
 };
 
 
@@ -141,14 +141,14 @@ exports.default = {
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 var Weapon_1 = __webpack_require__(9);
 function default_1(game) {
     // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(Constants_1.default.PLAYER_START_X, Constants_1.default.PLAYER_START_Y, 'player');
+    var sprite = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'player');
     sprite.anchor.setTo(0.5);
-    sprite.angle = Constants_1.default.PLAYER_START_ANGLE;
+    sprite.angle = Constants_1["default"].PLAYER_START_ANGLE;
     this.sprite = sprite;
     // Grant access to this object's physics body
     game.physics.p2.enable(sprite);
@@ -166,19 +166,19 @@ function default_1(game) {
     var spin = { force: 0 };
     // Add aim sight animation to rocket
     var aimSight = game.add.sprite(-4, 40, 'lineAtlas');
-    aimSight.alpha = Constants_1.default.INVISIBLE;
+    aimSight.alpha = Constants_1["default"].INVISIBLE;
     aimSight.anchor.setTo(1);
     aimSight.scale.x *= -1;
     aimSight.scale.y *= -1;
     aimSight.animations.add('aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true).play();
     sprite.addChild(aimSight);
     // Responsible for bullet spawns their angle/velocity and kill properties
-    var weapon = new Weapon_1.default(sprite, game);
+    var weapon = new Weapon_1["default"](sprite, game);
     // ---- FUNCTIONS ----
     // Given the frequency, increase the the camera shake with higher frequency
     var trackFrequency = function () {
         // Increase
-        if (thrustFrequency > Constants_1.default.SPEED_UP_FREQUENCY)
+        if (thrustFrequency > Constants_1["default"].SPEED_UP_FREQUENCY)
             velocityBonus++;
         else if (velocityBonus / 2 > 1)
             velocityBonus /= 2;
@@ -186,11 +186,11 @@ function default_1(game) {
             velocityBonus = 0;
         thrustFrequency = 0;
         // Go intro "instability mode" i.e. camera shakes due to high velocity
-        if (velocityBonus > Constants_1.default.INSTABILITY_THRESHOLD)
-            game.camera.shake(0.002 * velocityBonus, Constants_1.default.SHAKE_DURATION, false);
+        if (velocityBonus > Constants_1["default"].INSTABILITY_THRESHOLD)
+            game.camera.shake(0.002 * velocityBonus, Constants_1["default"].SHAKE_DURATION, false);
     };
     // Keep track of thrust frequency and adjust "instability mode" accordingly
-    game.time.events.repeat(Constants_1.default.UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
+    game.time.events.repeat(Constants_1["default"].UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
     // TODO: Put into Engine
     // Do animation, camera and sound effects
     var fireEngine = function (explosionSize, distanceFromShip) {
@@ -215,25 +215,25 @@ function default_1(game) {
     }
     // Apply the physics
     this.thrust = function () {
-        fireEngine(Constants_1.default.SMALL_EXPLOSION, Constants_1.default.SMALL_EXPLOSION_DISTANCE);
+        fireEngine(Constants_1["default"].SMALL_EXPLOSION, Constants_1["default"].SMALL_EXPLOSION_DISTANCE);
         if (state === 'ready' || state === 'spinning') {
             thrustFrequency++;
             sprite.body.setZeroVelocity();
-            var acceleration = Constants_1.default.THRUST_FORCE + Constants_1.default.THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
+            var acceleration = Constants_1["default"].THRUST_FORCE + Constants_1["default"].THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
             sprite.body.thrust(acceleration);
         }
         else if (state === 'aiming') {
             shotsMade++;
             weapon.fire();
-            sprite.body.thrust(Constants_1.default.RECOIL_FORCE);
-            if (shotsMade < Constants_1.default.MAGAZINE_SIZE) {
-                game.time.events.add(Constants_1.default.RECOVER_TIME, function () {
+            sprite.body.thrust(Constants_1["default"].RECOIL_FORCE);
+            if (shotsMade < Constants_1["default"].MAGAZINE_SIZE) {
+                game.time.events.add(Constants_1["default"].RECOVER_TIME, function () {
                     game.add.tween(sprite.body.velocity).to({ x: 0, y: 0 }, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
                 }, this);
             }
             else {
-                sprite.body.thrust(Constants_1.default.RECOIL_FORCE * 2);
-                aimSight.alpha = Constants_1.default.INVISIBLE;
+                sprite.body.thrust(Constants_1["default"].RECOIL_FORCE * 2);
+                aimSight.alpha = Constants_1["default"].INVISIBLE;
                 shotsMade = 0;
                 state = 'ready';
             }
@@ -242,7 +242,7 @@ function default_1(game) {
     // This has to be called in the game loop for each frame
     this.update = function () {
         if (state === 'ready')
-            sprite.body.thrust(Constants_1.default.MINIMUM_SPEED);
+            sprite.body.thrust(Constants_1["default"].MINIMUM_SPEED);
         if (state === 'spinning')
             sprite.body.rotateLeft(spin.force);
     };
@@ -256,7 +256,7 @@ function default_1(game) {
     var loseControl = function (_, duration) {
         if (state === 'ready') {
             state = 'spinning';
-            spin.force = Constants_1.default.SPIN_AMOUNT;
+            spin.force = Constants_1["default"].SPIN_AMOUNT;
             game.time.events.add(duration, gainControl, undefined, duration);
         }
     };
@@ -283,12 +283,12 @@ function default_1(game) {
             sprite.loadTexture('playerFire');
             // Same as thrust() but bigger
             var launch = function () {
-                fireEngine(Constants_1.default.BIG_EXPLOSION, Constants_1.default.BIG_EXPLOSION_DISTANCE);
+                fireEngine(Constants_1["default"].BIG_EXPLOSION, Constants_1["default"].BIG_EXPLOSION_DISTANCE);
                 sprite.body.setZeroVelocity();
-                sprite.body.thrust(Constants_1.default.THRUST_FORCE * 5);
+                sprite.body.thrust(Constants_1["default"].THRUST_FORCE * 5);
                 sprite.loadTexture('player');
                 state = 'ready';
-                loseControl(null, Constants_1.default.SUPER_THRUST_STUN_DURATION);
+                loseControl(null, Constants_1["default"].SUPER_THRUST_STUN_DURATION);
             };
             // When fully braked launch away
             game.time.events.add(1000, launch, this);
@@ -300,7 +300,7 @@ function default_1(game) {
             // Come to a stop
             game.add.tween(sprite.body.velocity).to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
             // Aim
-            game.add.tween(aimSight).to({ alpha: Constants_1.default.VISIBLE }, 500, 'Linear', true);
+            game.add.tween(aimSight).to({ alpha: Constants_1["default"].VISIBLE }, 500, 'Linear', true);
             // Shooting is done via space button (and thus handled in this.thrust())
         }
     };
@@ -309,7 +309,7 @@ function default_1(game) {
         boomSound.destroy();
     };
 }
-exports.default = default_1;
+exports["default"] = default_1;
 ;
 
 
@@ -319,7 +319,7 @@ exports.default = default_1;
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Phaser = __webpack_require__(3);
 var BootScene_1 = __webpack_require__(5);
 var SplashScene_1 = __webpack_require__(6);
@@ -329,11 +329,11 @@ var PlayScene_1 = __webpack_require__(10);
 var width = window.innerWidth;
 var height = window.innerHeight;
 var game = new Phaser.Game(width, height, Phaser.AUTO, '');
-game.state.add('splash', SplashScene_1.default(game));
-game.state.add('boot', BootScene_1.default(game));
-game.state.add('load', LoadScene_1.default(game));
-game.state.add('menu', MenuScene_1.default(game));
-game.state.add('play', PlayScene_1.default(game));
+game.state.add('splash', SplashScene_1["default"](game));
+game.state.add('boot', BootScene_1["default"](game));
+game.state.add('load', LoadScene_1["default"](game));
+game.state.add('menu', MenuScene_1["default"](game));
+game.state.add('play', PlayScene_1["default"](game));
 game.state.start('splash');
 // TODO: remove speed up
 // TODO: keep camera shake with higher frequency, instead use "heated mode"
@@ -106352,7 +106352,7 @@ process.umask = function() { return 0; };
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 // TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
 var Constants_1 = __webpack_require__(0);
 function default_1(game) {
@@ -106361,12 +106361,12 @@ function default_1(game) {
             // World settings
             game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             game.physics.startSystem(Phaser.Physics.P2JS);
-            game.world.setBounds(0, 0, Constants_1.default.WORLD_BOUNDS, Constants_1.default.WORLD_BOUNDS); // TODO: CHange name to MAP_SIZE
+            game.world.setBounds(0, 0, Constants_1["default"].WORLD_BOUNDS, Constants_1["default"].WORLD_BOUNDS); // TODO: CHange name to MAP_SIZE
             game.state.start('load');
         }
     };
 }
-exports.default = default_1;
+exports["default"] = default_1;
 
 
 /***/ }),
@@ -106375,7 +106375,7 @@ exports.default = default_1;
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 // TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
 function default_1(game) {
     var FADE_IN_DURATION = 1000;
@@ -106403,7 +106403,7 @@ function default_1(game) {
     }
     return { preload: preload, create: create };
 }
-exports.default = default_1;
+exports["default"] = default_1;
 ;
 
 
@@ -106413,7 +106413,7 @@ exports.default = default_1;
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 // TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
 function default_1(game) {
@@ -106446,8 +106446,8 @@ function default_1(game) {
         preloadBar.updateTransform();
         centerX = game.width / 2;
         centerY = game.height / 2;
-        preloadBar.x = centerX - Constants_1.default.LOADBAR_WIDTH / 2;
-        preloadBar.y = centerY + Constants_1.default.LOADBAR_OFFSET;
+        preloadBar.x = centerX - Constants_1["default"].LOADBAR_WIDTH / 2;
+        preloadBar.y = centerY + Constants_1["default"].LOADBAR_OFFSET;
         game.load.setPreloadSprite(preloadBar);
         queueFiles();
     }
@@ -106483,12 +106483,12 @@ function default_1(game) {
         game.load.start();
     }
     function loadStart() {
-        if (Constants_1.default.DEBUG_MODE) {
+        if (Constants_1["default"].DEBUG_MODE) {
             console.log('Start loading');
         }
     }
     function fileComplete(progress, cacheKey, success, totalLoaded, totalFiles) {
-        if (Constants_1.default.DEBUG_MODE) {
+        if (Constants_1["default"].DEBUG_MODE) {
             console.log('--- Completed file ---');
             console.log('progress: ' + progress);
             console.log('cacheKey: ' + cacheKey);
@@ -106500,14 +106500,14 @@ function default_1(game) {
         progressText.setText(progress + '%');
     }
     function loadComplete() {
-        if (Constants_1.default.DEBUG_MODE) {
+        if (Constants_1["default"].DEBUG_MODE) {
             console.log('Load complete');
         }
         game.state.start('menu');
     }
     return { preload: preload, create: create };
 }
-exports.default = default_1;
+exports["default"] = default_1;
 ;
 
 
@@ -106518,7 +106518,7 @@ exports.default = default_1;
 "use strict";
 
 // TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 var Player_1 = __webpack_require__(1);
 function default_1(game) {
@@ -106540,18 +106540,18 @@ function default_1(game) {
         // Background
         game.add.sprite(0, 0, 'background');
         // Moon
-        planet = game.add.sprite(Constants_1.default.PLAYER_START_X, Constants_1.default.PLAYER_START_Y, 'moon');
+        planet = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'moon');
         planet.anchor.setTo(0.5, 0.5);
         planet.scale.setTo(0.1, 0.1);
-        planet.pivot.set(Constants_1.default.ORBIT_RADIUS, Constants_1.default.ORBIT_RADIUS);
+        planet.pivot.set(Constants_1["default"].ORBIT_RADIUS, Constants_1["default"].ORBIT_RADIUS);
         // Player (only used for displayal; not to actually control)
-        player = new Player_1.default(game);
+        player = new Player_1["default"](game);
         // Title
         title = game.add.bitmapText(0, 0, 'menuFont', 'SPAYLE', 80);
         title.updateTransform();
         title.anchor.setTo(0.5, 0.5);
-        title.position.x = centerX + Constants_1.default.TITLE_X_OFFSET;
-        title.position.y = centerY - Constants_1.default.TITLE_Y_OFFSET;
+        title.position.x = centerX + Constants_1["default"].TITLE_X_OFFSET;
+        title.position.y = centerY - Constants_1["default"].TITLE_Y_OFFSET;
         game.add.tween(title.scale).to({ x: 1.1, y: 1.1 }, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true);
         // Buttons
         startButton = createButton(-50, 1.5, play, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
@@ -106562,14 +106562,14 @@ function default_1(game) {
         // Music
         menuMusic = game.add.audio('menuMusic');
         menuMusic.onDecoded.add(function () {
-            menuMusic.fadeIn(Constants_1.default.AUDIO_FADE_DURATION, true);
+            menuMusic.fadeIn(Constants_1["default"].AUDIO_FADE_DURATION, true);
         });
     }
     function createButton(y, scale, func, atlas, onHover, onIdle, onClick) {
         var button = game.add.button(0, 0, atlas, func, game, onHover, onIdle, onClick, onIdle);
         button.anchor.setTo(0.5, 0.5);
         button.scale.setTo(scale, scale);
-        button.x = centerX + Constants_1.default.BUTTON_X;
+        button.x = centerX + Constants_1["default"].BUTTON_X;
         button.y = centerY + y;
         return button;
     }
@@ -106588,7 +106588,7 @@ function default_1(game) {
         menuMusic.fadeOut(1000);
         startMusic = game.add.audio('startMusic');
         startMusic.onDecoded.add(function () {
-            startMusic.fadeIn(Constants_1.default.AUDIO_FADE_DURATION);
+            startMusic.fadeIn(Constants_1["default"].AUDIO_FADE_DURATION);
         });
         var countdown = game.add.audio('ignition');
         countdown.onDecoded.add(function () {
@@ -106606,11 +106606,11 @@ function default_1(game) {
         game.add.tween(game.camera).to({ y: 700 }, 1500, Phaser.Easing.Cubic.Out, true);
     }
     function update() {
-        planet.rotation += Constants_1.default.ORBIT_SPEED;
+        planet.rotation += Constants_1["default"].ORBIT_SPEED;
     }
     return { create: create, update: update };
 }
-exports.default = default_1;
+exports["default"] = default_1;
 ;
 
 
@@ -106620,7 +106620,7 @@ exports.default = default_1;
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 function default_1(trackedSprite, game) {
     this.fire = function () {
@@ -106629,7 +106629,7 @@ function default_1(trackedSprite, game) {
         bullet.anchor.setTo(0.5);
         bullet.angle = trackedSprite.angle + 180;
         game.physics.arcade.enable(bullet);
-        var velocity = calculateVelocity(Constants_1.default.BULLET_SPEED);
+        var velocity = calculateVelocity(Constants_1["default"].BULLET_SPEED);
         bullet.body.velocity.x = velocity.x;
         bullet.body.velocity.y = velocity.y;
     };
@@ -106650,7 +106650,7 @@ function default_1(trackedSprite, game) {
         };
     };
 }
-exports.default = default_1;
+exports["default"] = default_1;
 ;
 
 
@@ -106660,7 +106660,7 @@ exports.default = default_1;
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 var Player_1 = __webpack_require__(1);
 var MotherEnemy_1 = __webpack_require__(11);
@@ -106673,9 +106673,9 @@ function default_1(game) {
     /* var line; */
     var mainMusic;
     function create() {
-        player = new Player_1.default(game);
-        enemy = new MotherEnemy_1.default(game);
-        hud = new HUD_1.default(game, player, enemy);
+        player = new Player_1["default"](game);
+        enemy = new MotherEnemy_1["default"](game);
+        hud = new HUD_1["default"](game, player, enemy);
         var global = { enemies: enemy };
         Object.defineProperty(game, 'global', { value: global });
         /* line = game.add.sprite(game.camera.width/2, game.game.height/2, 'line');
@@ -106687,7 +106687,7 @@ function default_1(game) {
         }, game);
         // Controls
         arrowkeys = game.input.keyboard.createCursorKeys();
-        game.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, game, 0, Constants_1.default.STUN_DURATION);
+        game.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, game, 0, Constants_1["default"].STUN_DURATION);
         game.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, game);
         game.input.keyboard.addKey(Phaser.Keyboard.E).onDown.add(player.snipe, game);
         game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, game);
@@ -106696,14 +106696,14 @@ function default_1(game) {
         }, game);
         game.camera.follow(player.sprite, undefined, 0.5, 0.5);
         // Launch rocket away to start game
-        player.body.thrust(Constants_1.default.LAUNCH_FORCE);
+        player.body.thrust(Constants_1["default"].LAUNCH_FORCE);
     }
     function update() {
         player.update();
         if (!player.isSpinning() && arrowkeys.left.isDown)
-            player.body.rotateLeft(Constants_1.default.ROTATION_SPEED);
+            player.body.rotateLeft(Constants_1["default"].ROTATION_SPEED);
         else if (!player.isSpinning() && arrowkeys.right.isDown)
-            player.body.rotateRight(Constants_1.default.ROTATION_SPEED);
+            player.body.rotateRight(Constants_1["default"].ROTATION_SPEED);
         else if (!player.isSpinning())
             player.body.setZeroRotation();
         enemy.update(player);
@@ -106711,23 +106711,23 @@ function default_1(game) {
         // ---------------------------------- DEBUG ----------------------------------
         /* line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y); */
         game.world.bringToTop(enemy.sprite); // TODO: Debug only
-        if (Constants_1.default.DEBUG_MODE) {
+        if (Constants_1["default"].DEBUG_MODE) {
             if (arrowkeys.up.isDown) {
-                game.camera.y -= Constants_1.default.CAM_SPEED;
+                game.camera.y -= Constants_1["default"].CAM_SPEED;
             }
             else if (arrowkeys.down.isDown) {
-                game.camera.y += Constants_1.default.CAM_SPEED;
+                game.camera.y += Constants_1["default"].CAM_SPEED;
             }
             if (arrowkeys.left.isDown) {
-                game.camera.x -= Constants_1.default.CAM_SPEED;
+                game.camera.x -= Constants_1["default"].CAM_SPEED;
             }
             else if (arrowkeys.right.isDown) {
-                game.camera.x += Constants_1.default.CAM_SPEED;
+                game.camera.x += Constants_1["default"].CAM_SPEED;
             }
         }
     }
     function render() {
-        if (Constants_1.default.DEBUG_MODE) {
+        if (Constants_1["default"].DEBUG_MODE) {
             /* game.game.camera.scale.setTo(0.5); */
             /* game.game.camera.unfollow(); */
             var x = player.body.velocity.x;
@@ -106741,7 +106741,7 @@ function default_1(game) {
     }
     return { create: create, update: update, render: render };
 }
-exports.default = default_1;
+exports["default"] = default_1;
 ;
 
 
@@ -106751,7 +106751,7 @@ exports.default = default_1;
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var MinionEnemy_1 = __webpack_require__(12);
 var Constants_1 = __webpack_require__(0);
 function default_1(game) {
@@ -106773,7 +106773,7 @@ function default_1(game) {
     var minions = [];
     var group = game.add.group();
     for (var i = 0; i < 3; i++) {
-        var minion = new MinionEnemy_1.default(game, sprite);
+        var minion = new MinionEnemy_1["default"](game, sprite);
         minions.push(minion);
         group.add(minion.sprite);
     }
@@ -106783,7 +106783,7 @@ function default_1(game) {
     this.update = function (player) {
         graphics.clear();
         graphics.beginFill(0xff6500);
-        graphics.drawCircle(sprite.x, sprite.y, Constants_1.default.INFLUENCE_RADIUS);
+        graphics.drawCircle(sprite.x, sprite.y, Constants_1["default"].INFLUENCE_RADIUS);
         graphics.endFill();
         // Possible decisions
         if (state === 'READY' && playerInRange(player.sprite)) {
@@ -106808,20 +106808,20 @@ function default_1(game) {
         var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
         var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI / 2; // in [-pi/4, pi/4]
         sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
-        sprite.body.thrust(Constants_1.default.ENEMY_THRUST_FORCE);
+        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
     };
     var roam = function () {
         // Stay inside bounds bounds
-        if (sprite.y < Constants_1.default.INFLUENCE_RADIUS / 2) {
+        if (sprite.y < Constants_1["default"].INFLUENCE_RADIUS / 2) {
             currentAngle = Math.PI;
         }
-        else if (sprite.y > Constants_1.default.WORLD_BOUNDS - Constants_1.default.INFLUENCE_RADIUS / 2) {
+        else if (sprite.y > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
             currentAngle = 0;
         }
-        else if (sprite.x < Constants_1.default.INFLUENCE_RADIUS / 2) {
+        else if (sprite.x < Constants_1["default"].INFLUENCE_RADIUS / 2) {
             currentAngle = Phaser.Math.HALF_PI;
         }
-        else if (sprite.x > Constants_1.default.WORLD_BOUNDS - Constants_1.default.INFLUENCE_RADIUS / 2) {
+        else if (sprite.x > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
             currentAngle = Math.PI + Phaser.Math.HALF_PI;
             // Random
         }
@@ -106830,11 +106830,11 @@ function default_1(game) {
             currentAngle = currentAngle + offset;
         }
         sprite.body.rotation = currentAngle;
-        sprite.body.thrust(Constants_1.default.ENEMY_THRUST_FORCE);
+        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
     };
     var spawnEnemy = function () {
         if (Math.random() < 0.005) {
-            var minion = new MinionEnemy_1.default(game, sprite);
+            var minion = new MinionEnemy_1["default"](game, sprite);
             minions.push(minion);
             group.add(minion.sprite);
         }
@@ -106845,17 +106845,17 @@ function default_1(game) {
         return Math.round(Math.sqrt(x * x + y * y));
     };
     var playerInRange = function (player) {
-        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Constants_1.default.SIGHT_RANGE;
+        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Constants_1["default"].SIGHT_RANGE;
     };
     // ----------------- DEBUG -----------------
     var debugState;
-    if (Constants_1.default.DEBUG_MODE) {
+    if (Constants_1["default"].DEBUG_MODE) {
         debugState = game.add.bitmapText(0, -80, 'menuFont', '', 30);
         debugState.anchor.set(0.5);
         sprite.addChild(debugState);
     }
     this.debug = function () {
-        if (Constants_1.default.DEBUG_MODE) {
+        if (Constants_1["default"].DEBUG_MODE) {
             debugState.text = state;
             for (var i = 0; i < minions.length; i++) {
                 minions[i].debug();
@@ -106863,7 +106863,7 @@ function default_1(game) {
         }
     };
 }
-exports.default = default_1;
+exports["default"] = default_1;
 ;
 
 
@@ -106873,7 +106873,7 @@ exports.default = default_1;
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 function default_1(game, mother) {
     // This object keeps track and exposes the sprite
@@ -106911,27 +106911,27 @@ function default_1(game, mother) {
     var returnBack = function () {
         var angleToMother = Phaser.Math.angleBetween(sprite.x, sprite.y, mother.x, mother.y);
         sprite.body.rotation = angleToMother + Phaser.Math.HALF_PI;
-        sprite.body.thrust(Constants_1.default.ENEMY_THRUST_FORCE);
+        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
     };
     var attack = function (player) {
         var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
         var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI / 2; // in [-pi/4, pi/4]
         sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
-        sprite.body.thrust(Constants_1.default.ENEMY_THRUST_FORCE);
+        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
     };
     var follow = function (motherAngle) {
         var angle;
         // Stay inside bounds bounds
-        if (sprite.y < Constants_1.default.INFLUENCE_RADIUS / 2) {
+        if (sprite.y < Constants_1["default"].INFLUENCE_RADIUS / 2) {
             angle = Math.PI;
         }
-        else if (sprite.y > Constants_1.default.WORLD_BOUNDS - Constants_1.default.INFLUENCE_RADIUS / 2) {
+        else if (sprite.y > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
             angle = 0;
         }
-        else if (sprite.x < Constants_1.default.INFLUENCE_RADIUS / 2) {
+        else if (sprite.x < Constants_1["default"].INFLUENCE_RADIUS / 2) {
             angle = Phaser.Math.HALF_PI;
         }
-        else if (sprite.x > Constants_1.default.WORLD_BOUNDS - Constants_1.default.INFLUENCE_RADIUS / 2) {
+        else if (sprite.x > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
             angle = Math.PI + Phaser.Math.HALF_PI;
             // Random
         }
@@ -106939,7 +106939,7 @@ function default_1(game, mother) {
             angle = motherAngle + Math.PI / 6 * (Math.random() * 2 - 1);
         }
         sprite.body.rotation = angle;
-        sprite.body.thrust(Constants_1.default.ENEMY_THRUST_FORCE);
+        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
     };
     var velocity = function () {
         var x = sprite.body.velocity.x;
@@ -106947,25 +106947,25 @@ function default_1(game, mother) {
         return Math.round(Math.sqrt(x * x + y * y));
     };
     var playerInRange = function (player) {
-        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Constants_1.default.SIGHT_RANGE;
+        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Constants_1["default"].SIGHT_RANGE;
     };
     var closeToMother = function () {
-        return Phaser.Math.distance(sprite.x, sprite.y, mother.x, mother.y) < Constants_1.default.INFLUENCE_RADIUS / 2;
+        return Phaser.Math.distance(sprite.x, sprite.y, mother.x, mother.y) < Constants_1["default"].INFLUENCE_RADIUS / 2;
     };
     // ----------------- DEBUG -----------------
     var debugState;
-    if (Constants_1.default.DEBUG_MODE) {
+    if (Constants_1["default"].DEBUG_MODE) {
         debugState = game.add.bitmapText(0, -80, 'menuFont', '', 30);
         debugState.anchor.set(0.5);
         sprite.addChild(debugState);
     }
     this.debug = function () {
-        if (Constants_1.default.DEBUG_MODE) {
+        if (Constants_1["default"].DEBUG_MODE) {
             debugState.text = state;
         }
     };
 }
-exports.default = default_1;
+exports["default"] = default_1;
 ;
 
 
@@ -106975,7 +106975,7 @@ exports.default = default_1;
 
 "use strict";
 
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 function default_1(game, player, enemy) {
     // HUD
@@ -106999,9 +106999,9 @@ function default_1(game, player, enemy) {
         beep.volume = 0.5;
         beep.play();
         // Text appear
-        comments.text = Constants_1.default.LIFT_OFF[Math.floor(Math.random() * Constants_1.default.LIFT_OFF.length)];
+        comments.text = Constants_1["default"].LIFT_OFF[Math.floor(Math.random() * Constants_1["default"].LIFT_OFF.length)];
         // Text disappear
-        game.time.events.add(Constants_1.default.COMMENT_TIME_SHOWN, function () {
+        game.time.events.add(Constants_1["default"].COMMENT_TIME_SHOWN, function () {
             comments.text = '';
         });
     });
@@ -107030,7 +107030,7 @@ function default_1(game, player, enemy) {
                 closestEnemy = child;
             }
         });
-        if (shortestDistance < Constants_1.default.WARNING_RADIUS)
+        if (shortestDistance < Constants_1["default"].WARNING_RADIUS)
             return closestEnemy;
     }
     function focusPointer(enemy) {
@@ -107047,25 +107047,25 @@ function default_1(game, player, enemy) {
         arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.x, enemy.y);
         // Y Coord
         var ySlope = (enemy.y - player.sprite.y) / Math.abs(enemy.x - player.sprite.x);
-        var yCoord = ySlope * Constants_1.default.GAME_WIDTH / 2 + Constants_1.default.CENTER_CAMERA_X;
+        var yCoord = ySlope * Constants_1["default"].GAME_WIDTH / 2 + Constants_1["default"].CENTER_CAMERA_X;
         if (yCoord < 7)
             arrow.y = 7;
-        else if (yCoord > Constants_1.default.GAME_HEIGHT)
-            arrow.y = Constants_1.default.GAME_HEIGHT - 7;
+        else if (yCoord > Constants_1["default"].GAME_HEIGHT)
+            arrow.y = Constants_1["default"].GAME_HEIGHT - 7;
         else
             arrow.y = yCoord;
         // X Coord
         var xSlope = Math.abs(enemy.y - player.sprite.y) / (enemy.x - player.sprite.x);
-        var xCoord = (Constants_1.default.GAME_HEIGHT * 0.5) / xSlope + Constants_1.default.CENTER_CAMERA_Y;
-        if (xCoord > Constants_1.default.GAME_WIDTH)
-            arrow.x = Constants_1.default.GAME_WIDTH - 7;
+        var xCoord = (Constants_1["default"].GAME_HEIGHT * 0.5) / xSlope + Constants_1["default"].CENTER_CAMERA_Y;
+        if (xCoord > Constants_1["default"].GAME_WIDTH)
+            arrow.x = Constants_1["default"].GAME_WIDTH - 7;
         else if (xCoord < 7)
             arrow.x = 7;
         else
             arrow.x = xCoord;
     }
 }
-exports.default = default_1;
+exports["default"] = default_1;
 ;
 
 
