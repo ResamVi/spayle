@@ -1,18 +1,18 @@
 import Const from './Constants';
 
-export default function(this : any, game : Phaser.Game, player : any, enemy : any)
+export default function (this: any, game: Phaser.Game, player: any, enemy: any)
 {
     // HUD
     var hud = game.add.group();
     hud.fixedToCamera = true;
 
     // Warning icon
-    var warning = game.add.sprite(300, 600-36, 'warning');
+    var warning = game.add.sprite(300, 600 - 36, 'warning');
     warning.anchor.setTo(0.5);
     hud.add(warning);
-    
+
     // Arrow point to enemy
-    var arrow = game.add.sprite(game.camera.width/2, game.height/2, 'arrow');
+    var arrow = game.add.sprite(game.camera.width / 2, game.height / 2, 'arrow');
     arrow.anchor.setTo(0.5);
     hud.add(arrow);
 
@@ -22,7 +22,8 @@ export default function(this : any, game : Phaser.Game, player : any, enemy : an
     hud.add(comments);
 
     // Start off with a comment
-    game.time.events.add(100, function() {
+    game.time.events.add(100, function ()
+    {
 
         var beep = game.add.audio('roger');
         beep.volume = 0.5;
@@ -30,14 +31,15 @@ export default function(this : any, game : Phaser.Game, player : any, enemy : an
 
         // Text appear
         comments.text = Const.LIFT_OFF[Math.floor(Math.random() * Const.LIFT_OFF.length)];
-        
+
         // Text disappear
-        game.time.events.add(Const.COMMENT_TIME_SHOWN, function() {
+        game.time.events.add(Const.COMMENT_TIME_SHOWN, function ()
+        {
             comments.text = '';
         });
 
     });
-    
+
     this.update = function update()
     {
         focusPointer(getNearestEnemy());
@@ -59,24 +61,25 @@ export default function(this : any, game : Phaser.Game, player : any, enemy : an
 
     function getNearestEnemy()
     {
-        var shortestDistance  = Number.POSITIVE_INFINITY;
+        var shortestDistance = Number.POSITIVE_INFINITY;
         var closestEnemy;
 
-        enemy.group.forEach(function(child) {
+        enemy.group.forEach(function (child)
+        {
             var d = Phaser.Math.distance(player.sprite.x, player.sprite.y, child.x, child.y);
-            if(d < shortestDistance) {
+            if (d < shortestDistance) {
                 shortestDistance = d;
                 closestEnemy = child;
             }
         });
-        
-        if(shortestDistance < Const.WARNING_RADIUS)
+
+        if (shortestDistance < Const.WARNING_RADIUS)
             return closestEnemy;
     }
-    
+
     function focusPointer(enemy)
-    {    
-        if(enemy === undefined) {
+    {
+        if (enemy === undefined) {
             warning.alpha = 0;
             arrow.alpha = 0;
             return;
@@ -86,28 +89,28 @@ export default function(this : any, game : Phaser.Game, player : any, enemy : an
         }
 
         // Angle
-        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.x, enemy.y); 
+        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.x, enemy.y);
 
         // Y Coord
         var ySlope = (enemy.y - player.sprite.y) / Math.abs(enemy.x - player.sprite.x);
         var yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
-        
-        if(yCoord < 7)
+
+        if (yCoord < 7)
             arrow.y = 7;
-        else if(yCoord > Const.GAME_HEIGHT)
+        else if (yCoord > Const.GAME_HEIGHT)
             arrow.y = Const.GAME_HEIGHT - 7;
         else
             arrow.y = yCoord;
-        
+
         // X Coord
         var xSlope = Math.abs(enemy.y - player.sprite.y) / (enemy.x - player.sprite.x);
         var xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
 
-        if(xCoord > Const.GAME_WIDTH)
+        if (xCoord > Const.GAME_WIDTH)
             arrow.x = Const.GAME_WIDTH - 7;
-        else if(xCoord < 7)
+        else if (xCoord < 7)
             arrow.x = 7;
         else
-            arrow.x = xCoord;        
+            arrow.x = xCoord;
     }
 };

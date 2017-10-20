@@ -1,11 +1,11 @@
 // TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
 import Const from './Constants';
 
-export default function(game: Phaser.Game)
+export default function (game: Phaser.Game)
 {
     return {
-        create: function() {
-
+        create: function ()
+        {
             // World settings
             game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             game.physics.startSystem(Phaser.Physics.P2JS);

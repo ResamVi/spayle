@@ -1,13 +1,13 @@
 import Const from './Constants';
 
 // TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
-export default function(game : Phaser.Game)
+export default function (game: Phaser.Game)
 {
-    var progressText : Phaser.BitmapText;
+    var progressText: Phaser.BitmapText;
 
     function preload()
     {
-        game.load.bitmapFont('font','assets/font_0.png', 'assets/font.fnt');
+        game.load.bitmapFont('font', 'assets/font_0.png', 'assets/font.fnt');
         game.load.image('preloadbar', 'assets/loadbar.png');
     }
 
@@ -25,7 +25,7 @@ export default function(game : Phaser.Game)
         var centerY = game.height / 2 - (loadText.textHeight * 0.5);
         loadText.x = centerX;
         loadText.y = centerY - 90;
-        
+
         // Display and center current progress text
         progressText = game.add.bitmapText(0, 0, 'font', '0%');
         progressText.updateTransform();
@@ -73,7 +73,7 @@ export default function(game : Phaser.Game)
         game.load.image('line', 'assets/line.png');
         game.load.image('arrow', 'assets/arrow.png');
 
-        game.load.bitmapFont('menuFont','assets/menu_0.png', 'assets/menu.fnt');
+        game.load.bitmapFont('menuFont', 'assets/menu_0.png', 'assets/menu.fnt');
 
         game.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         game.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
@@ -85,14 +85,14 @@ export default function(game : Phaser.Game)
 
     function loadStart()
     {
-        if(Const.DEBUG_MODE) {
+        if (Const.DEBUG_MODE) {
             console.log('Start loading');
         }
     }
 
-    function fileComplete(progress : string, cacheKey : string, success : string, totalLoaded : string, totalFiles: string)
+    function fileComplete(progress: string, cacheKey: string, success: string, totalLoaded: string, totalFiles: string)
     {
-        if(Const.DEBUG_MODE) {
+        if (Const.DEBUG_MODE) {
             console.log('--- Completed file ---');
             console.log('progress: ' + progress);
             console.log('cacheKey: ' + cacheKey);
@@ -106,11 +106,11 @@ export default function(game : Phaser.Game)
 
     function loadComplete()
     {
-        if(Const.DEBUG_MODE) {
+        if (Const.DEBUG_MODE) {
             console.log('Load complete');
         }
         game.state.start('menu');
     }
-    
-    return { preload: preload, create: create};
+
+    return {preload: preload, create: create};
 };

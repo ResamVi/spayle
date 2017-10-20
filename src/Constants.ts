@@ -1,5 +1,5 @@
 export default {
-    
+
     GAME_WIDTH: 800,
     GAME_HEIGHT: 600,
     CENTER_CAMERA_X: 300,
@@ -26,7 +26,7 @@ export default {
 
     ORBIT_SPEED: 0.005,
     ORBIT_RADIUS: 2000,
-    
+
     TITLE_X_OFFSET: 180,
     TITLE_Y_OFFSET: 150,
 
@@ -39,7 +39,7 @@ export default {
     TITLE_BOUNCE: [{x: 1.1, y: 1.1}, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true],
     MAIN_MENU: [{y: 0}, 1500, Phaser.Easing.Cubic.Out, true],
     OPTION_MENU: [{y: 700}, 1500, Phaser.Easing.Cubic.Out, true],
-    
+
     // PlayScene Constants
     ROTATION_SPEED: 100,
     THRUST_FORCE: 50000,
@@ -54,13 +54,13 @@ export default {
     SHAKE_DURATION: 2000,
     SPIN_AMOUNT: 1000,
     MINIMUM_SPEED: 100,
-    
+
     SMALL_EXPLOSION: 2,
     SMALL_EXPLOSION_DISTANCE: -20,
     BIG_EXPLOSION: 6,
     BIG_EXPLOSION_DISTANCE: -20,
     EXPLODE_ANIMATION_SETTINGS: ['explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true],
-    
+
     UPDATE_INTERVAL: 1000,
     SUPER_THRUST_STUN_DURATION: 800,
 

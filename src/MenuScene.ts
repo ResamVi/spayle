@@ -3,25 +3,25 @@
 import Const from './Constants';
 import Player from './Player';
 
-export default function(game : Phaser.Game)
+export default function (game: Phaser.Game)
 {
-    var player : any;
-    var planet : Phaser.Sprite;
-    
-    var title : Phaser.BitmapText;
-    var startButton : Phaser.Button;
-    var optionButton : Phaser.Button;
-    var backButton : Phaser.Button;
-    var instructions : Phaser.Sprite;
+    var player: any;
+    var planet: Phaser.Sprite;
 
-    var menuMusic : Phaser.Sound;
-    var startMusic : Phaser.Sound;
+    var title: Phaser.BitmapText;
+    var startButton: Phaser.Button;
+    var optionButton: Phaser.Button;
+    var backButton: Phaser.Button;
+    var instructions: Phaser.Sprite;
 
-    var centerX : number;
-    var centerY : number;
+    var menuMusic: Phaser.Sound;
+    var startMusic: Phaser.Sound;
+
+    var centerX: number;
+    var centerY: number;
 
     function create()
-    {    
+    {
         // Center of screen (not the world!)
         centerX = game.camera.width / 2;
         centerY = game.camera.height / 2;
@@ -56,12 +56,14 @@ export default function(game : Phaser.Game)
 
         // Music
         menuMusic = game.add.audio('menuMusic');
-        menuMusic.onDecoded.add(function() {
+        menuMusic.onDecoded.add(function ()
+        {
             menuMusic.fadeIn(Const.AUDIO_FADE_DURATION, true);
         });
     }
-    
-    function createButton(y, scale, func, atlas, onHover, onIdle, onClick) {
+
+    function createButton(y, scale, func, atlas, onHover, onIdle, onClick)
+    {
         var button = game.add.button(0, 0, atlas, func, game, onHover, onIdle, onClick, onIdle);
         button.anchor.setTo(0.5, 0.5);
         button.scale.setTo(scale, scale);
@@ -76,30 +78,34 @@ export default function(game : Phaser.Game)
         game.add.tween(game.camera.scale).to({x: 0.5, y: 0.5}, 7000, Phaser.Easing.Cubic.InOut, true);
 
         // Fade out all menu items
-        for(var sprite of [title, startButton, optionButton, backButton, instructions]) {
+        for (var sprite of [title, startButton, optionButton, backButton, instructions]) {
             var t = game.add.tween(sprite).to({alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-            t.onComplete.add(function(invisibleSprite : Phaser.Sprite) {
+            t.onComplete.add(function (invisibleSprite: Phaser.Sprite)
+            {
                 invisibleSprite.destroy();
             });
         }
 
         // Change music and start count down
         menuMusic.fadeOut(1000);
-        
+
         startMusic = game.add.audio('startMusic');
-        startMusic.onDecoded.add(function() {
+        startMusic.onDecoded.add(function ()
+        {
             startMusic.fadeIn(Const.AUDIO_FADE_DURATION);
         });
 
         var countdown = game.add.audio('ignition');
-        countdown.onDecoded.add(function() {
+        countdown.onDecoded.add(function ()
+        {
             countdown.play();
         });
-        countdown.onStop.add(function() {
+        countdown.onStop.add(function ()
+        {
             player.destroy();
             game.state.start('play', false, false);
         });
-        
+
     }
 
     function moveUp()
@@ -117,5 +123,5 @@ export default function(game : Phaser.Game)
         planet.rotation += Const.ORBIT_SPEED;
     }
 
-    return { create: create, update: update};
+    return {create: create, update: update};
 };
