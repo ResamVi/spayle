@@ -1,4 +1,6 @@
-import * as Phaser from 'phaser-ce';
+import 'p2';
+import 'pixi';
+import 'phaser-ce';
 
 import startBooting from './BootScene';
 import displaySplash from './SplashScene';

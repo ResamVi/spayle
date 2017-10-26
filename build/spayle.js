@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -133,17 +133,44 @@ exports["default"] = {
     LIFT_OFF: ['Succesful lift-off!', 'So long, Earth!', 'To infinity and beyond!'],
     COMMENT_TIME_SHOWN: 2000
 };
-
+//# sourceMappingURL=Constants.js.map
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
-var Weapon_1 = __webpack_require__(9);
+var Weapon_1 = __webpack_require__(17);
 function default_1(game) {
     // This object keeps track and exposes the sprite
     var sprite = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'player');
@@ -311,21 +338,23 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-
+//# sourceMappingURL=Player.js.map
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-var Phaser = __webpack_require__(3);
-var BootScene_1 = __webpack_require__(5);
-var SplashScene_1 = __webpack_require__(6);
-var LoadScene_1 = __webpack_require__(7);
-var MenuScene_1 = __webpack_require__(8);
-var PlayScene_1 = __webpack_require__(10);
+__webpack_require__(4);
+__webpack_require__(7);
+__webpack_require__(10);
+var BootScene_1 = __webpack_require__(13);
+var SplashScene_1 = __webpack_require__(14);
+var LoadScene_1 = __webpack_require__(15);
+var MenuScene_1 = __webpack_require__(16);
+var PlayScene_1 = __webpack_require__(18);
 var width = window.innerWidth;
 var height = window.innerHeight;
 var game = new Phaser.Game(width, height, Phaser.AUTO, '');
@@ -346,39 +375,24 @@ game.state.start('splash');
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(process) {var require;var require;/**
-* @author       Richard Davey <rich@photonstorm.com>
-* @copyright    2016 Photon Storm Ltd.
-* @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
-*
-* @overview
-*
-* Phaser - http://phaser.io
-*
-* v2.8.5 "2017-08-30" - Built: Wed Aug 30 2017 16:40:20
-*
-* By Richard Davey http://www.photonstorm.com @photonstorm
-*
-* Phaser is a fun, free and fast 2D game framework for making HTML5 games
-* for desktop and mobile web browsers, supporting Canvas and WebGL rendering.
-*
-* Phaser uses Pixi.js for rendering, created by Mat Groves http://matgroves.com @Doormat23
-* Phaser uses p2.js for full-body physics, created by Stefan Hedman https://github.com/schteppe/p2.js @schteppe
-* Phaser contains a port of N+ Physics, converted by Richard Davey, original by http://www.metanetsoftware.com
-*
-* Many thanks to Adam Saltsman (@ADAMATOMIC) for releasing Flixel, from which both Phaser and my love of framework development originate.
-*
-* Follow development at http://phaser.io and on our forum
-*
-* "If you want your children to be intelligent,  read them fairy tales."
-* "If you want them to be more intelligent, read them more fairy tales."
-*                                                     -- Albert Einstein
-*/
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(5);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
-/**
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["p2"] = __webpack_require__(6);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var require;var require;/**
  * The MIT License (MIT)
  *
  * Copyright (c) 2015 p2.js authors
@@ -14016,6 +14030,54 @@ World.prototype.raycast = function(result, ray){
 },{"../../package.json":6,"../collision/AABB":7,"../collision/Broadphase":8,"../collision/Narrowphase":10,"../collision/Ray":11,"../collision/SAPBroadphase":13,"../constraints/Constraint":14,"../constraints/DistanceConstraint":15,"../constraints/GearConstraint":16,"../constraints/LockConstraint":17,"../constraints/PrismaticConstraint":18,"../constraints/RevoluteConstraint":19,"../events/EventEmitter":26,"../material/ContactMaterial":27,"../material/Material":28,"../math/vec2":30,"../objects/Body":31,"../objects/LinearSpring":32,"../objects/RotationalSpring":33,"../shapes/Capsule":38,"../shapes/Circle":39,"../shapes/Convex":40,"../shapes/Line":42,"../shapes/Particle":43,"../shapes/Plane":44,"../shapes/Shape":45,"../solver/GSSolver":46,"../solver/Solver":47,"../utils/OverlapKeeper":52,"../utils/Utils":57,"./IslandManager":59}]},{},[36])
 (36)
 });
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["PIXI"] = __webpack_require__(8);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(9);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+* @author       Richard Davey <rich@photonstorm.com>
+* @copyright    2016 Photon Storm Ltd.
+* @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
+*
+* @overview
+*
+* Phaser - http://phaser.io
+*
+* v2.8.5 "2017-08-30" - Built: Wed Aug 30 2017 16:40:57
+*
+* By Richard Davey http://www.photonstorm.com @photonstorm
+*
+* Phaser is a fun, free and fast 2D game framework for making HTML5 games
+* for desktop and mobile web browsers, supporting Canvas and WebGL rendering.
+*
+* Phaser uses Pixi.js for rendering, created by Mat Groves http://matgroves.com @Doormat23
+* Phaser uses p2.js for full-body physics, created by Stefan Hedman https://github.com/schteppe/p2.js @schteppe
+* Phaser contains a port of N+ Physics, converted by Richard Davey, original by http://www.metanetsoftware.com
+*
+* Many thanks to Adam Saltsman (@ADAMATOMIC) for releasing Flixel, from which both Phaser and my love of framework development originate.
+*
+* Follow development at http://phaser.io and on our forum
+*
+* "If you want your children to be intelligent,  read them fairy tales."
+* "If you want them to be more intelligent, read them more fairy tales."
+*                                                     -- Albert Einstein
+*/
+
 /**
  * @author Mat Groves http://matgroves.com/ @Doormat23
  */
@@ -21560,6 +21622,47 @@ PIXI.TextureUvs = function()
 
     return PIXI;
 }).call(this);
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(11);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(process) {/**
+* @author       Richard Davey <rich@photonstorm.com>
+* @copyright    2016 Photon Storm Ltd.
+* @license      {@link https://github.com/photonstorm/phaser/blob/master/license.txt|MIT License}
+*
+* @overview
+*
+* Phaser - http://phaser.io
+*
+* v2.8.5 "2017-08-30" - Built: Wed Aug 30 2017 16:40:48
+*
+* By Richard Davey http://www.photonstorm.com @photonstorm
+*
+* Phaser is a fun, free and fast 2D game framework for making HTML5 games
+* for desktop and mobile web browsers, supporting Canvas and WebGL rendering.
+*
+* Phaser uses Pixi.js for rendering, created by Mat Groves http://matgroves.com @Doormat23
+* Phaser uses p2.js for full-body physics, created by Stefan Hedman https://github.com/schteppe/p2.js @schteppe
+* Phaser contains a port of N+ Physics, converted by Richard Davey, original by http://www.metanetsoftware.com
+*
+* Many thanks to Adam Saltsman (@ADAMATOMIC) for releasing Flixel, from which both Phaser and my love of framework development originate.
+*
+* Follow development at http://phaser.io and on our forum
+*
+* "If you want your children to be intelligent,  read them fairy tales."
+* "If you want them to be more intelligent, read them more fairy tales."
+*                                                     -- Albert Einstein
+*/
+
 /**
 * @author       Richard Davey <rich@photonstorm.com>
 * @copyright    2016 Photon Storm Ltd.
@@ -106154,10 +106257,10 @@ PIXI.canUseNewCanvasBlendModes = function () {
 * "What matters in this life is not what we do but what we do for others, the legacy we leave and the imprint we make." - Eric Meyer
 */
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
 
 /***/ }),
-/* 4 */
+/* 12 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -106347,7 +106450,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 5 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -106367,10 +106470,10 @@ function default_1(game) {
     };
 }
 exports["default"] = default_1;
-
+//# sourceMappingURL=BootScene.js.map
 
 /***/ }),
-/* 6 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -106405,10 +106508,10 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-
+//# sourceMappingURL=SplashScene.js.map
 
 /***/ }),
-/* 7 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -106509,10 +106612,10 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-
+//# sourceMappingURL=LoadScene.js.map
 
 /***/ }),
-/* 8 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -106520,7 +106623,7 @@ exports["default"] = default_1;
 // TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
-var Player_1 = __webpack_require__(1);
+var Player_1 = __webpack_require__(2);
 function default_1(game) {
     var player;
     var planet;
@@ -106612,10 +106715,10 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-
+//# sourceMappingURL=MenuScene.js.map
 
 /***/ }),
-/* 9 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -106652,19 +106755,19 @@ function default_1(trackedSprite, game) {
 }
 exports["default"] = default_1;
 ;
-
+//# sourceMappingURL=Weapon.js.map
 
 /***/ }),
-/* 10 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
-var Player_1 = __webpack_require__(1);
-var MotherEnemy_1 = __webpack_require__(11);
-var HUD_1 = __webpack_require__(13);
+var Player_1 = __webpack_require__(2);
+var MotherEnemy_1 = __webpack_require__(19);
+var HUD_1 = __webpack_require__(21);
 function default_1(game) {
     var arrowkeys;
     var player;
@@ -106743,16 +106846,16 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-
+//# sourceMappingURL=PlayScene.js.map
 
 /***/ }),
-/* 11 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-var MinionEnemy_1 = __webpack_require__(12);
+var MinionEnemy_1 = __webpack_require__(20);
 var Constants_1 = __webpack_require__(0);
 function default_1(game) {
     // This object keeps track and exposes the sprite
@@ -106865,10 +106968,10 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-
+//# sourceMappingURL=MotherEnemy.js.map
 
 /***/ }),
-/* 12 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -106967,10 +107070,10 @@ function default_1(game, mother) {
 }
 exports["default"] = default_1;
 ;
-
+//# sourceMappingURL=MinionEnemy.js.map
 
 /***/ }),
-/* 13 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -107067,7 +107170,7 @@ function default_1(game, player, enemy) {
 }
 exports["default"] = default_1;
 ;
-
+//# sourceMappingURL=HUD.js.map
 
 /***/ })
 /******/ ]);
