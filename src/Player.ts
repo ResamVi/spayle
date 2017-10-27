@@ -1,77 +1,127 @@
 import Const from './Constants';
 import Weapon from './Weapon';
 
-export default function (this: any, game: Phaser.Game)
+/**
+ * The rocket ship
+ * 
+ * @constructor
+ * @param {any} this - ???
+ * @param {Phaser.Game} game - Reference to the current game
+ */
+ var Player = function (this: any, game: Phaser.Game)
 {
-    // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player');
-    sprite.anchor.setTo(0.5);
-    sprite.angle = Const.PLAYER_START_ANGLE;
-    this.sprite = sprite;
+    /**
+     * @property {Phaser.Game} - Reference to the currently running game
+     */
+    this._game = game;
 
-    // Grant access to this object's physics body
-    game.physics.p2.enable(sprite);
-    this.body = sprite.body;
+    /**
+     * @property {Phaser.this.Sprite} this.sprite - Reference to this.sprite object
+     */
+    this.sprite = game.add.sprite(Const.PLAYER_START_X, Const.PLAYER_START_Y, 'player', 1);
+    this.sprite.anchor.setTo(0.5);
+    this.sprite.angle = Const.PLAYER_START_ANGLE;
 
-    // Boom sound for thrusting
-    var boomSound = game.add.audio('boom');
-    boomSound.volume = 0.05;
+    /**
+     * @property {Phaser.Physics.P2.Body} - Reference to physics body
+     */
+    this.body = this.this.sprite.body;
+    game.physics.p2.enable(this.this.sprite);
+    
+    /**
+     * @property {Phaser.Sound} - Sound file for explosions on thrusts
+     */
+    this._boomSound = game.add.audio('boom');
+    this._boomSound.volume = 0.05;
 
-    // Keep track of velocity which increases with thrustFrequency
-    var thrustFrequency = 0;
-    var velocityBonus = 0;
-    var shotsMade = 0;
+    /**
+     * @property {number} - Holds heating level. Higher heating causes camera shake/bigger explosions
+     */
+    this._level = 1;
 
-    // Possible states: 'ready', 'spinning', 'charging', 'aiming'
-    var state = 'ready';
+    /**
+     * @property {number} - Keep track how frequently the player presses spacebar to thrust
+     */
+    this._thrustFrequency = 0;
+    
+    /**
+     * @deprecated TODO: Remove
+     */
+    this._velocityBonus = 0;
+    
+    /**
+     * @property {number} - Hold count of how many shots were made in the 'snipe' position
+     */
+    this.this._shotsMade = 0;
+
+    // Possible this._states: 'ready', 'spinning', 'charging', 'aiming'
+    this._this._state = 'ready';
 
     // This value is tweened, therefore object notation needed
-    var spin = {force: 0};
+    this._spin = {force: 0};
 
     // Add aim sight animation to rocket
-    var aimSight = game.add.sprite(-4, 40, 'lineAtlas');
-    aimSight.alpha = Const.INVISIBLE;
-    aimSight.anchor.setTo(1);
-    aimSight.scale.x *= -1;
-    aimSight.scale.y *= -1;
-    aimSight.animations.add('aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true).play();
-    sprite.addChild(aimSight);
+    this._aimSight = game.add.sprite(-4, 40, 'lineAtlas');
+    this._aimSight.alpha = Const.INVISIBLE;
+    this._aimSight.anchor.setTo(1);
+    this._aimSight.scale.x *= -1;
+    this._aimSight.scale.y *= -1;
+    this._aimSight.animations.add('aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true).play();
+    this.this.sprite.addChild(this._aimSight);
 
-    // Responsible for bullet spawns their angle/velocity and kill properties
-    var weapon = new Weapon(sprite, game);
-
-    // ---- FUNCTIONS ----
-
-    // Given the frequency, increase the the camera shake with higher frequency
-    var trackFrequency = function ()
-    {
-        // Increase
-        if (thrustFrequency > Const.SPEED_UP_FREQUENCY)
-            velocityBonus++;
-        // Decrease
-        else if (velocityBonus / 2 > 1)
-            velocityBonus /= 2;
-        // Round down to zero
-        else
-            velocityBonus = 0;
-
-        thrustFrequency = 0;
-
-        // Go intro "instability mode" i.e. camera shakes due to high velocity
-        if (velocityBonus > Const.INSTABILITY_THRESHOLD)
-            game.camera.shake(0.002 * velocityBonus, Const.SHAKE_DURATION, false);
-    };
+    /**
+     * @property {Weapon} - Responsible for bullet spawns their angle/velocity and kill properties
+     */
+    this._weapon = new Weapon(this.this.sprite, game);
 
     // Keep track of thrust frequency and adjust "instability mode" accordingly
-    game.time.events.repeat(Const.UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
+    game.time.events.repeat(Const.UPDATE_INTERVAL, Number.POSITIVE_INFINITY, this.trackFrequency, this);
 
-    // TODO: Put into Engine
-    // Do animation, camera and sound effects
-    var fireEngine = function (explosionSize: number, distanceFromShip: number)
+    
+};
+
+Player.prototype = 
+{    
+    // Given the frequency, increase the the camera shake with higher frequency
+    trackFrequency: function ()
     {
-        var position = calculateRearPosition(distanceFromShip);
+        // Increase
+        if (this._thrustFrequency > Const.SPEED_UP_FREQUENCY && this._level < 6)
+        {
+            this._level++;
+        } 
+        else if(this._level > 1)
+        {
+            this._level--;
+        }
 
-        var explosion = game.add.sprite(position.x, position.y, 'explosionAtlas');
+        this.this.sprite.frame = this._level;
+        this._thrustFrequency = 0;
+        console.log(this._level);
+
+        // Go intro "instability mode" i.e. camera shakes due to high velocity
+        if (this._level > Const.INSTABILITY_THRESHOLD)
+        {
+            this._game.camera.shake(0.0025 * this._level, Const.SHAKE_DURATION, false);
+        }
+    },
+
+    checkOverlap: function(spriteA: Phaser.Sprite, spriteB: Phaser.Sprite)
+    {
+        var boundsA = this.spriteA.getBounds();
+        var boundsB = this.spriteB.getBounds();
+
+        return false;
+
+        // return Phaser.Rectangle.intersects(boundsA, boundsB);
+    },
+    
+    // Do animation, camera and sound effects
+    fireEngine: function(explosionSize: number, distanceFromShip: number)
+    {
+        var position = this.calculateRearPosition(distanceFromShip);
+
+        var explosion = this._game.add.this.sprite(position.x, position.y, 'explosionAtlas');
         explosion.anchor.setTo(0.5);
         explosion.scale.setTo(explosionSize, explosionSize);
         explosion.animations.add('explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true).play();
@@ -83,147 +133,149 @@ export default function (this: any, game: Phaser.Game)
         // });
 
 
-        boomSound.play();
-        game.camera.shake(0.01, 100, false);
-    };
-
-    function checkOverlap(spriteA: Phaser.Sprite, spriteB: Phaser.Sprite)
-    {
-        var boundsA = spriteA.getBounds();
-        var boundsB = spriteB.getBounds();
-
-        return false;
-
-        // return Phaser.Rectangle.intersects(boundsA, boundsB);
-    }
-
-    // Apply the physics
-    this.thrust = function ()
-    {
-        fireEngine(Const.SMALL_EXPLOSION, Const.SMALL_EXPLOSION_DISTANCE);
-
-        if (state === 'ready' || state === 'spinning') {
-            thrustFrequency++;
-
-            sprite.body.setZeroVelocity();
-            var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
-            sprite.body.thrust(acceleration);
-
-        } else if (state === 'aiming') {
-            shotsMade++;
-
-            weapon.fire();
-
-            sprite.body.thrust(Const.RECOIL_FORCE);
-
-            if (shotsMade < Const.MAGAZINE_SIZE) {
-                game.time.events.add(Const.RECOVER_TIME, function ()
-                {
-                    game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
-                }, this);
-            } else {
-                sprite.body.thrust(Const.RECOIL_FORCE * 2);
-                aimSight.alpha = Const.INVISIBLE;
-                shotsMade = 0;
-                state = 'ready';
-            }
-        }
-    };
+        this._boomSound.play();
+        this._game.camera.shake(0.01, 100, false);
+    },
 
     // This has to be called in the game loop for each frame
-    this.update = function ()
+    update: function ()
     {
-        if (state === 'ready')
-            sprite.body.thrust(Const.MINIMUM_SPEED);
-
-        if (state === 'spinning')
-            sprite.body.rotateLeft(spin.force);
-    };
-
-    var gainControl = function (duration: number)
+        if (this._state === 'ready')
+        {
+            this.sprite.body.thrust(Const.MINIMUM_SPEED);
+        }
+        if (this._state === 'spinning')
+        {
+            this.sprite.body.rotateLeft(this._spin.force);
+        }
+    },
+    
+    // Apply the physics
+    thrust: function ()
     {
-        var tween = game.add.tween(spin);
+        this.fireEngine(Const.SMALL_EXPLOSION, Const.SMALL_EXPLOSION_DISTANCE);
+
+        if (this._state === 'ready' || this._state === 'spinning')
+        {
+            this._thrustFrequency++;
+
+            this.sprite.body.setZeroVelocity();
+            var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(1, 2)); // TODO: Remove
+            this.sprite.body.thrust(acceleration);
+
+        }
+        else if (this._state === 'aiming')
+        {
+            this._shotsMade++;
+
+            this.weapon.fire();
+
+            this.sprite.body.thrust(Const.RECOIL_FORCE);
+
+            if (this._shotsMade < Const.MAGAZINE_SIZE)
+            {
+                this._game.time.events.add(Const.RECOVER_TIME, function () {
+                    this._game.add.tween(this.sprite.body.velocity).to({x: 0, y: 0}, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+                }, this);
+            }
+            else
+            {
+                this.sprite.body.thrust(Const.RECOIL_FORCE * 2);
+                this.aimSight.alpha = Const.INVISIBLE;
+                this._shotsMade = 0;
+                this._state = 'ready';
+            }
+        }
+    },
+
+    gainControl: function (duration: number)
+    {
+        var tween = this._game.add.tween(this._spin);
         tween.to({force: 0}, duration, Phaser.Easing.Quintic.Out, true);
         tween.onComplete.add(function ()
         {
-            state = 'ready';
+            this._state = 'ready';
         });
-    };
+    },
 
-    var loseControl = function (_: any, duration: number)
+    // TODO: some funcs are public like this one
+    loseControl: function (duration: number)
     {
-        if (state === 'ready') {
-            state = 'spinning';
-            spin.force = Const.SPIN_AMOUNT;
+        if (this._state === 'ready')
+        {
+            this._state = 'spinning';
+            this._spin.force = Const.SPIN_AMOUNT;
 
-            game.time.events.add(duration, gainControl, undefined, duration);
+            this._game.time.events.add(duration, this.gainControl, undefined, duration);
         }
-    };
-    this.loseControl = loseControl;
-
-    this.isSpinning = function ()
-    {
-        return state === 'spinning';
-    };
+    },
 
     // These coordinates are used for spawning explosion animations,
     // Given how the rocket ship is angled, calculate the coordinates
-    var calculateRearPosition = function (radius: number): { x: number, y: number }
+    calculateRearPosition: function (radius: number): { x: number, y: number }
     {
-        var xAngle = Math.cos(sprite.rotation - Phaser.Math.HALF_PI);
-        var yAngle = Math.sin(sprite.rotation - Phaser.Math.HALF_PI);
+        var xAngle = Math.cos(this.sprite.rotation - Phaser.Math.HALF_PI);
+        var yAngle = Math.sin(this.sprite.rotation - Phaser.Math.HALF_PI);
 
         return {
-            x: sprite.x + xAngle * radius,
-            y: sprite.y + yAngle * radius
+            x: this.sprite.x + xAngle * radius,
+            y: this.sprite.y + yAngle * radius
         };
-    };
+    },
 
-    this.superThrust = function ()
+    superThrust: function ()
     {
-        if (state === 'ready') {
-            state = 'charging';
+        if (this._state === 'ready')
+        {
+            this._state = 'charging';
 
             // TODO: Particles
 
             // Come to a stop
-            game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
-            sprite.loadTexture('playerFire');
+            this._game.add.tween(this.sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+            this.sprite.loadTexture('playerFire');
 
             // Same as thrust() but bigger
             var launch = function ()
             {
-                fireEngine(Const.BIG_EXPLOSION, Const.BIG_EXPLOSION_DISTANCE);
-                sprite.body.setZeroVelocity();
-                sprite.body.thrust(Const.THRUST_FORCE * 5);
-                sprite.loadTexture('player');
-                state = 'ready';
-                loseControl(null, Const.SUPER_THRUST_STUN_DURATION);
+                this.fireEngine(Const.BIG_EXPLOSION, Const.BIG_EXPLOSION_DISTANCE);
+                this.sprite.body.setZeroVelocity();
+                this.sprite.body.thrust(Const.THRUST_FORCE * 5);
+                this.sprite.loadTexture('player');
+                this._state = 'ready';
+                this.loseControl(Const.SUPER_THRUST_STUN_DURATION);
             };
 
             // When fully braked launch away
-            game.time.events.add(1000, launch, this);
+            this._game.time.events.add(1000, launch, this);
         }
-    };
+    },
 
-    this.snipe = function ()
+    snipe: function ()
     {
-        if (state === 'ready') {
-            state = 'aiming';
+        if (this._state === 'ready') {
+            this._state = 'aiming';
 
             // Come to a stop
-            game.add.tween(sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+            this._game.add.tween(this.sprite.body.velocity).to({x: 0, y: 0}, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
 
             // Aim
-            game.add.tween(aimSight).to({alpha: Const.VISIBLE}, 500, 'Linear', true);
+            this._game.add.tween(this._aimSight).to({alpha: Const.VISIBLE}, 500, 'Linear', true);
 
             // Shooting is done via space button (and thus handled in this.thrust())
         }
-    };
+    },
 
-    this.destroy = function ()
-    {
-        sprite.destroy();
-        boomSound.destroy();
-    };
-};
+    destroy: function () {
+        this.this.sprite.destroy();
+        this._boomSound.destroy();
+    }
+}
+
+Object.defineProperty(Player, 'isSpinning', {
+    get: function() {
+        return this._state === 'spinning';
+    }
+})
+
+export default Player;

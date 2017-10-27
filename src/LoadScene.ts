@@ -64,7 +64,7 @@ export default function (game: Phaser.Game)
         game.load.image('background', 'assets/background.png');
         game.load.image('redPlanet', 'assets/red_planet.png');
         game.load.image('moon', 'assets/moon.png');
-        game.load.image('player', 'assets/player.png');
+        //game.load.image('player', 'assets/player.png');
         game.load.image('playerFire', 'assets/player_fire.png');
         game.load.image('enemy_boss', 'assets/enemy_boss.png');
         game.load.image('enemy_many', 'assets/enemy_many.png');
@@ -75,6 +75,7 @@ export default function (game: Phaser.Game)
 
         game.load.bitmapFont('menuFont', 'assets/menu_0.png', 'assets/menu.fnt');
 
+        game.load.atlasJSONHash('player', 'assets/player.png', 'assets/player.json');
         game.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         game.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
         game.load.atlasJSONHash('lineAtlas', 'assets/dotted_line_animation.png', 'assets/dotted_line_animation.json');

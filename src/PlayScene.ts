@@ -7,21 +7,21 @@ export default function (game: Phaser.Game)
 {
     var arrowkeys: any;
 
-    var player: any;
+    var player: Player;
     var enemy: any;
     var hud: any;
     /* var line; */
 
     var mainMusic: Phaser.Sound;
-
+    
     function create()
     {
         player = new Player(game);
         enemy = new MotherEnemy(game);
         hud = new Hud(game, player, enemy);
-
+        
         var global = {enemies: enemy};
-        Object.defineProperty(game, 'global', {value: global});
+        Object.defineProperty(game, 'global', {value: global}); // TODO:
 
         /* line = game.add.sprite(game.camera.width/2, game.game.height/2, 'line');
         hud.add(line); */
@@ -55,11 +55,11 @@ export default function (game: Phaser.Game)
     {
         player.update();
 
-        if (!player.isSpinning() && arrowkeys.left.isDown) // Put logic into player object
+        if (!player.isSpinning && arrowkeys.left.isDown) // Put logic into player object
             player.body.rotateLeft(Const.ROTATION_SPEED);
-        else if (!player.isSpinning() && arrowkeys.right.isDown)
+        else if (!player.isSpinning && arrowkeys.right.isDown)
             player.body.rotateRight(Const.ROTATION_SPEED);
-        else if (!player.isSpinning())
+        else if (!player.isSpinning)
             player.body.setZeroRotation();
 
         enemy.update(player);

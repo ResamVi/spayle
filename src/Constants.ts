@@ -46,7 +46,7 @@ export default {
     LAUNCH_FORCE: 100000,
     SPAWN_DISTANCE: -20,
     SPEED_UP_FREQUENCY: 1,
-    INSTABILITY_THRESHOLD: 2,
+    INSTABILITY_THRESHOLD: 1,
     STUN_DURATION: 2000,
 
     // Player Constants
