@@ -14,7 +14,7 @@ export default function (game: Phaser.Game)
     {
         game.stage.backgroundColor = '#FFFFFF';
 
-        var melon = game.add.sprite(game.world.centerX, game.world.centerY, 'splash');
+        var melon = game.add.sprite(game.world.centerX, game.world.centerY, 'melon');
         melon.anchor.setTo(0.5);
         melon.alpha = 0;
 
