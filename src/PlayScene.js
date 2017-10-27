@@ -35,7 +35,7 @@ export default function(game : Phaser.Game)
         // Controls
         arrowkeys = game.input.keyboard.createCursorKeys();
         console.log(player);
-        game.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, player, 0, Const.STUN_DURATION);
+        game.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, player, 1, Const.STUN_DURATION);
         game.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, player);
         game.input.keyboard.addKey(Phaser.Keyboard.E).onDown.add(player.snipe, player);
         game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, player);
@@ -54,11 +54,11 @@ export default function(game : Phaser.Game)
     {
         player.update();
 
-        if (!player.isSpinning() && arrowkeys.left.isDown) // Put logic into player object
+        if (!player.isSpinning && arrowkeys.left.isDown) // Put logic into player object
             player.body.rotateLeft(Const.ROTATION_SPEED);
-        else if (!player.isSpinning() && arrowkeys.right.isDown)
+        else if (!player.isSpinning && arrowkeys.right.isDown)
             player.body.rotateRight(Const.ROTATION_SPEED);
-        else if (!player.isSpinning())
+        else if (!player.isSpinning)
             player.body.setZeroRotation();
 
         enemy.update(player);
