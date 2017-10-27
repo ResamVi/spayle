@@ -7,13 +7,13 @@ export default function(game : Phaser.Game)
 {
     var arrowkeys : any;
     
-    var player : any;
+    var player : Player;
     var enemy : any;
     var hud : any;
     /* var line; */
 
     var mainMusic : Phaser.Sound;
-
+    
     function create()
     {
         player = new Player(game);
@@ -34,10 +34,11 @@ export default function(game : Phaser.Game)
 
         // Controls
         arrowkeys = game.input.keyboard.createCursorKeys();
-        game.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, game, 0, Const.STUN_DURATION);
-        game.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, game);
-        game.input.keyboard.addKey(Phaser.Keyboard.E).onDown.add(player.snipe, game);
-        game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, game);
+        console.log(player);
+        game.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, player, 0, Const.STUN_DURATION);
+        game.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, player);
+        game.input.keyboard.addKey(Phaser.Keyboard.E).onDown.add(player.snipe, player);
+        game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, player);
         game.input.keyboard.addKey(Phaser.Keyboard.R).onDown.add(function() {
             game.add.tween(game.camera.scale).to({x: 1, y: 1}, 7000, Phaser.Easing.Cubic.InOut, true);
         }, game);

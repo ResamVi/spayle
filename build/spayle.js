@@ -140,25 +140,22 @@ exports["default"] = {
 /***/ (function(module, exports) {
 
 var g;
-
 // This works in non-strict mode
-g = (function() {
-	return this;
+g = (function () {
+    return this;
 })();
-
 try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
+    // This works if eval is allowed (see CSP)
+    g = g || Function("return this")() || (1, eval)("this");
 }
-
+catch (e) {
+    // This works if the window reference is available
+    if (typeof window === "object")
+        g = window;
+}
 // g can still be undefined, but nothing to do about it...
 // We return undefined, instead of nothing here, so it's
 // easier to handle this case. if(!global) { ...}
-
 module.exports = g;
 
 
@@ -171,24 +168,24 @@ module.exports = g;
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 var Weapon_1 = __webpack_require__(17);
-function default_1(game) {
-    // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'player', 1);
-    sprite.anchor.setTo(0.5);
-    sprite.angle = Constants_1["default"].PLAYER_START_ANGLE;
-    this.sprite = sprite;
+function Player(game) {
+    this.game = game;
+    // This object keeps track and exposes the this.sprite
+    this.sprite = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'player', 1);
+    this.sprite.anchor.setTo(0.5);
+    this.sprite.angle = Constants_1["default"].PLAYER_START_ANGLE;
     // Grant access to this object's physics body
-    game.physics.p2.enable(sprite);
-    this.body = sprite.body;
+    game.physics.p2.enable(this.sprite);
+    this.body = this.sprite.body;
     // Boom sound for thrusting
-    var boomSound = game.add.audio('boom');
-    boomSound.volume = 0.05;
+    this.boomSound = game.add.audio('boom');
+    this.boomSound.volume = 0.05;
     // Keep track of velocity which increases with thrustFrequency
-    var thrustFrequency = 0;
-    var velocityBonus = 0;
-    var shotsMade = 0;
+    this.thrustFrequency = 0;
+    this.velocityBonus = 0;
+    this.shotsMade = 0;
     // Possible states: 'ready', 'spinning', 'charging', 'aiming'
-    var state = 'ready';
+    this.state = 'ready';
     // This value is tweened, therefore object notation needed
     var spin = { force: 0 };
     // Add aim sight animation to rocket
@@ -198,31 +195,34 @@ function default_1(game) {
     aimSight.scale.x *= -1;
     aimSight.scale.y *= -1;
     aimSight.animations.add('aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true).play();
-    sprite.addChild(aimSight);
+    this.sprite.addChild(aimSight);
     // Responsible for bullet spawns their angle/velocity and kill properties
-    var weapon = new Weapon_1["default"](sprite, game);
+    var weapon = new Weapon_1["default"](this.sprite, game);
     // ---- FUNCTIONS ----
     // Given the frequency, increase the the camera shake with higher frequency
     var trackFrequency = function () {
         // Increase
-        if (thrustFrequency > Constants_1["default"].SPEED_UP_FREQUENCY)
-            velocityBonus++;
-        else if (velocityBonus / 2 > 1)
-            velocityBonus /= 2;
+        if (this.thrustFrequency > Constants_1["default"].SPEED_UP_FREQUENCY)
+            this.velocityBonus++;
+        else if (this.velocityBonus / 2 > 1)
+            this.velocityBonus /= 2;
         else
-            velocityBonus = 0;
-        thrustFrequency = 0;
+            this.velocityBonus = 0;
+        this.thrustFrequency = 0;
         // Go intro "instability mode" i.e. camera shakes due to high velocity
-        if (velocityBonus > Constants_1["default"].INSTABILITY_THRESHOLD)
-            game.camera.shake(0.002 * velocityBonus, Constants_1["default"].SHAKE_DURATION, false);
+        if (this.velocityBonus > Constants_1["default"].INSTABILITY_THRESHOLD)
+            game.camera.shake(0.002 * this.velocityBonus, Constants_1["default"].SHAKE_DURATION, false);
     };
     // Keep track of thrust frequency and adjust "instability mode" accordingly
     game.time.events.repeat(Constants_1["default"].UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
+}
+;
+Player.prototype = {
     // TODO: Put into Engine
     // Do animation, camera and sound effects
-    var fireEngine = function (explosionSize, distanceFromShip) {
-        var position = calculateRearPosition(distanceFromShip);
-        var explosion = game.add.sprite(position.x, position.y, 'explosionAtlas');
+    fireEngine: function (explosionSize, distanceFromShip) {
+        var position = this.calculateRearPosition(distanceFromShip);
+        var explosion = this.game.add.sprite(position.x, position.y, 'explosionAtlas');
         explosion.anchor.setTo(0.5);
         explosion.scale.setTo(explosionSize, explosionSize);
         explosion.animations.add('explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true).play();
@@ -231,113 +231,113 @@ function default_1(game) {
         //         console.log("HEUREKA");
         //     }
         // });
-        boomSound.play();
-        game.camera.shake(0.01, 100, false);
-    };
-    function checkOverlap(spriteA, spriteB) {
+        this.boomSound.play();
+        this.game.camera.shake(0.01, 100, false);
+    },
+    checkOverlap: function (spriteA, spriteB) {
         var boundsA = spriteA.getBounds();
         var boundsB = spriteB.getBounds();
         return false;
         // return Phaser.Rectangle.intersects(boundsA, boundsB);
     }
     // Apply the physics
-    this.thrust = function () {
-        fireEngine(Constants_1["default"].SMALL_EXPLOSION, Constants_1["default"].SMALL_EXPLOSION_DISTANCE);
-        if (state === 'ready' || state === 'spinning') {
-            thrustFrequency++;
-            sprite.body.setZeroVelocity();
-            var acceleration = Constants_1["default"].THRUST_FORCE + Constants_1["default"].THRUST_FORCE * 0.1 * (Math.pow(velocityBonus, 2));
-            sprite.body.thrust(acceleration);
+    ,
+    // Apply the physics
+    thrust: function () {
+        this.fireEngine(Constants_1["default"].SMALL_EXPLOSION, Constants_1["default"].SMALL_EXPLOSION_DISTANCE);
+        if (this.state === 'ready' || this.state === 'spinning') {
+            this.thrustFrequency++;
+            this.sprite.body.setZeroVelocity();
+            var acceleration = Constants_1["default"].THRUST_FORCE + Constants_1["default"].THRUST_FORCE * 0.1 * (Math.pow(this.velocityBonus, 2));
+            this.sprite.body.thrust(acceleration);
         }
-        else if (state === 'aiming') {
-            shotsMade++;
+        else if (this.state === 'aiming') {
+            this.shotsMade++;
             weapon.fire();
-            sprite.body.thrust(Constants_1["default"].RECOIL_FORCE);
-            if (shotsMade < Constants_1["default"].MAGAZINE_SIZE) {
-                game.time.events.add(Constants_1["default"].RECOVER_TIME, function () {
-                    game.add.tween(sprite.body.velocity).to({ x: 0, y: 0 }, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+            this.sprite.body.thrust(Constants_1["default"].RECOIL_FORCE);
+            if (this.shotsMade < Constants_1["default"].MAGAZINE_SIZE) {
+                this.game.time.events.add(Constants_1["default"].RECOVER_TIME, function () {
+                    this.game.add.tween(this.sprite.body.velocity).to({ x: 0, y: 0 }, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
                 }, this);
             }
             else {
-                sprite.body.thrust(Constants_1["default"].RECOIL_FORCE * 2);
+                this.sprite.body.thrust(Constants_1["default"].RECOIL_FORCE * 2);
                 aimSight.alpha = Constants_1["default"].INVISIBLE;
-                shotsMade = 0;
-                state = 'ready';
+                this.shotsMade = 0;
+                this.state = 'ready';
             }
         }
-    };
+    },
     // This has to be called in the game loop for each frame
-    this.update = function () {
-        if (state === 'ready')
-            sprite.body.thrust(Constants_1["default"].MINIMUM_SPEED);
-        if (state === 'spinning')
-            sprite.body.rotateLeft(spin.force);
-    };
-    var gainControl = function (duration) {
-        var tween = game.add.tween(spin);
+    update: function () {
+        if (this.state === 'ready')
+            this.sprite.body.thrust(Constants_1["default"].MINIMUM_SPEED);
+        if (this.state === 'spinning')
+            this.sprite.body.rotateLeft(spin.force);
+    },
+    gainControl: function (duration) {
+        var tween = this.game.add.tween(spin);
         tween.to({ force: 0 }, duration, Phaser.Easing.Quintic.Out, true);
         tween.onComplete.add(function () {
-            state = 'ready';
+            this.state = 'ready';
         });
-    };
-    var loseControl = function (_, duration) {
-        if (state === 'ready') {
-            state = 'spinning';
+    },
+    loseControl: function (_, duration) {
+        if (this.state === 'ready') {
+            this.state = 'spinning';
             spin.force = Constants_1["default"].SPIN_AMOUNT;
-            game.time.events.add(duration, gainControl, undefined, duration);
+            this.game.time.events.add(duration, gainControl, undefined, duration);
         }
-    };
-    this.loseControl = loseControl;
-    this.isSpinning = function () {
-        return state === 'spinning';
-    };
+    },
+    isSpinning: function () {
+        return this.state === 'spinning';
+    },
     // These coordinates are used for spawning explosion animations,
     // Given how the rocket ship is angled, calculate the coordinates
-    var calculateRearPosition = function (radius) {
-        var xAngle = Math.cos(sprite.rotation - Phaser.Math.HALF_PI);
-        var yAngle = Math.sin(sprite.rotation - Phaser.Math.HALF_PI);
+    calculateRearPosition: function (radius) {
+        var xAngle = Math.cos(this.sprite.rotation - Phaser.Math.HALF_PI);
+        var yAngle = Math.sin(this.sprite.rotation - Phaser.Math.HALF_PI);
         return {
-            x: sprite.x + xAngle * radius,
-            y: sprite.y + yAngle * radius
+            x: this.sprite.x + xAngle * radius,
+            y: this.sprite.y + yAngle * radius
         };
-    };
-    this.superThrust = function () {
-        if (state === 'ready') {
-            state = 'charging';
+    },
+    superThrust: function () {
+        if (this.state === 'ready') {
+            this.state = 'charging';
             // TODO: Particles
             // Come to a stop
-            game.add.tween(sprite.body.velocity).to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
-            sprite.loadTexture('playerFire');
+            this.game.add.tween(this.sprite.body.velocity).to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+            this.sprite.loadTexture('playerFire');
             // Same as thrust() but bigger
             var launch = function () {
-                fireEngine(Constants_1["default"].BIG_EXPLOSION, Constants_1["default"].BIG_EXPLOSION_DISTANCE);
-                sprite.body.setZeroVelocity();
-                sprite.body.thrust(Constants_1["default"].THRUST_FORCE * 5);
-                sprite.loadTexture('player');
-                state = 'ready';
+                this.fireEngine(Constants_1["default"].BIG_EXPLOSION, Constants_1["default"].BIG_EXPLOSION_DISTANCE);
+                this.sprite.body.setZeroVelocity();
+                this.sprite.body.thrust(Constants_1["default"].THRUST_FORCE * 5);
+                this.sprite.loadTexture('player');
+                this.state = 'ready';
                 loseControl(null, Constants_1["default"].SUPER_THRUST_STUN_DURATION);
             };
             // When fully braked launch away
-            game.time.events.add(1000, launch, this);
+            this.game.time.events.add(1000, launch, this);
         }
-    };
-    this.snipe = function () {
-        if (state === 'ready') {
-            state = 'aiming';
+    },
+    snipe: function () {
+        if (this.state === 'ready') {
+            this.state = 'aiming';
             // Come to a stop
-            game.add.tween(sprite.body.velocity).to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+            this.game.add.tween(this.sprite.body.velocity).to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
             // Aim
-            game.add.tween(aimSight).to({ alpha: Constants_1["default"].VISIBLE }, 500, 'Linear', true);
+            this.game.add.tween(aimSight).to({ alpha: Constants_1["default"].VISIBLE }, 500, 'Linear', true);
             // Shooting is done via space button (and thus handled in this.thrust())
         }
-    };
-    this.destroy = function () {
-        sprite.destroy();
-        boomSound.destroy();
-    };
-}
-exports["default"] = default_1;
-;
+    },
+    destroy: function () {
+        this.sprite.destroy();
+        this.boomSound.destroy();
+    }
+};
+exports["default"] = Player;
 
 
 /***/ }),
@@ -368,9 +368,9 @@ game.state.start('boot');
 // TODO: keep camera shake with higher frequency, instead use "heated mode"
 // TODO: holding space gives bigger thrust
 // TODO: Center splash, warning signal
-// TODO: Get screen size and use that as game constraints
+// TODO: Get screen size and use that as game constraints [x]
 // TOOO: insert global
-// TODO: Add .d.ts files
+// TODO: Add .d.ts files [x]
 // TODO: Change vars to lets
 // TODO: Use webpack [x]
 // TODO: Combine package.json inside build [x]
@@ -394,6 +394,7 @@ https://stackoverflow.com/questions/21247278/about-d-ts-in-typescript
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(5);
+
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
@@ -14051,6 +14052,7 @@ World.prototype.raycast = function(result, ray){
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {module.exports = global["PIXI"] = __webpack_require__(8);
+
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
@@ -21643,6 +21645,7 @@ PIXI.TextureUvs = function()
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(11);
+
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
@@ -106280,41 +106283,42 @@ PIXI.canUseNewCanvasBlendModes = function () {
 
 // shim for using process in browser
 var process = module.exports = {};
-
 // cached from whatever global is present so that test runners that stub it
 // don't break things.  But we need to wrap it in a try catch in case it is
 // wrapped in strict mode code which doesn't define any globals.  It's inside a
 // function because try/catches deoptimize in certain engines.
-
 var cachedSetTimeout;
 var cachedClearTimeout;
-
 function defaultSetTimout() {
     throw new Error('setTimeout has not been defined');
 }
-function defaultClearTimeout () {
+function defaultClearTimeout() {
     throw new Error('clearTimeout has not been defined');
 }
 (function () {
     try {
         if (typeof setTimeout === 'function') {
             cachedSetTimeout = setTimeout;
-        } else {
+        }
+        else {
             cachedSetTimeout = defaultSetTimout;
         }
-    } catch (e) {
+    }
+    catch (e) {
         cachedSetTimeout = defaultSetTimout;
     }
     try {
         if (typeof clearTimeout === 'function') {
             cachedClearTimeout = clearTimeout;
-        } else {
+        }
+        else {
             cachedClearTimeout = defaultClearTimeout;
         }
-    } catch (e) {
+    }
+    catch (e) {
         cachedClearTimeout = defaultClearTimeout;
     }
-} ())
+}());
 function runTimeout(fun) {
     if (cachedSetTimeout === setTimeout) {
         //normal enviroments in sane situations
@@ -106328,17 +106332,17 @@ function runTimeout(fun) {
     try {
         // when when somebody has screwed with setTimeout but no I.E. maddness
         return cachedSetTimeout(fun, 0);
-    } catch(e){
+    }
+    catch (e) {
         try {
             // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
             return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
+        }
+        catch (e) {
             // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
             return cachedSetTimeout.call(this, fun, 0);
         }
     }
-
-
 }
 function runClearTimeout(marker) {
     if (cachedClearTimeout === clearTimeout) {
@@ -106353,25 +106357,23 @@ function runClearTimeout(marker) {
     try {
         // when when somebody has screwed with setTimeout but no I.E. maddness
         return cachedClearTimeout(marker);
-    } catch (e){
+    }
+    catch (e) {
         try {
             // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
             return cachedClearTimeout.call(null, marker);
-        } catch (e){
+        }
+        catch (e) {
             // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
             // Some versions of I.E. have different rules for clearTimeout vs setTimeout
             return cachedClearTimeout.call(this, marker);
         }
     }
-
-
-
 }
 var queue = [];
 var draining = false;
 var currentQueue;
 var queueIndex = -1;
-
 function cleanUpNextTick() {
     if (!draining || !currentQueue) {
         return;
@@ -106379,23 +106381,22 @@ function cleanUpNextTick() {
     draining = false;
     if (currentQueue.length) {
         queue = currentQueue.concat(queue);
-    } else {
+    }
+    else {
         queueIndex = -1;
     }
     if (queue.length) {
         drainQueue();
     }
 }
-
 function drainQueue() {
     if (draining) {
         return;
     }
     var timeout = runTimeout(cleanUpNextTick);
     draining = true;
-
     var len = queue.length;
-    while(len) {
+    while (len) {
         currentQueue = queue;
         queue = [];
         while (++queueIndex < len) {
@@ -106410,7 +106411,6 @@ function drainQueue() {
     draining = false;
     runClearTimeout(timeout);
 }
-
 process.nextTick = function (fun) {
     var args = new Array(arguments.length - 1);
     if (arguments.length > 1) {
@@ -106423,7 +106423,6 @@ process.nextTick = function (fun) {
         runTimeout(drainQueue);
     }
 };
-
 // v8 likes predictible objects
 function Item(fun, array) {
     this.fun = fun;
@@ -106438,9 +106437,7 @@ process.env = {};
 process.argv = [];
 process.version = ''; // empty string to avoid regexp issues
 process.versions = {};
-
-function noop() {}
-
+function noop() { }
 process.on = noop;
 process.addListener = noop;
 process.once = noop;
@@ -106450,18 +106447,15 @@ process.removeAllListeners = noop;
 process.emit = noop;
 process.prependListener = noop;
 process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
+process.listeners = function (name) { return []; };
 process.binding = function (name) {
     throw new Error('process.binding is not supported');
 };
-
-process.cwd = function () { return '/' };
+process.cwd = function () { return '/'; };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
-process.umask = function() { return 0; };
+process.umask = function () { return 0; };
 
 
 /***/ }),
@@ -106806,10 +106800,11 @@ function default_1(game) {
         }, game);
         // Controls
         arrowkeys = game.input.keyboard.createCursorKeys();
-        game.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, game, 0, Constants_1["default"].STUN_DURATION);
-        game.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, game);
-        game.input.keyboard.addKey(Phaser.Keyboard.E).onDown.add(player.snipe, game);
-        game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, game);
+        console.log(player);
+        game.input.keyboard.addKey(Phaser.Keyboard.Q).onDown.add(player.loseControl, player, 0, Constants_1["default"].STUN_DURATION);
+        game.input.keyboard.addKey(Phaser.Keyboard.W).onDown.add(player.superThrust, player);
+        game.input.keyboard.addKey(Phaser.Keyboard.E).onDown.add(player.snipe, player);
+        game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(player.thrust, player);
         game.input.keyboard.addKey(Phaser.Keyboard.R).onDown.add(function () {
             game.add.tween(game.camera.scale).to({ x: 1, y: 1 }, 7000, Phaser.Easing.Cubic.InOut, true);
         }, game);

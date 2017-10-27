@@ -24,9 +24,9 @@ game.state.start('boot');
 // TODO: keep camera shake with higher frequency, instead use "heated mode"
 // TODO: holding space gives bigger thrust
 // TODO: Center splash, warning signal
-// TODO: Get screen size and use that as game constraints
+// TODO: Get screen size and use that as game constraints [x]
 // TOOO: insert global
-// TODO: Add .d.ts files
+// TODO: Add .d.ts files [x]
 // TODO: Change vars to lets
 // TODO: Use webpack [x]
 // TODO: Combine package.json inside build [x]

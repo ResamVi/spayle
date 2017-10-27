@@ -5,5 +5,3 @@ build/web2exe.json
 releases/
 build/assets/background2.png
 build/assets/ignition2.mp3
-src/*.js
-src/*.js.map
