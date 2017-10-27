@@ -106,7 +106,7 @@ exports["default"] = {
     LAUNCH_FORCE: 100000,
     SPAWN_DISTANCE: -20,
     SPEED_UP_FREQUENCY: 1,
-    INSTABILITY_THRESHOLD: 2,
+    INSTABILITY_THRESHOLD: 1,
     STUN_DURATION: 2000,
     // Player Constants
     WARNING_RADIUS: 2000,
@@ -133,7 +133,7 @@ exports["default"] = {
     LIFT_OFF: ['Succesful lift-off!', 'So long, Earth!', 'To infinity and beyond!'],
     COMMENT_TIME_SHOWN: 2000
 };
-//# sourceMappingURL=Constants.js.map
+
 
 /***/ }),
 /* 1 */
@@ -173,7 +173,7 @@ var Constants_1 = __webpack_require__(0);
 var Weapon_1 = __webpack_require__(17);
 function default_1(game) {
     // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'player');
+    var sprite = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'player', 1);
     sprite.anchor.setTo(0.5);
     sprite.angle = Constants_1["default"].PLAYER_START_ANGLE;
     this.sprite = sprite;
@@ -338,7 +338,7 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-//# sourceMappingURL=Player.js.map
+
 
 /***/ }),
 /* 3 */
@@ -363,15 +363,30 @@ game.state.add('boot', BootScene_1["default"](game));
 game.state.add('load', LoadScene_1["default"](game));
 game.state.add('menu', MenuScene_1["default"](game));
 game.state.add('play', PlayScene_1["default"](game));
-game.state.start('splash');
+game.state.start('boot');
 // TODO: remove speed up
 // TODO: keep camera shake with higher frequency, instead use "heated mode"
 // TODO: holding space gives bigger thrust
 // TODO: Center splash, warning signal
 // TODO: Get screen size and use that as game constraints
+// TOOO: insert global
+// TODO: Add .d.ts files
 // TODO: Change vars to lets
-// TODO: Use webpack
-// TODO: Combine package.json inside build 
+// TODO: Use webpack [x]
+// TODO: Combine package.json inside build [x]
+// TODO: Add beeping sound to heating mode
+// TODO: Add comments as JSDOC
+// TODO: Put methods into prototype
+/*
+The "d.ts" file is used to provide typescript type information about an API that's written in
+ JavaScript. The idea is that you're using something like jQuery or underscore, an
+ existing javascript library. You want to consume those from your typescript code.
+
+Rather than rewriting jquery or underscore or whatever in typescript, you can instead
+ write the d.ts file, which contains only the type annotations. Then from your typescript code you get
+ the typescript benefits of static type checking while still using a pure JS library.
+https://stackoverflow.com/questions/21247278/about-d-ts-in-typescript
+*/ 
 
 
 /***/ }),
@@ -106470,7 +106485,7 @@ function default_1(game) {
     };
 }
 exports["default"] = default_1;
-//# sourceMappingURL=BootScene.js.map
+
 
 /***/ }),
 /* 14 */
@@ -106489,7 +106504,7 @@ function default_1(game) {
     }
     function create() {
         game.stage.backgroundColor = '#FFFFFF';
-        var melon = game.add.sprite(game.world.centerX, game.world.centerY, 'splash');
+        var melon = game.add.sprite(game.world.centerX, game.world.centerY, 'melon');
         melon.anchor.setTo(0.5);
         melon.alpha = 0;
         var tween = game.add.tween(melon);
@@ -106508,7 +106523,7 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-//# sourceMappingURL=SplashScene.js.map
+
 
 /***/ }),
 /* 15 */
@@ -106570,7 +106585,7 @@ function default_1(game) {
         game.load.image('background', 'assets/background.png');
         game.load.image('redPlanet', 'assets/red_planet.png');
         game.load.image('moon', 'assets/moon.png');
-        game.load.image('player', 'assets/player.png');
+        //game.load.image('player', 'assets/player.png');
         game.load.image('playerFire', 'assets/player_fire.png');
         game.load.image('enemy_boss', 'assets/enemy_boss.png');
         game.load.image('enemy_many', 'assets/enemy_many.png');
@@ -106579,6 +106594,7 @@ function default_1(game) {
         game.load.image('line', 'assets/line.png');
         game.load.image('arrow', 'assets/arrow.png');
         game.load.bitmapFont('menuFont', 'assets/menu_0.png', 'assets/menu.fnt');
+        game.load.atlasJSONHash('player', 'assets/player.png', 'assets/player.json');
         game.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
         game.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
         game.load.atlasJSONHash('lineAtlas', 'assets/dotted_line_animation.png', 'assets/dotted_line_animation.json');
@@ -106612,7 +106628,7 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-//# sourceMappingURL=LoadScene.js.map
+
 
 /***/ }),
 /* 16 */
@@ -106715,7 +106731,7 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-//# sourceMappingURL=MenuScene.js.map
+
 
 /***/ }),
 /* 17 */
@@ -106755,7 +106771,7 @@ function default_1(trackedSprite, game) {
 }
 exports["default"] = default_1;
 ;
-//# sourceMappingURL=Weapon.js.map
+
 
 /***/ }),
 /* 18 */
@@ -106846,7 +106862,7 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-//# sourceMappingURL=PlayScene.js.map
+
 
 /***/ }),
 /* 19 */
@@ -106968,7 +106984,7 @@ function default_1(game) {
 }
 exports["default"] = default_1;
 ;
-//# sourceMappingURL=MotherEnemy.js.map
+
 
 /***/ }),
 /* 20 */
@@ -107070,7 +107086,7 @@ function default_1(game, mother) {
 }
 exports["default"] = default_1;
 ;
-//# sourceMappingURL=MinionEnemy.js.map
+
 
 /***/ }),
 /* 21 */
@@ -107170,7 +107186,7 @@ function default_1(game, player, enemy) {
 }
 exports["default"] = default_1;
 ;
-//# sourceMappingURL=HUD.js.map
+
 
 /***/ })
 /******/ ]);

@@ -39,6 +39,7 @@
     },
     "devDependencies": {
         "expose-loader": "^0.7.3",
+        "jsdoc": "^3.5.5",
         "phaser-ce": "^2.8.5",
         "ts-loader": "^3.0.3",
         "typescript": "^2.5.3",
