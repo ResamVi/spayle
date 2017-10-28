@@ -83,24 +83,28 @@ function Player(game : Phaser.Game)
     // Responsible for bullet spawns their angle/velocity and kill properties
     this._weapon = new Weapon(this.sprite, this._game);
 
-    // Given the frequency, increase the the camera shake with higher frequency
+    // Given the frequency, increase the the camera shake with higher frequency TODO: Inside prototype?
     var trackFrequency = function()
     {    
-        // Increase
-        if (this._thrustFrequency > Const.SPEED_UP_FREQUENCY) 
-            this._velocityBonus++;
-        // Decrease
-        else if (this._velocityBonus / 2 > 1) 
-            this._velocityBonus /= 2; 
-        // Round down to zero
-        else  
-            this._velocityBonus = 0; 
-            
+        if (this._thrustFrequency > Const.TOO_FAST)
+        {
+            this._velocityBonus++; // Increase
+        }
+        else if (this._velocityBonus / 2 > 1)
+        {
+            this._velocityBonus /= 2; // Decrease
+        }
+        else // TODO: THis can be done more eleganty
+        {
+            this._velocityBonus = 0; // Round down to zero
+        }    
         this._thrustFrequency = 0;
 
         // Go intro "instability mode" i.e. camera shakes due to high velocity
         if(this._velocityBonus > Const.INSTABILITY_THRESHOLD)
+        {
             game.camera.shake(0.002 * this._velocityBonus, Const.SHAKE_DURATION, false);
+        }
     };
 
     // Keep track of thrust frequency and adjust "instability mode" accordingly
@@ -166,7 +170,8 @@ Player.prototype = {
         this.fireEngine(Const.SMALL_EXPLOSION, Const.SMALL_EXPLOSION_DISTANCE);
 
         // Handle a space bar press as moving forwards
-        if(this.isReady || this.isSpinning) {    
+        if(this.isReady || this.isSpinning)
+        {    
             this._thrustFrequency++;
             
             var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(this._velocityBonus, 2));
@@ -174,7 +179,8 @@ Player.prototype = {
             this.sprite.body.thrust(acceleration);
         
         // Handle a space bar press as shooting a missile
-        } else if(this.isAiming) {
+        } else if(this.isAiming)
+        {
             this._shotsMade++;
             
             this._weapon.fire();
@@ -182,11 +188,14 @@ Player.prototype = {
             this.sprite.body.thrust(Const.RECOIL_FORCE);
             
             // TODO: Cleanup
-            if(this._shotsMade < Const.MAGAZINE_SIZE) {
+            if(this._shotsMade < Const.MAGAZINE_SIZE)
+            {
                 this._game.time.events.add(Const.RECOVER_TIME, function() {
                     this._game.add.tween(this.sprite.body.velocity).to({x: 0, y: 0}, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
                 }, this);
-            } else {
+            }
+            else
+            {
                 this.sprite.body.thrust(Const.RECOIL_FORCE * 2);
                 this._aimSight.alpha = Const.INVISIBLE;
                 this._shotsMade = 0;
@@ -203,10 +212,14 @@ Player.prototype = {
     update: function()
     {
         if(this.isReady)
+        {
             this.sprite.body.thrust(Const.MINIMUM_SPEED);
+        }
         
         if(this.isSpinning)
+        {
             this.sprite.body.rotateLeft(this._angularVelocity.amount);
+        }
     },
 
     /**
@@ -232,7 +245,8 @@ Player.prototype = {
      */
     loseControl: function(_ : any, duration : number)
     {
-        if(this.isReady) {
+        if(this.isReady)
+        {
             this._state = 'spinning';
             this._angularVelocity.amount = Const.SPIN_AMOUNT;
             console.log("THIS IS: " + duration);
@@ -240,8 +254,14 @@ Player.prototype = {
         }
     },
 
-    // These coordinates are used for spawning explosion animations,
-    // Given how the rocket ship is angled, calculate the coordinates
+    /**
+     * These coordinates are used for spawning explosion animations,
+     * Given how the rocket ship is angled, calculate the coordinates
+     * 
+     * @method
+     * @param  {number} radius - this number dictates the distance between rocket center and rear
+     * @returns {object} The point object containing x and y properties of the rocket rear
+     */
     calculateRearPosition: function(radius : number)
     {    
         var xAngle = Math.cos(this.sprite.rotation - Phaser.Math.HALF_PI);
@@ -253,9 +273,16 @@ Player.prototype = {
         };
     },
 
+    /**
+     * A special thrust that requires build-up but launces farther, at the cost of
+     * spinning out of control
+     * 
+     * @method
+     */
     superThrust: function()
     {
-        if(this.isReady) {
+        if(this.isReady)
+        {
             this._state = 'charging';
             
             // TODO: Particles
@@ -265,7 +292,8 @@ Player.prototype = {
             this.sprite.loadTexture('playerFire');
             
             // Same as thrust() but bigger
-            var launch = function() {
+            var launch = function()
+            {
                 this.fireEngine(Const.BIG_EXPLOSION, Const.BIG_EXPLOSION_DISTANCE);
                 this.sprite.body.setZeroVelocity();
                 this.sprite.body.thrust(Const.THRUST_FORCE * 5);
@@ -279,9 +307,16 @@ Player.prototype = {
         }
     },
 
+    /**
+     * The player goes to a standstill and the aimsight appears. 
+     * Player can shoot a certain amount of missiles before being launched away again.
+     * 
+     * @method
+     */
     snipe: function()
     {
-        if(this.isReady) {
+        if(this.isReady)
+        {
             this._state = 'aiming';
 
             // Come to a stop
@@ -294,6 +329,11 @@ Player.prototype = {
         }
     },
 
+    /**
+     * Clears sprites (only in use by the menu)
+     * 
+     * @method
+     */
     destroy: function()
     {
         this.sprite.destroy();
