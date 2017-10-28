@@ -14,18 +14,18 @@ export default function (game: Phaser.Game)
     {
         game.stage.backgroundColor = '#FFFFFF';
 
-        var melon = game.add.sprite(game.world.centerX, game.world.centerY, 'melon');
+        let melon = game.add.sprite(game.world.centerX, game.world.centerY, 'melon');
         melon.anchor.setTo(0.5);
         melon.alpha = 0;
 
-        var tween = game.add.tween(melon);
+        let tween = game.add.tween(melon);
         tween.to({alpha: 1}, FADE_IN_DURATION, Phaser.Easing.Linear.None, true);
         tween.onComplete.add(fadeOut);
     }
 
     function fadeOut(melon: Phaser.Sprite)
     {
-        var tween = game.add.tween(melon);
+        let tween = game.add.tween(melon);
         tween.to({alpha: 0}, FADE_OUT_DURATION, Phaser.Easing.Linear.None, true, DELAY_DURATION);
         tween.onComplete.add(function ()
         {

@@ -4,7 +4,7 @@ import Const from './Constants';
 export default function (this: any, game: Phaser.Game)
 {
     // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(2000, 2000, 'enemy_boss');
+    let sprite = game.add.sprite(2000, 2000, 'enemy_boss');
     sprite.anchor.setTo(0.5);
     this.sprite = sprite;
 
@@ -15,24 +15,24 @@ export default function (this: any, game: Phaser.Game)
     this.body = sprite.body;
 
     // Possible states: 'READY', 'ROAM', 'ATTACKING'
-    var state = 'READY';
+    let state = 'READY';
 
     // Group stays inside this circle
-    var graphics = game.add.graphics(0, 0);
+    let graphics = game.add.graphics(0, 0);
     graphics.boundsPadding = 10;
 
     // Each mother gets 3 minions to start with
-    var minions: any[] = [];
-    var group = game.add.group();
-    for (var i = 0; i < 3; i++) {
-        var minion = new MinionEnemy(game, sprite);
+    let minions: any[] = [];
+    let group = game.add.group();
+    for (let i = 0; i < 3; i++) {
+        let minion = new MinionEnemy(game, sprite);
         minions.push(minion);
         group.add(minion.sprite);
     }
     this.group = group;
 
     // Select a random angle to start travelling
-    var currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
+    let currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
 
     this.update = function (player)
     {
@@ -53,7 +53,7 @@ export default function (this: any, game: Phaser.Game)
         spawnEnemy();
 
         // Update its minions (they should choose a similar angle to their mother)
-        for (var i = 0; i < minions.length; i++) {
+        for (let i = 0; i < minions.length; i++) {
             minions[i].update(player, currentAngle);
         }
 
@@ -63,16 +63,16 @@ export default function (this: any, game: Phaser.Game)
         }
     };
 
-    var attack = function (player)
+    let attack = function (player)
     {
-        var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
-        var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI / 2; // in [-pi/4, pi/4]
+        let playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
+        let offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI / 2; // in [-pi/4, pi/4]
 
         sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
-    var roam = function ()
+    let roam = function ()
     {
         // Stay inside bounds bounds
         if (sprite.y < Const.INFLUENCE_RADIUS / 2) {
@@ -86,7 +86,7 @@ export default function (this: any, game: Phaser.Game)
 
             // Random
         } else {
-            var offset = Math.PI / 6 * (Math.random() * 2 - 1);
+            let offset = Math.PI / 6 * (Math.random() * 2 - 1);
             currentAngle = currentAngle + offset;
         }
 
@@ -94,30 +94,30 @@ export default function (this: any, game: Phaser.Game)
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
-    var spawnEnemy = function ()
+    let spawnEnemy = function ()
     {
         if (Math.random() < 0.005) {
-            var minion = new MinionEnemy(game, sprite);
+            let minion = new MinionEnemy(game, sprite);
             minions.push(minion);
             group.add(minion.sprite);
         }
     };
 
-    var velocity = function ()
+    let velocity = function ()
     {
-        var x = sprite.body.velocity.x;
-        var y = sprite.body.velocity.y;
+        let x = sprite.body.velocity.x;
+        let y = sprite.body.velocity.y;
 
         return Math.round(Math.sqrt(x * x + y * y));
     };
 
-    var playerInRange = function (player)
+    let playerInRange = function (player)
     {
         return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.SIGHT_RANGE;
     };
 
     // ----------------- DEBUG -----------------
-    var debugState;
+    let debugState;
     if (Const.DEBUG_MODE) {
         debugState = game.add.bitmapText(0, -80, 'menuFont', '', 30);
         debugState.anchor.set(0.5);
@@ -127,7 +127,7 @@ export default function (this: any, game: Phaser.Game)
     {
         if (Const.DEBUG_MODE) {
             debugState.text = state;
-            for (var i = 0; i < minions.length; i++) {
+            for (let i = 0; i < minions.length; i++) {
                 minions[i].debug();
             }
         }

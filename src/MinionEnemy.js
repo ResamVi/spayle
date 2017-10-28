@@ -3,9 +3,9 @@ import Const from './Constants';
 export default function (this: any, game, mother)
 {
     // This object keeps track and exposes the sprite
-    var xOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
-    var yOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
-    var sprite = game.add.sprite(mother.x + xOffset, mother.y + yOffset, 'enemy_many');
+    let xOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
+    let yOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
+    let sprite = game.add.sprite(mother.x + xOffset, mother.y + yOffset, 'enemy_many');
     sprite.anchor.setTo(0.5);
     this.sprite = sprite;
 
@@ -16,7 +16,7 @@ export default function (this: any, game, mother)
     this.body = sprite.body;
 
     // Possible states: 'READY', 'ATTACKING', 'RETURNING', 'FOLLOWING'
-    var state = 'READY';
+    let state = 'READY';
 
     this.update = function (player, motherAngle)
     {
@@ -38,25 +38,25 @@ export default function (this: any, game, mother)
             state = 'READY';
         }
     };
-    var returnBack = function ()
+    let returnBack = function ()
     {
-        var angleToMother = Phaser.Math.angleBetween(sprite.x, sprite.y, mother.x, mother.y);
+        let angleToMother = Phaser.Math.angleBetween(sprite.x, sprite.y, mother.x, mother.y);
         sprite.body.rotation = angleToMother + Phaser.Math.HALF_PI;
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
-    var attack = function (player)
+    let attack = function (player)
     {
-        var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
-        var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI / 2; // in [-pi/4, pi/4]
+        let playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
+        let offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI / 2; // in [-pi/4, pi/4]
 
         sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
-    var follow = function (motherAngle)
+    let follow = function (motherAngle)
     {
-        var angle;
+        let angle;
 
         // Stay inside bounds bounds
         if (sprite.y < Const.INFLUENCE_RADIUS / 2) {
@@ -76,26 +76,26 @@ export default function (this: any, game, mother)
         sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     };
 
-    var velocity = function ()
+    let velocity = function ()
     {
-        var x = sprite.body.velocity.x;
-        var y = sprite.body.velocity.y;
+        let x = sprite.body.velocity.x;
+        let y = sprite.body.velocity.y;
 
         return Math.round(Math.sqrt(x * x + y * y));
     };
 
-    var playerInRange = function (player)
+    let playerInRange = function (player)
     {
         return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Const.SIGHT_RANGE;
     };
 
-    var closeToMother = function ()
+    let closeToMother = function ()
     {
         return Phaser.Math.distance(sprite.x, sprite.y, mother.x, mother.y) < Const.INFLUENCE_RADIUS / 2;
     };
 
     // ----------------- DEBUG -----------------
-    var debugState;
+    let debugState;
     if (Const.DEBUG_MODE) {
         debugState = game.add.bitmapText(0, -80, 'menuFont', '', 30);
         debugState.anchor.set(0.5);

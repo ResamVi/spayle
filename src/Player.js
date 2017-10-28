@@ -84,7 +84,7 @@ function Player(game : Phaser.Game)
     this._weapon = new Weapon(this.sprite, this._game);
 
     // Given the frequency, increase the the camera shake with higher frequency TODO: Inside prototype?
-    var trackFrequency = function()
+    let trackFrequency = function()
     {    
         if (this._thrustFrequency > Const.TOO_FAST)
         {
@@ -127,9 +127,9 @@ Player.prototype = {
      */
     fireEngine: function(explosionSize : number, distanceFromShip : number)
     {
-        var position = this.calculateRearPosition(distanceFromShip);
+        let position = this.calculateRearPosition(distanceFromShip);
         
-        var explosion = this._game.add.sprite(position.x, position.y, 'explosionAtlas');
+        let explosion = this._game.add.sprite(position.x, position.y, 'explosionAtlas');
         explosion.anchor.setTo(0.5);
         explosion.scale.setTo(explosionSize, explosionSize);
         explosion.animations.add('explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true).play();
@@ -153,8 +153,8 @@ Player.prototype = {
      */
     checkOverlap: function(spriteA : Phaser.Sprite, spriteB : Phaser.Sprite)
     {    
-        var boundsA = spriteA.getBounds();
-        var boundsB = spriteB.getBounds();
+        let boundsA = spriteA.getBounds();
+        let boundsB = spriteB.getBounds();
 
         return false;
 
@@ -174,7 +174,7 @@ Player.prototype = {
         {    
             this._thrustFrequency++;
             
-            var acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(this._velocityBonus, 2));
+            let acceleration = Const.THRUST_FORCE + Const.THRUST_FORCE * 0.1 * (Math.pow(this._velocityBonus, 2));
             this.sprite.body.setZeroVelocity();            
             this.sprite.body.thrust(acceleration);
         
@@ -230,7 +230,7 @@ Player.prototype = {
     gainControl: function(duration : number)
     {
         console.log("gaining control back");
-        var tween = this._game.add.tween(this._angularVelocity);
+        let tween = this._game.add.tween(this._angularVelocity);
         tween.to({amount: 0}, duration, Phaser.Easing.Quintic.Out, true);
         tween.onComplete.add(function() {
             this._state = 'ready';
@@ -264,8 +264,8 @@ Player.prototype = {
      */
     calculateRearPosition: function(radius : number)
     {    
-        var xAngle = Math.cos(this.sprite.rotation - Phaser.Math.HALF_PI);
-        var yAngle = Math.sin(this.sprite.rotation - Phaser.Math.HALF_PI);
+        let xAngle = Math.cos(this.sprite.rotation - Phaser.Math.HALF_PI);
+        let yAngle = Math.sin(this.sprite.rotation - Phaser.Math.HALF_PI);
         
         return {
             x: this.sprite.x + xAngle * radius,
@@ -292,7 +292,7 @@ Player.prototype = {
             this.sprite.loadTexture('playerFire');
             
             // Same as thrust() but bigger
-            var launch = function()
+            let launch = function()
             {
                 this.fireEngine(Const.BIG_EXPLOSION, Const.BIG_EXPLOSION_DISTANCE);
                 this.sprite.body.setZeroVelocity();

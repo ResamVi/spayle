@@ -55,7 +55,7 @@ function HUD(game: Phaser.Game, player: Player, enemy: any)  // TODO: .d.ts file
     // Start off with a comment
     game.time.events.add(100, function ()
     {
-        var beep = game.add.audio('roger');
+        let beep = game.add.audio('roger');
         beep.volume = 0.5;
         beep.play();
 
@@ -66,9 +66,9 @@ function HUD(game: Phaser.Game, player: Player, enemy: any)  // TODO: .d.ts file
         game.time.events.add(Const.COMMENT_TIME_SHOWN, function ()
         {
             this._comments.text = '';
-        });
+        }, this);
 
-    });
+    }, this);
 };
 
 /**
@@ -113,18 +113,18 @@ HUD.prototype = {
      */
     getNearestEnemy: function()
     {
-        var shortestDistance = Number.POSITIVE_INFINITY;
-        var closestEnemy;
+        let shortestDistance = Number.POSITIVE_INFINITY;
+        let closestEnemy;
 
         this._enemy.group.forEach(function (child)
         {
-            var d = Phaser.Math.distance(this._player.sprite.x, this._player.sprite.y, child.x, child.y);
+            let d = Phaser.Math.distance(this._player.sprite.x, this._player.sprite.y, child.x, child.y);
             if (d < shortestDistance)
             {
                 shortestDistance = d;
                 closestEnemy = child;
             }
-        });
+        }, this);
 
         if (shortestDistance < Const.WARNING_RADIUS)
         {
@@ -156,8 +156,8 @@ HUD.prototype = {
         this._arrow.rotation = Phaser.Math.angleBetween(this._player.sprite.x, this._player.sprite.y, this._enemy.x, this._enemy.y);
 
         // Y Coord
-        var ySlope = (this._enemy.y - player.sprite.y) / Math.abs(this._enemy.x - this._player.sprite.x);
-        var yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
+        let ySlope = (this._enemy.y - this._player.sprite.y) / Math.abs(this._enemy.x - this._player.sprite.x);
+        let yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
 
         if (yCoord < 7)
         {
@@ -173,8 +173,8 @@ HUD.prototype = {
         }
 
         // X Coord
-        var xSlope = Math.abs(this._enemy.y - player.sprite.y) / (this._enemy.x - this._enemy.sprite.x);
-        var xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
+        let xSlope = Math.abs(this._enemy.y - this._player.sprite.y) / (this._enemy.x - this._enemy.sprite.x);
+        let xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
 
         if (xCoord > Const.GAME_WIDTH)
         {

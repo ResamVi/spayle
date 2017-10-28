@@ -3,7 +3,7 @@ import Const from './Constants';
 // TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
 export default function (game: Phaser.Game)
 {
-    var progressText: Phaser.BitmapText;
+    let progressText: Phaser.BitmapText;
 
     function preload()
     {
@@ -19,10 +19,10 @@ export default function (game: Phaser.Game)
         game.load.onLoadComplete.add(loadComplete);
 
         // Display and center load text
-        var loadText = game.add.bitmapText(0, 0, 'font', 'Loading');
+        let loadText = game.add.bitmapText(0, 0, 'font', 'Loading');
         loadText.updateTransform();
-        var centerX = game.width / 2 - (loadText.textWidth * 0.5);
-        var centerY = game.height / 2 - (loadText.textHeight * 0.5);
+        let centerX = game.width / 2 - (loadText.textWidth * 0.5);
+        let centerY = game.height / 2 - (loadText.textHeight * 0.5);
         loadText.x = centerX;
         loadText.y = centerY - 90;
 
@@ -35,7 +35,7 @@ export default function (game: Phaser.Game)
         progressText.y = centerY;
 
         // Loadbar
-        var preloadBar = game.add.sprite(10, 30, 'preloadbar');
+        let preloadBar = game.add.sprite(10, 30, 'preloadbar');
         preloadBar.updateTransform();
         centerX = game.width / 2;
         centerY = game.height / 2;

@@ -475,29 +475,18 @@ game.state.add('load', LoadScene_1["default"](game));
 game.state.add('menu', MenuScene_1["default"](game));
 game.state.add('play', PlayScene_1["default"](game));
 game.state.start('boot');
-// TODO: remove speed up
-// TODO: keep camera shake with higher frequency, instead use "heated mode"
-// TODO: holding space gives bigger thrust
-// TODO: Center splash, warning signal
+// TODO: Center splash, warning signal [x]
 // TODO: Get screen size and use that as game constraints [x]
-// TOOO: insert global
-// TODO: Add .d.ts files [x]
-// TODO: Change vars to lets
+// TOOO: insert global [x]
+// TODO: Change lets to lets
 // TODO: Use webpack [x]
 // TODO: Combine package.json inside build [x]
 // TODO: Add beeping sound to heating mode
 // TODO: Add comments as JSDOC
+// TODO: holding space gives bigger thrust
 // TODO: Put methods into prototype
-/*
-The "d.ts" file is used to provide typescript type information about an API that's written in
- JavaScript. The idea is that you're using something like jQuery or underscore, an
- existing javascript library. You want to consume those from your typescript code.
-
-Rather than rewriting jquery or underscore or whatever in typescript, you can instead
- write the d.ts file, which contains only the type annotations. Then from your typescript code you get
- the typescript benefits of static type checking while still using a pure JS library.
-https://stackoverflow.com/questions/21247278/about-d-ts-in-typescript
-*/ 
+// TODO: Add .d.ts files
+// TODO: Rework speed up to heated mode? 
 
 
 /***/ }),
@@ -106894,14 +106883,14 @@ function default_1(game) {
     var player;
     var enemy;
     var hud;
-    /* var line; */
+    /* let line; */
     var mainMusic;
     function create() {
         player = new Player_1["default"](game);
         enemy = new MotherEnemy_1["default"](game);
         hud = new HUD_1["default"](game, player, enemy);
-        var global = { enemies: enemy };
-        Object.defineProperty(game, 'global', { value: global });
+        game.global = { enemies: enemy };
+        console.log(game);
         /* line = game.add.sprite(game.camera.width/2, game.game.height/2, 'line');
         hud.add(line); */
         // Music
@@ -107200,98 +107189,161 @@ exports["default"] = default_1;
 
 "use strict";
 
+/**
+* @author       Julien Midedji <admin@resamvi.de>
+* @copyright    2017 Julien Midedji
+* @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+*/
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
-function default_1(game, player, enemy) {
-    // HUD
-    var hud = game.add.group();
-    hud.fixedToCamera = true;
-    // Warning icon
-    var warning = game.add.sprite(300, 600 - 36, 'warning');
-    warning.anchor.setTo(0.5);
-    hud.add(warning);
-    // Arrow point to enemy
-    var arrow = game.add.sprite(game.camera.width / 2, game.height / 2, 'arrow');
-    arrow.anchor.setTo(0.5);
-    hud.add(arrow);
-    // Crew comments
-    var comments = game.add.bitmapText(game.camera.width / 2, 20, 'font', '', 20);
-    comments.anchor.setTo(0.5);
-    hud.add(comments);
+/**
+ * Contains all the HUD elements and contains interfaces
+ * for changes and interactions.
+ *
+ * @param  {Phaser.Game} game - A reference to the currently running game
+ * @param  {Player} player - A reference to the player to access its status
+ * @param  {any} enemy - TODO: Use global enemy
+ */
+function HUD(game, player, enemy) {
+    /**
+     * @property {any} - Reference to the player
+     */
+    this._player = player;
+    /**
+     * @property {any} - Reference to the enemy
+     */
+    this._enemy = enemy;
+    /**
+     * @property {Phaser.Group} - Container for all HUD elements
+     */
+    this._hud = game.add.group();
+    this._hud.fixedToCamera = true;
+    /**
+     * @property {Phaser.Sprite} - The warning logo for close proximity of enemies
+     */
+    this._warning = game.add.sprite(game.camera.width / 2, game.camera.height / 1.1, 'warning');
+    this._warning.anchor.setTo(0.5);
+    this._hud.add(this._warning);
+    /**
+     * @property {Phaser.Sprite} - Arrow pointing at the closest enemy when in proximity
+     */
+    this._arrow = game.add.sprite(game.camera.width / 2, game.height / 2, 'arrow');
+    this._arrow.anchor.setTo(0.5);
+    this._hud.add(this._arrow);
+    /**
+     * @property {Phaser.BitmapText} - Comments at the top of the screen
+     */
+    this._comments = game.add.bitmapText(game.camera.width / 2, 20, 'font', '', 20);
+    this._comments.anchor.setTo(0.5);
+    this._hud.add(this._comments);
     // Start off with a comment
     game.time.events.add(100, function () {
         var beep = game.add.audio('roger');
         beep.volume = 0.5;
         beep.play();
         // Text appear
-        comments.text = Constants_1["default"].LIFT_OFF[Math.floor(Math.random() * Constants_1["default"].LIFT_OFF.length)];
+        this._comments.text = Constants_1["default"].LIFT_OFF[Math.floor(Math.random() * Constants_1["default"].LIFT_OFF.length)];
         // Text disappear
         game.time.events.add(Constants_1["default"].COMMENT_TIME_SHOWN, function () {
-            comments.text = '';
-        });
-    });
-    this.update = function update() {
-        focusPointer(getNearestEnemy());
-    };
-    function giveComment() {
+            this._comments.text = '';
+        }, this);
+    }, this);
+}
+;
+/**
+ * All the functions
+ *
+ * @method
+ */
+HUD.prototype = {
+    /**
+     * Has to be called each frame
+     * @method
+     */
+    update: function () {
+        this.focusPointer(this.getNearestEnemy());
+    },
+    /**
+     * Display new text at the top of the screen, handles fade in and fade out times
+     * @method
+     */
+    giveComment: function () {
         // game.time.events.add(Math.random() * 5000, function() {
         //
         //     // Text appear
-        //     comments.text = Const.IDLE[Math.floor(Math.random() * Const.IDLE.length)];
+        //     this._comments.text = Const.IDLE[Math.floor(Math.random() * Const.IDLE.length)];
         //
         //     // Text disappear
         //     game.time.events.add(Const.COMMENT_TIME_SHOWN, function() {
-        //         comments.text = '';
+        //         this._comments.text = '';
         //     });
         // }, this);
-    }
-    function getNearestEnemy() {
+    },
+    /**
+     * Calculate which enemy is closest
+     *
+     * @returns {any} - closest enemy to the ship
+     * @method
+     */
+    getNearestEnemy: function () {
         var shortestDistance = Number.POSITIVE_INFINITY;
         var closestEnemy;
-        enemy.group.forEach(function (child) {
-            var d = Phaser.Math.distance(player.sprite.x, player.sprite.y, child.x, child.y);
+        this._enemy.group.forEach(function (child) {
+            var d = Phaser.Math.distance(this._player.sprite.x, this._player.sprite.y, child.x, child.y);
             if (d < shortestDistance) {
                 shortestDistance = d;
                 closestEnemy = child;
             }
-        });
-        if (shortestDistance < Constants_1["default"].WARNING_RADIUS)
+        }, this);
+        if (shortestDistance < Constants_1["default"].WARNING_RADIUS) {
             return closestEnemy;
-    }
-    function focusPointer(enemy) {
-        if (enemy === undefined) {
-            warning.alpha = 0;
-            arrow.alpha = 0;
+        }
+    },
+    /**
+     * Calculates the angle and position of the arrow to point at the enemy
+     *
+     * @param {any} - Enemy to point at
+     * @method
+     */
+    focusPointer: function (enemy) {
+        if (this._enemy === undefined) {
+            this._warning.alpha = 0;
+            this._arrow.alpha = 0;
             return;
         }
         else {
-            warning.alpha = 1;
-            arrow.alpha = 1;
+            this._warning.alpha = 1;
+            this._arrow.alpha = 1;
         }
-        // Angle
-        arrow.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.x, enemy.y);
+        // Angle TODO: those parameters man...
+        this._arrow.rotation = Phaser.Math.angleBetween(this._player.sprite.x, this._player.sprite.y, this._enemy.x, this._enemy.y);
         // Y Coord
-        var ySlope = (enemy.y - player.sprite.y) / Math.abs(enemy.x - player.sprite.x);
+        var ySlope = (this._enemy.y - this._player.sprite.y) / Math.abs(this._enemy.x - this._player.sprite.x);
         var yCoord = ySlope * Constants_1["default"].GAME_WIDTH / 2 + Constants_1["default"].CENTER_CAMERA_X;
-        if (yCoord < 7)
-            arrow.y = 7;
-        else if (yCoord > Constants_1["default"].GAME_HEIGHT)
-            arrow.y = Constants_1["default"].GAME_HEIGHT - 7;
-        else
-            arrow.y = yCoord;
+        if (yCoord < 7) {
+            this._arrow.y = 7;
+        }
+        else if (yCoord > Constants_1["default"].GAME_HEIGHT) {
+            this._arrow.y = Constants_1["default"].GAME_HEIGHT - 7;
+        }
+        else {
+            this._arrow.y = yCoord;
+        }
         // X Coord
-        var xSlope = Math.abs(enemy.y - player.sprite.y) / (enemy.x - player.sprite.x);
+        var xSlope = Math.abs(this._enemy.y - this._player.sprite.y) / (this._enemy.x - this._enemy.sprite.x);
         var xCoord = (Constants_1["default"].GAME_HEIGHT * 0.5) / xSlope + Constants_1["default"].CENTER_CAMERA_Y;
-        if (xCoord > Constants_1["default"].GAME_WIDTH)
-            arrow.x = Constants_1["default"].GAME_WIDTH - 7;
-        else if (xCoord < 7)
-            arrow.x = 7;
-        else
-            arrow.x = xCoord;
+        if (xCoord > Constants_1["default"].GAME_WIDTH) {
+            this._arrow.x = Constants_1["default"].GAME_WIDTH - 7;
+        }
+        else if (xCoord < 7) {
+            this._arrow.x = 7;
+        }
+        else {
+            this._arrow.x = xCoord;
+        }
     }
-}
-exports["default"] = default_1;
-;
+};
+exports["default"] = HUD;
 
 
 /***/ })

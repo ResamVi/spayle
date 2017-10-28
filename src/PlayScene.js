@@ -5,14 +5,14 @@ import Hud from './HUD';
 
 export default function(game : Phaser.Game)
 {
-    var arrowkeys : any;
+    let arrowkeys : any;
     
-    var player : Player;
-    var enemy : any;
-    var hud : any;
-    /* var line; */
+    let player : Player;
+    let enemy : any;
+    let hud : any;
+    /* let line; */
 
-    var mainMusic : Phaser.Sound;
+    let mainMusic : Phaser.Sound;
     
     function create()
     {
@@ -20,8 +20,9 @@ export default function(game : Phaser.Game)
         enemy = new MotherEnemy(game);
         hud = new Hud(game, player, enemy);
 
-        var global = {enemies: enemy};
-        Object.defineProperty(game, 'global', {value: global});
+        game.global = {enemies: enemy};
+
+        console.log(game);
 
         /* line = game.add.sprite(game.camera.width/2, game.game.height/2, 'line');
         hud.add(line); */
@@ -91,9 +92,9 @@ export default function(game : Phaser.Game)
             /* game.game.camera.scale.setTo(0.5); */
             /* game.game.camera.unfollow(); */
 
-            var x = player.body.velocity.x;
-            var y = player.body.velocity.y;
-            var v = Math.round(Math.sqrt(x*x + y*y));
+            let x = player.body.velocity.x;
+            let y = player.body.velocity.y;
+            let v = Math.round(Math.sqrt(x*x + y*y));
 
             enemy.debug();
 

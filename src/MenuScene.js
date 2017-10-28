@@ -5,20 +5,20 @@ import Player from './Player';
 
 export default function (game: Phaser.Game)
 {
-    var player: any;
-    var planet: Phaser.Sprite;
+    let player: Player;
+    let planet: Phaser.Sprite;
 
-    var title: Phaser.BitmapText;
-    var startButton: Phaser.Button;
-    var optionButton: Phaser.Button;
-    var backButton: Phaser.Button;
-    var instructions: Phaser.Sprite;
+    let title: Phaser.BitmapText;
+    let startButton: Phaser.Button;
+    let optionButton: Phaser.Button;
+    let backButton: Phaser.Button;
+    let instructions: Phaser.Sprite;
 
-    var menuMusic: Phaser.Sound;
-    var startMusic: Phaser.Sound;
+    let menuMusic: Phaser.Sound;
+    let startMusic: Phaser.Sound;
 
-    var centerX: number;
-    var centerY: number;
+    let centerX: number;
+    let centerY: number;
 
     function create()
     {
@@ -64,7 +64,7 @@ export default function (game: Phaser.Game)
 
     function createButton(y, scale, func, atlas, onHover, onIdle, onClick)
     {
-        var button = game.add.button(0, 0, atlas, func, game, onHover, onIdle, onClick, onIdle);
+        let button = game.add.button(0, 0, atlas, func, game, onHover, onIdle, onClick, onIdle);
         button.anchor.setTo(0.5, 0.5);
         button.scale.setTo(scale, scale);
         button.x = centerX + Const.BUTTON_X;
@@ -78,8 +78,8 @@ export default function (game: Phaser.Game)
         game.add.tween(game.camera.scale).to({x: 0.5, y: 0.5}, 7000, Phaser.Easing.Cubic.InOut, true);
 
         // Fade out all menu items
-        for (var sprite of [title, startButton, optionButton, backButton, instructions]) {
-            var t = game.add.tween(sprite).to({alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+        for (let sprite of [title, startButton, optionButton, backButton, instructions]) {
+            let t = game.add.tween(sprite).to({alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
             t.onComplete.add(function (invisibleSprite: Phaser.Sprite)
             {
                 invisibleSprite.destroy();
@@ -95,7 +95,7 @@ export default function (game: Phaser.Game)
             startMusic.fadeIn(Const.AUDIO_FADE_DURATION);
         });
 
-        var countdown = game.add.audio('ignition');
+        let countdown = game.add.audio('ignition');
         countdown.onDecoded.add(function ()
         {
             countdown.play();
