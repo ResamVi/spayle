@@ -1,7 +1,13 @@
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
+
 export default {
 
-    GAME_WIDTH: 800,
     GAME_HEIGHT: 600,
+    GAME_WIDTH: 800,
     CENTER_CAMERA_X: 300,
     CENTER_CAMERA_Y: 400,
 
@@ -10,7 +16,7 @@ export default {
     CAM_SPEED: 16,
 
     // BootScene Constants
-    WORLD_BOUNDS: 10000,
+    MAP_SIZE: 10000,
 
     // MenuScene Constants
     PLAYER_START_Y: 270,
@@ -31,12 +37,17 @@ export default {
     TITLE_Y_OFFSET: 150,
 
     BUTTON_X: 180,
-    START_BUTTON: ['yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png'],
-    OPTION_BUTTON: ['grey_button02.png', 'grey_button01.png', 'grey_button02.png'],
+    START_BUTTON: ['yellow_button01.png',
+                   'yellow_button02.png', 'yellow_button01.png'],
+
+    OPTION_BUTTON: ['grey_button02.png',
+                    'grey_button01.png', 'grey_button02.png'],
     VISIBLE: 1,
     INVISIBLE: 0,
 
-    TITLE_BOUNCE: [{x: 1.1, y: 1.1}, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true],
+    TITLE_BOUNCE: [{x: 1.1, y: 1.1},
+                2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true],
+
     MAIN_MENU: [{y: 0}, 1500, Phaser.Easing.Cubic.Out, true],
     OPTION_MENU: [{y: 700}, 1500, Phaser.Easing.Cubic.Out, true],
 
@@ -59,7 +70,16 @@ export default {
     SMALL_EXPLOSION_DISTANCE: -20,
     BIG_EXPLOSION: 6,
     BIG_EXPLOSION_DISTANCE: -20,
-    EXPLODE_ANIMATION_SETTINGS: ['explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true],
+
+    EXPLODE_ANIMATION_SETTINGS: [
+        'explode',
+        Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1),
+        60,
+        false,
+        true],
+
+    ANIMATION_PARAMS: [ 'aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true],
+    STOPPING_PARAMS: [{x: 0, y: 0}, 300, Phaser.Easing.Cubic.Out, true],
 
     UPDATE_INTERVAL: 1000,
     SUPER_THRUST_STUN_DURATION: 800,
@@ -76,6 +96,9 @@ export default {
     INFLUENCE_RADIUS: 1500,
 
     // Comments
-    LIFT_OFF: ['Succesful lift-off!', 'So long, Earth!', 'To infinity and beyond!'],
+    LIFT_OFF: [
+        'Succesful lift-off!',
+        'So long, Earth!',
+        'To infinity and beyond!'],
     COMMENT_TIME_SHOWN: 2000,
-}
+};

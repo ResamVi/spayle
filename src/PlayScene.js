@@ -1,32 +1,30 @@
 import Const from './Constants';
 import Player from './Player';
-import MotherEnemy from './MotherEnemy';
+import Mother from './Mother';
 import Hud from './HUD';
 
 export default function(game : Phaser.Game)
 {
     let arrowkeys : any;
-    
+
     let player : Player;
     let enemy : any;
     let hud : any;
     /* let line; */
 
     let mainMusic : Phaser.Sound;
-    
+
     function create()
     {
         player = new Player(game);
-        enemy = new MotherEnemy(game);
+        enemy = new Mother(game);
         hud = new Hud(game, player, enemy);
 
         game.global = {enemies: enemy};
 
-        console.log(game);
-
         /* line = game.add.sprite(game.camera.width/2, game.game.height/2, 'line');
         hud.add(line); */
-        
+
         // Music
         mainMusic = game.add.audio('mainMusic');
         mainMusic.onDecoded.add(function() {
@@ -43,44 +41,54 @@ export default function(game : Phaser.Game)
         game.input.keyboard.addKey(Phaser.Keyboard.R).onDown.add(function() {
             game.add.tween(game.camera.scale).to({x: 1, y: 1}, 7000, Phaser.Easing.Cubic.InOut, true);
         }, game);
-        
+
         game.camera.follow(player.sprite, undefined, 0.5, 0.5);
 
         // Launch rocket away to start game
         player.body.thrust(Const.LAUNCH_FORCE);
     }
-    
-    
-    function update() 
+
+    function update()
     {
         player.update();
 
-        if (!player.isSpinning && arrowkeys.left.isDown) // Put logic into player object
+        // Put logic into player object
+        if (!player.isSpinning && arrowkeys.left.isDown)
+        {
             player.body.rotateLeft(Const.ROTATION_SPEED);
+        }
         else if (!player.isSpinning && arrowkeys.right.isDown)
+        {
             player.body.rotateRight(Const.ROTATION_SPEED);
+        }
         else if (!player.isSpinning)
+        {
             player.body.setZeroRotation();
+        }
 
         enemy.update(player);
-
         hud.update();
 
         // ---------------------------------- DEBUG ----------------------------------
         /* line.rotation = Phaser.Math.angleBetween(player.sprite.x, player.sprite.y, enemy.sprite.x, enemy.sprite.y); */
         game.world.bringToTop(enemy.sprite); // TODO: Debug only
-        if(Const.DEBUG_MODE) {
-            if (arrowkeys.up.isDown) {
+        if (Const.DEBUG_MODE)
+        {
+            if (arrowkeys.up.isDown)
+            {
                 game.camera.y -= Const.CAM_SPEED;
             }
-            else if (arrowkeys.down.isDown) {
+            else if (arrowkeys.down.isDown)
+            {
                 game.camera.y += Const.CAM_SPEED;
             }
-        
-            if (arrowkeys.left.isDown) {
+
+            if (arrowkeys.left.isDown)
+            {
                 game.camera.x -= Const.CAM_SPEED;
             }
-            else if (arrowkeys.right.isDown) {
+            else if (arrowkeys.right.isDown)
+            {
                 game.camera.x += Const.CAM_SPEED;
             }
         }
@@ -88,13 +96,13 @@ export default function(game : Phaser.Game)
 
     function render()
     {
-        if(Const.DEBUG_MODE) {
+        if (Const.DEBUG_MODE) {
             /* game.game.camera.scale.setTo(0.5); */
             /* game.game.camera.unfollow(); */
 
             let x = player.body.velocity.x;
             let y = player.body.velocity.y;
-            let v = Math.round(Math.sqrt(x*x + y*y));
+            let v = Math.round(Math.sqrt(x * x + y * y));
 
             enemy.debug();
 
@@ -105,4 +113,4 @@ export default function(game : Phaser.Game)
     }
 
     return {create: create, update: update, render: render};
-};
+}

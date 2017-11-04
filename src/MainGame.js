@@ -1,3 +1,9 @@
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
+
 import 'p2';
 import 'pixi';
 import 'phaser-ce';
@@ -23,12 +29,14 @@ game.state.start('boot');
 // TODO: Center splash, warning signal [x]
 // TODO: Get screen size and use that as game constraints [x]
 // TOOO: insert global [x]
-// TODO: Change lets to lets
+// TODO: Change lets to lets [x]
 // TODO: Use webpack [x]
 // TODO: Combine package.json inside build [x]
+// TODO: Fix all linter mistakes
 // TODO: Add beeping sound to heating mode
 // TODO: Add comments as JSDOC
 // TODO: holding space gives bigger thrust
 // TODO: Put methods into prototype
 // TODO: Add .d.ts files
 // TODO: Rework speed up to heated mode?
+// TODO: Endless level

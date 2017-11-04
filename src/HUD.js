@@ -1,14 +1,14 @@
 /**
-* @author       Julien Midedji <admin@resamvi.de>
-* @copyright    2017 Julien Midedji
-* @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
-*/
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
 
 import Const from './Constants';
 /**
  * Contains all the HUD elements and contains interfaces
  * for changes and interactions.
- * 
+ *
  * @param  {Phaser.Game} game - A reference to the currently running game
  * @param  {Player} player - A reference to the player to access its status
  * @param  {any} enemy - TODO: Use global enemy
@@ -19,7 +19,7 @@ function HUD(game: Phaser.Game, player: Player, enemy: any)  // TODO: .d.ts file
      * @property {any} - Reference to the player
      */
     this._player = player;
-    
+
     /**
      * @property {any} - Reference to the enemy
      */
@@ -69,18 +69,18 @@ function HUD(game: Phaser.Game, player: Player, enemy: any)  // TODO: .d.ts file
         }, this);
 
     }, this);
-};
+}
 
 /**
  * All the functions
- * 
+ *
  * @method
  */
 HUD.prototype = {
-    
+
     /**
      * Has to be called each frame
-     * @method 
+     * @method
      */
     update: function()
     {
@@ -107,7 +107,7 @@ HUD.prototype = {
 
     /**
      * Calculate which enemy is closest
-     * 
+     *
      * @returns {any} - closest enemy to the ship
      * @method
      */
@@ -134,7 +134,7 @@ HUD.prototype = {
 
     /**
      * Calculates the angle and position of the arrow to point at the enemy
-     * 
+     *
      * @param {any} - Enemy to point at
      * @method
      */
@@ -145,15 +145,18 @@ HUD.prototype = {
             this._warning.alpha = 0;
             this._arrow.alpha = 0;
             return;
-        } 
-        else 
+        }
+        else
         {
             this._warning.alpha = 1;
             this._arrow.alpha = 1;
         }
 
         // Angle TODO: those parameters man...
-        this._arrow.rotation = Phaser.Math.angleBetween(this._player.sprite.x, this._player.sprite.y, this._enemy.x, this._enemy.y);
+        this._arrow.rotation = Phaser.Math.angleBetween(this._player.sprite.x,
+                                                        this._player.sprite.y,
+                                                        this._enemy.x,
+                                                        this._enemy.y);
 
         // Y Coord
         let ySlope = (this._enemy.y - this._player.sprite.y) / Math.abs(this._enemy.x - this._player.sprite.x);
@@ -189,6 +192,6 @@ HUD.prototype = {
             this._arrow.x = xCoord;
         }
     }
-}
+};
 
 export default HUD;

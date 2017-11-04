@@ -1,5 +1,5 @@
 // TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
-export default function (game: Phaser.Game)
+export default function(game: Phaser.Game)
 {
     const FADE_IN_DURATION = 1000;
     const FADE_OUT_DURATION = 1000;
@@ -35,4 +35,4 @@ export default function (game: Phaser.Game)
     }
 
     return {preload: preload, create: create};
-};
+}

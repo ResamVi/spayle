@@ -39,4 +39,4 @@ export default function (this: any, trackedSprite: Phaser.Sprite, game: Phaser.G
         };
     };
 
-};
+}

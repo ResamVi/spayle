@@ -114,4 +114,4 @@ export default function (game: Phaser.Game)
     }
 
     return {preload: preload, create: create};
-};
+}

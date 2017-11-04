@@ -1,9 +1,23 @@
-// TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
 
 import Const from './Constants';
 import Player from './Player';
 
-export default function (game: Phaser.Game)
+/**
+ * The menu is displayed after loading and before playing.
+ * This is where options can be changed, credits viewed, name changed
+ * and the game started.
+ *
+ * @param  {Phaser.Game} game - Reference to the game
+ * @returns {Phaser.State} Scene object that contains all information to display
+ */
+
+ // TODO: Change to object
+function Menu(game: Phaser.Game)
 {
     let player: Player;
     let planet: Phaser.Sprite;
@@ -47,17 +61,27 @@ export default function (game: Phaser.Game)
         game.add.tween(title.scale).to({x: 1.1, y: 1.1}, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true);
 
         // Buttons
-        startButton = createButton(-50, 1.5, play, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
-        optionButton = createButton(50, 1.5, moveDown, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
-        backButton = createButton(850, 1.5, moveUp, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
+        startButton = createButton(-50, 1.5, play, 'buttonAtlas',
+                                                   'yellow_button01.png',
+                                                   'yellow_button02.png',
+                                                   'yellow_button01.png');
+
+        optionButton = createButton(50, 1.5, moveDown, 'buttonAtlas',
+                                                       'grey_button02.png',
+                                                       'grey_button01.png',
+                                                       'grey_button02.png');
+
+        backButton = createButton(850, 1.5, moveUp, 'buttonAtlas',
+                                                    'grey_button02.png',
+                                                    'grey_button01.png',
+                                                    'grey_button02.png');
 
         // Instructions
         instructions = game.add.sprite(30, 870, 'instructions');
 
         // Music
         menuMusic = game.add.audio('menuMusic');
-        menuMusic.onDecoded.add(function ()
-        {
+        menuMusic.onDecoded.add(function () {
             menuMusic.fadeIn(Const.AUDIO_FADE_DURATION, true);
         });
     }
@@ -78,10 +102,10 @@ export default function (game: Phaser.Game)
         game.add.tween(game.camera.scale).to({x: 0.5, y: 0.5}, 7000, Phaser.Easing.Cubic.InOut, true);
 
         // Fade out all menu items
-        for (let sprite of [title, startButton, optionButton, backButton, instructions]) {
+        for (let sprite of [title, startButton, optionButton, backButton, instructions])
+        {
             let t = game.add.tween(sprite).to({alpha: 0}, 1000, Phaser.Easing.Cubic.InOut, true, 0);
-            t.onComplete.add(function (invisibleSprite: Phaser.Sprite)
-            {
+            t.onComplete.add(function (invisibleSprite: Phaser.Sprite) {
                 invisibleSprite.destroy();
             });
         }
@@ -124,4 +148,6 @@ export default function (game: Phaser.Game)
     }
 
     return {create: create, update: update};
-};
+}
+
+export default Menu;
