@@ -33,6 +33,7 @@ game.state.start('boot');
 // TODO: Use webpack [x]
 // TODO: Combine package.json inside build [x]
 // TODO: Fix all linter mistakes
+// TODO: Scenes should be objects. Not functions
 // TODO: Add beeping sound to heating mode
 // TODO: Add comments as JSDOC
 // TODO: holding space gives bigger thrust
@@ -40,3 +41,5 @@ game.state.start('boot');
 // TODO: Add .d.ts files
 // TODO: Rework speed up to heated mode?
 // TODO: Endless level
+// TODO: Player and Minion should be subclasses of entity?
+// TODO: HUD is bugged
