@@ -1,7 +1,7 @@
-import MinionEnemy from './MinionEnemy';
+import Minion from './Minion';
 import Const from './Constants';
 
-export default function (this: any, game: Phaser.Game)
+export default function (game: Phaser.Game)
 {
     // This object keeps track and exposes the sprite
     let sprite = game.add.sprite(2000, 2000, 'enemy_boss');
@@ -25,7 +25,7 @@ export default function (this: any, game: Phaser.Game)
     let minions: any[] = [];
     let group = game.add.group();
     for (let i = 0; i < 3; i++) {
-        let minion = new MinionEnemy(game, sprite);
+        let minion = new Minion(game, sprite);
         minions.push(minion);
         group.add(minion.sprite);
     }
@@ -97,7 +97,7 @@ export default function (this: any, game: Phaser.Game)
     let spawnEnemy = function ()
     {
         if (Math.random() < 0.005) {
-            let minion = new MinionEnemy(game, sprite);
+            let minion = new Minion(game, sprite);
             minions.push(minion);
             group.add(minion.sprite);
         }
@@ -132,4 +132,4 @@ export default function (this: any, game: Phaser.Game)
             }
         }
     };
-};
+}
