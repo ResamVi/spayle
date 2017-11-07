@@ -69,17 +69,22 @@
 
 "use strict";
 
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
 exports.__esModule = true;
 exports["default"] = {
-    GAME_WIDTH: 800,
     GAME_HEIGHT: 600,
+    GAME_WIDTH: 800,
     CENTER_CAMERA_X: 300,
     CENTER_CAMERA_Y: 400,
     // DEBUG MODE
     DEBUG_MODE: true,
     CAM_SPEED: 16,
     // BootScene Constants
-    WORLD_BOUNDS: 10000,
+    MAP_SIZE: 10000,
     // MenuScene Constants
     PLAYER_START_Y: 270,
     PLAYER_START_X: 205,
@@ -93,11 +98,14 @@ exports["default"] = {
     TITLE_X_OFFSET: 180,
     TITLE_Y_OFFSET: 150,
     BUTTON_X: 180,
-    START_BUTTON: ['yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png'],
-    OPTION_BUTTON: ['grey_button02.png', 'grey_button01.png', 'grey_button02.png'],
+    START_BUTTON: ['yellow_button01.png',
+        'yellow_button02.png', 'yellow_button01.png'],
+    OPTION_BUTTON: ['grey_button02.png',
+        'grey_button01.png', 'grey_button02.png'],
     VISIBLE: 1,
     INVISIBLE: 0,
-    TITLE_BOUNCE: [{ x: 1.1, y: 1.1 }, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true],
+    TITLE_BOUNCE: [{ x: 1.1, y: 1.1 },
+        2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true],
     MAIN_MENU: [{ y: 0 }, 1500, Phaser.Easing.Cubic.Out, true],
     OPTION_MENU: [{ y: 700 }, 1500, Phaser.Easing.Cubic.Out, true],
     // PlayScene Constants
@@ -117,7 +125,15 @@ exports["default"] = {
     SMALL_EXPLOSION_DISTANCE: -20,
     BIG_EXPLOSION: 6,
     BIG_EXPLOSION_DISTANCE: -20,
-    EXPLODE_ANIMATION_SETTINGS: ['explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true],
+    EXPLODE_ANIMATION_SETTINGS: [
+        'explode',
+        Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1),
+        60,
+        false,
+        true
+    ],
+    ANIMATION_PARAMS: ['aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true],
+    STOPPING_PARAMS: [{ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true],
     UPDATE_INTERVAL: 1000,
     SUPER_THRUST_STUN_DURATION: 800,
     BULLET_SPEED: 800,
@@ -130,7 +146,11 @@ exports["default"] = {
     ENEMY_THRUST_FORCE: 5000,
     INFLUENCE_RADIUS: 1500,
     // Comments
-    LIFT_OFF: ['Succesful lift-off!', 'So long, Earth!', 'To infinity and beyond!'],
+    LIFT_OFF: [
+        'Succesful lift-off!',
+        'So long, Earth!',
+        'To infinity and beyond!'
+    ],
     COMMENT_TIME_SHOWN: 2000
 };
 
@@ -166,10 +186,10 @@ module.exports = g;
 "use strict";
 
 /**
-* @author       Julien Midedji <admin@resamvi.de>
-* @copyright    2017 Julien Midedji
-* @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
-*/
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 var Weapon_1 = __webpack_require__(17);
@@ -232,7 +252,7 @@ function Player(game) {
     this._aimSight.anchor.setTo(1);
     this._aimSight.scale.x *= -1;
     this._aimSight.scale.y *= -1;
-    this._aimSight.animations.add('aim', Phaser.Animation.generateFrameNames('dotted_line', 0, 13, '.png', 4), 60, true, true).play();
+    (_a = this._aimSight.animations).add.apply(_a, Constants_1["default"].ANIMATION_PARAMS).play();
     this.sprite.addChild(this._aimSight);
     // Responsible for bullet spawns their angle/velocity and kill properties
     this._weapon = new Weapon_1["default"](this.sprite, this._game);
@@ -255,15 +275,13 @@ function Player(game) {
     };
     // Keep track of thrust frequency and adjust "instability mode" accordingly
     game.time.events.repeat(Constants_1["default"].UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
+    var _a;
 }
-;
 /**
  * Functions
- *
  * @method
  */
 Player.prototype = {
-    // 
     /**
      * Does animation, camera shake and sound effects.
      *
@@ -318,7 +336,8 @@ Player.prototype = {
             // TODO: Cleanup
             if (this._shotsMade < Constants_1["default"].MAGAZINE_SIZE) {
                 this._game.time.events.add(Constants_1["default"].RECOVER_TIME, function () {
-                    this._game.add.tween(this.sprite.body.velocity).to({ x: 0, y: 0 }, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+                    this._game.add.tween(this.sprite.body.velocity)
+                        .to({ x: 0, y: 0 }, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
                 }, this);
             }
             else {
@@ -331,7 +350,6 @@ Player.prototype = {
     },
     /**
      * This has to be called in the game loop for each frame
-     *
      * @method
      */
     update: function () {
@@ -348,7 +366,6 @@ Player.prototype = {
      * @method
      */
     gainControl: function (duration) {
-        console.log("gaining control back");
         var tween = this._game.add.tween(this._angularVelocity);
         tween.to({ amount: 0 }, duration, Phaser.Easing.Quintic.Out, true);
         tween.onComplete.add(function () {
@@ -365,7 +382,6 @@ Player.prototype = {
         if (this.isReady) {
             this._state = 'spinning';
             this._angularVelocity.amount = Constants_1["default"].SPIN_AMOUNT;
-            console.log("THIS IS: " + duration);
             this._game.time.events.add(duration, this.gainControl, this, duration);
         }
     },
@@ -396,7 +412,7 @@ Player.prototype = {
             this._state = 'charging';
             // TODO: Particles
             // Come to a stop
-            this._game.add.tween(this.sprite.body.velocity).to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+            this._game.add.tween(this.sprite.body.velocity).to(Constants_1["default"].STOPPING_PARAMS);
             this.sprite.loadTexture('playerFire');
             // Same as thrust() but bigger
             var launch = function () {
@@ -421,7 +437,8 @@ Player.prototype = {
         if (this.isReady) {
             this._state = 'aiming';
             // Come to a stop
-            this._game.add.tween(this.sprite.body.velocity).to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+            this._game.add.tween(this.sprite.body.velocity).
+                to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
             // Aim
             this._game.add.tween(this._aimSight).to({ alpha: Constants_1["default"].VISIBLE }, 500, 'Linear', true);
             // Shooting is done via space button (and thus handled in this.thrust())
@@ -457,6 +474,11 @@ exports["default"] = Player;
 
 "use strict";
 
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
 exports.__esModule = true;
 __webpack_require__(4);
 __webpack_require__(7);
@@ -478,15 +500,20 @@ game.state.start('boot');
 // TODO: Center splash, warning signal [x]
 // TODO: Get screen size and use that as game constraints [x]
 // TOOO: insert global [x]
-// TODO: Change lets to lets
+// TODO: Change lets to lets [x]
 // TODO: Use webpack [x]
 // TODO: Combine package.json inside build [x]
+// TODO: Fix all linter mistakes
+// TODO: Scenes should be objects. Not functions
 // TODO: Add beeping sound to heating mode
 // TODO: Add comments as JSDOC
 // TODO: holding space gives bigger thrust
 // TODO: Put methods into prototype
 // TODO: Add .d.ts files
-// TODO: Rework speed up to heated mode? 
+// TODO: Rework speed up to heated mode?
+// TODO: Endless level
+// TODO: Player and Minion should be subclasses of entity?
+// TODO: HUD is bugged
 
 
 /***/ }),
@@ -106564,21 +106591,32 @@ process.umask = function () { return 0; };
 
 "use strict";
 
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
 exports.__esModule = true;
-// TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
 var Constants_1 = __webpack_require__(0);
-function default_1(game) {
+/**
+ * Initialize physics and world settings to start playing
+ *
+ * @method
+ * @param  {Phaser.Game} game - Reference to the game
+ * @return {Phaser.State} The scene that handles booting
+ */
+// TODO: Change to object
+function Boot(game) {
     return {
         create: function () {
-            // World settings
             game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             game.physics.startSystem(Phaser.Physics.P2JS);
-            game.world.setBounds(0, 0, Constants_1["default"].WORLD_BOUNDS, Constants_1["default"].WORLD_BOUNDS); // TODO: CHange name to MAP_SIZE
+            game.world.setBounds(0, 0, Constants_1["default"].MAP_SIZE, Constants_1["default"].MAP_SIZE);
             game.state.start('load');
         }
     };
 }
-exports["default"] = default_1;
+exports["default"] = Boot;
 
 
 /***/ }),
@@ -106616,7 +106654,6 @@ function default_1(game) {
     return { preload: preload, create: create };
 }
 exports["default"] = default_1;
-;
 
 
 /***/ }),
@@ -106721,7 +106758,6 @@ function default_1(game) {
     return { preload: preload, create: create };
 }
 exports["default"] = default_1;
-;
 
 
 /***/ }),
@@ -106730,11 +106766,24 @@ exports["default"] = default_1;
 
 "use strict";
 
-// TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 var Player_1 = __webpack_require__(2);
-function default_1(game) {
+/**
+ * The menu is displayed after loading and before playing.
+ * This is where options can be changed, credits viewed, name changed
+ * and the game started.
+ *
+ * @param  {Phaser.Game} game - Reference to the game
+ * @returns {Phaser.State} Scene object that contains all information to display
+ */
+// TODO: Change to object
+function Menu(game) {
     var player;
     var planet;
     var title;
@@ -106823,8 +106872,7 @@ function default_1(game) {
     }
     return { create: create, update: update };
 }
-exports["default"] = default_1;
-;
+exports["default"] = Menu;
 
 
 /***/ }),
@@ -106864,7 +106912,6 @@ function default_1(trackedSprite, game) {
     };
 }
 exports["default"] = default_1;
-;
 
 
 /***/ }),
@@ -106876,7 +106923,7 @@ exports["default"] = default_1;
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 var Player_1 = __webpack_require__(2);
-var MotherEnemy_1 = __webpack_require__(19);
+var Mother_1 = __webpack_require__(19);
 var HUD_1 = __webpack_require__(21);
 function default_1(game) {
     var arrowkeys;
@@ -106887,10 +106934,9 @@ function default_1(game) {
     var mainMusic;
     function create() {
         player = new Player_1["default"](game);
-        enemy = new MotherEnemy_1["default"](game);
+        enemy = new Mother_1["default"](game);
         hud = new HUD_1["default"](game, player, enemy);
         game.global = { enemies: enemy };
-        console.log(game);
         /* line = game.add.sprite(game.camera.width/2, game.game.height/2, 'line');
         hud.add(line); */
         // Music
@@ -106914,12 +106960,16 @@ function default_1(game) {
     }
     function update() {
         player.update();
-        if (!player.isSpinning && arrowkeys.left.isDown)
+        // Put logic into player object
+        if (!player.isSpinning && arrowkeys.left.isDown) {
             player.body.rotateLeft(Constants_1["default"].ROTATION_SPEED);
-        else if (!player.isSpinning && arrowkeys.right.isDown)
+        }
+        else if (!player.isSpinning && arrowkeys.right.isDown) {
             player.body.rotateRight(Constants_1["default"].ROTATION_SPEED);
-        else if (!player.isSpinning)
+        }
+        else if (!player.isSpinning) {
             player.body.setZeroRotation();
+        }
         enemy.update(player);
         hud.update();
         // ---------------------------------- DEBUG ----------------------------------
@@ -106956,7 +107006,6 @@ function default_1(game) {
     return { create: create, update: update, render: render };
 }
 exports["default"] = default_1;
-;
 
 
 /***/ }),
@@ -106966,119 +107015,143 @@ exports["default"] = default_1;
 "use strict";
 
 exports.__esModule = true;
-var MinionEnemy_1 = __webpack_require__(20);
+var Minion_1 = __webpack_require__(20);
 var Constants_1 = __webpack_require__(0);
-function default_1(game) {
-    // This object keeps track and exposes the sprite
-    var sprite = game.add.sprite(2000, 2000, 'enemy_boss');
-    sprite.anchor.setTo(0.5);
-    this.sprite = sprite;
-    // Grant access to this object's physics body
-    game.physics.p2.enable(sprite);
-    sprite.body.damping = 0.8;
-    sprite.body.fixedRotation = true;
-    this.body = sprite.body;
-    // Possible states: 'READY', 'ROAM', 'ATTACKING'
-    var state = 'READY';
-    // Group stays inside this circle
-    var graphics = game.add.graphics(0, 0);
-    graphics.boundsPadding = 10;
+function Mother(game) {
+    /**
+     * @property {Phaser.Game} - Keep a reference to the game
+     */
+    this._game = game;
+    /**
+     * @property {Phaser.Sprite} sprite - Reference to sprite object
+     * @public
+     */
+    this.sprite = game.add.sprite(2000, 2000, 'enemy_boss');
+    this.sprite.anchor.setTo(0.5);
+    game.physics.p2.enable(this.sprite);
+    this.sprite.body.damping = 0.8;
+    this.sprite.body.fixedRotation = true;
+    /**
+     * @property {Phaser.Physics.P2.Body} - Reference to physics body
+     * @public TODO: public?
+     */
+    this.body = this.sprite.body;
+    /**
+     * @property {string} - Keep current decision in this variable
+     * Possible states: 'READY', 'ROAM', 'ATTACKING'
+     * @private
+     */
+    this._state = 'READY';
+    /**
+     * @property {array} - Contains all minions that have spawned
+     * @private
+     */
+    this._minions = [];
     // Each mother gets 3 minions to start with
-    var minions = [];
     var group = game.add.group();
     for (var i = 0; i < 3; i++) {
-        var minion = new MinionEnemy_1["default"](game, sprite);
-        minions.push(minion);
+        var minion = new Minion_1["default"](game, this.sprite);
+        this._minions.push(minion);
         group.add(minion.sprite);
     }
+    /**
+     * @property {Phaser.Group} - Uhhhhhhhh
+     */
     this.group = group;
     // Select a random angle to start travelling
-    var currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
-    this.update = function (player) {
-        graphics.clear();
-        graphics.beginFill(0xff6500);
-        graphics.drawCircle(sprite.x, sprite.y, Constants_1["default"].INFLUENCE_RADIUS);
-        graphics.endFill();
-        // Possible decisions
-        if (state === 'READY' && playerInRange(player.sprite)) {
-            state = 'ATTACKING';
-            attack(player);
-        }
-        else if (state === 'READY') {
-            state = 'ROAM';
-            roam();
-        }
-        spawnEnemy();
-        // Update its minions (they should choose a similar angle to their mother)
-        for (var i = 0; i < minions.length; i++) {
-            minions[i].update(player, currentAngle);
-        }
-        // When coming to a (near) stop make a new decision
-        if (velocity() < 10) {
-            state = 'READY';
-        }
-    };
-    var attack = function (player) {
-        var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
-        var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI / 2; // in [-pi/4, pi/4]
-        sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
-        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
-    };
-    var roam = function () {
-        // Stay inside bounds bounds
-        if (sprite.y < Constants_1["default"].INFLUENCE_RADIUS / 2) {
-            currentAngle = Math.PI;
-        }
-        else if (sprite.y > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
-            currentAngle = 0;
-        }
-        else if (sprite.x < Constants_1["default"].INFLUENCE_RADIUS / 2) {
-            currentAngle = Phaser.Math.HALF_PI;
-        }
-        else if (sprite.x > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
-            currentAngle = Math.PI + Phaser.Math.HALF_PI;
-            // Random
-        }
-        else {
-            var offset = Math.PI / 6 * (Math.random() * 2 - 1);
-            currentAngle = currentAngle + offset;
-        }
-        sprite.body.rotation = currentAngle;
-        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
-    };
-    var spawnEnemy = function () {
-        if (Math.random() < 0.005) {
-            var minion = new MinionEnemy_1["default"](game, sprite);
-            minions.push(minion);
-            group.add(minion.sprite);
-        }
-    };
-    var velocity = function () {
-        var x = sprite.body.velocity.x;
-        var y = sprite.body.velocity.y;
-        return Math.round(Math.sqrt(x * x + y * y));
-    };
-    var playerInRange = function (player) {
-        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Constants_1["default"].SIGHT_RANGE;
-    };
+    this._currentAngle = Phaser.Math.PI2 * Math.random() - Math.PI;
     // ----------------- DEBUG -----------------
     var debugState;
     if (Constants_1["default"].DEBUG_MODE) {
         debugState = game.add.bitmapText(0, -80, 'menuFont', '', 30);
         debugState.anchor.set(0.5);
-        sprite.addChild(debugState);
+        this.sprite.addChild(debugState);
     }
+    /**
+     * @property {Phaser.Graphics} - TODO
+     */
+    this._graphics = this._game.add.graphics(0, 0);
+    this._graphics.boundsPadding = 10;
     this.debug = function () {
         if (Constants_1["default"].DEBUG_MODE) {
-            debugState.text = state;
-            for (var i = 0; i < minions.length; i++) {
-                minions[i].debug();
+            debugState.text = this._state;
+            for (var i = 0; i < this._minions.length; i++) {
+                this._minions[i].debug();
             }
         }
     };
 }
-exports["default"] = default_1;
-;
+Mother.prototype =
+    {
+        update: function (player) {
+            // TODO: they are not drawn above anymore wtf?
+            /*this._graphics.clear();
+            this._graphics.lineStyle(0xff6500);
+            this._graphics.drawCircle(this.sprite.x, this.sprite.y, Const.INFLUENCE_RADIUS);
+            this._graphics.endFill();*/
+            // Possible decisions
+            if (this._state === 'READY' && this.playerInRange(player.sprite)) {
+                this._state = 'ATTACKING';
+                this.attack(player);
+            }
+            else if (this._state === 'READY') {
+                this._state = 'ROAM';
+                this.roam();
+            }
+            this.spawnEnemy();
+            // Update its minions (they should choose a similar angle to their mother)
+            for (var i = 0; i < this._minions.length; i++) {
+                this._minions[i].update(player, this._currentAngle);
+            }
+            // When coming to a (near) stop make a new decision
+            if (this.velocity() < 10) {
+                this._state = 'READY';
+            }
+        },
+        attack: function (player) {
+            var playerEnemyAngle = Phaser.Math.angleBetween(this.sprite.x, this.sprite.y, player.sprite.x, player.sprite.y);
+            var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI / 2; // in [-pi/4, pi/4]
+            this.sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
+            this.sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
+        },
+        roam: function () {
+            // Stay inside bounds bounds
+            if (this.sprite.y < Constants_1["default"].INFLUENCE_RADIUS / 2) {
+                this._currentAngle = Math.PI;
+            }
+            else if (this.sprite.y > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
+                this._currentAngle = 0;
+            }
+            else if (this.sprite.x < Constants_1["default"].INFLUENCE_RADIUS / 2) {
+                this._currentAngle = Phaser.Math.HALF_PI;
+            }
+            else if (this.sprite.x > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
+                this._currentAngle = Math.PI + Phaser.Math.HALF_PI;
+            }
+            else {
+                var offset = Math.PI / 6 * (Math.random() * 2 - 1);
+                this._currentAngle = this._currentAngle + offset;
+            }
+            this.sprite.body.rotation = this._currentAngle;
+            this.sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
+        },
+        spawnEnemy: function () {
+            if (Math.random() < 0.005) {
+                var minion = new Minion_1["default"](this._game, this.sprite);
+                this._minions.push(minion);
+                this.group.add(minion.sprite);
+            }
+        },
+        velocity: function () {
+            var x = this.sprite.body.velocity.x;
+            var y = this.sprite.body.velocity.y;
+            return Math.round(Math.sqrt(x * x + y * y));
+        },
+        playerInRange: function (player) {
+            return Phaser.Math.distance(this.sprite.x, this.sprite.y, player.x, player.y) < Constants_1["default"].SIGHT_RANGE;
+        }
+    };
+exports["default"] = Mother;
 
 
 /***/ }),
@@ -107087,100 +107160,171 @@ exports["default"] = default_1;
 
 "use strict";
 
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
-function default_1(game, mother) {
-    // This object keeps track and exposes the sprite
+/**
+ * A Minion is spawned by its mother and follows it to
+ * all eternity. Is a simple type enemy that is of no threat
+ * whatsoever.
+ *
+ * @param  {Phaser.Game} game
+ * @param  {Phaser.Sprite} mother //TODO: DO not pass the sprite
+ */
+function Minion(game, mother) {
+    /**
+     * @property {Phaser.Game} - Keep a reference to the game
+     */
+    this._game = game;
+    /**
+     * @property {} - Keep a reference to this minion's this._mother TODO:
+     */
+    this._mother = mother;
     var xOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
     var yOffset = 400 * (Math.random() / 2 + 0.2) * Math.pow(-1, Math.round(Math.random()));
-    var sprite = game.add.sprite(mother.x + xOffset, mother.y + yOffset, 'enemy_many');
-    sprite.anchor.setTo(0.5);
-    this.sprite = sprite;
-    // Grant access to this object's physics body
-    game.physics.p2.enable(sprite);
-    sprite.body.damping = 0.8;
-    sprite.body.fixedRotation = true;
-    this.body = sprite.body;
-    // Possible states: 'READY', 'ATTACKING', 'RETURNING', 'FOLLOWING'
-    var state = 'READY';
-    this.update = function (player, motherAngle) {
+    /**
+     * @property {Phaser.Sprite} sprite - Reference to sprite object
+     * @public
+     */
+    this.sprite = game.add.sprite(this._mother.x + xOffset, this._mother.y + yOffset, 'enemy_many');
+    this.sprite.anchor.setTo(0.5);
+    game.physics.p2.enable(this.sprite);
+    this.sprite.body.damping = 0.8;
+    this.sprite.body.fixedRotation = true;
+    /**
+     * @property {Phaser.Physics.P2.Body} - Reference to physics body
+     * @public
+     */
+    this.body = this.sprite.body;
+    /** TODO: Rename _state
+     * @property {string} - Keep current decision in this variable
+     * Possible states: 'READY', 'ATTACKING', 'RETURNING', 'FOLLOWING'
+     * @private
+     */
+    this.state = 'READY';
+    // ----------------- DEBUG -----------------
+    if (Constants_1["default"].DEBUG_MODE) {
+        this._debugState = game.add.bitmapText(0, -80, 'menuFont', '', 30);
+        this._debugState.anchor.set(0.5);
+        this.sprite.addChild(this._debugState);
+    }
+}
+Minion.prototype = {
+    /**
+     * Has to be called each cycle.
+     * Currently controls decision making.
+     *
+     * @param  {Player} player
+     * @param  {} motherAngle
+     */
+    update: function (player, motherAngle) {
         // Decisions
-        if (state === 'READY' && playerInRange(player.sprite)) {
-            state = 'ATTACKING';
-            attack(player);
+        if (this.state === 'READY' && this.playerInRange(player.sprite)) {
+            this.state = 'ATTACKING';
+            this.attack(player);
         }
-        else if (state === 'READY' && !closeToMother()) {
-            state = 'RETURNING';
-            returnBack();
+        else if (this.state === 'READY' && !this.closeToMother()) {
+            this.state = 'RETURNING';
+            this.returnBack();
         }
-        else if (state === 'READY') {
-            state = 'FOLLOWING';
-            follow(motherAngle);
+        else if (this.state === 'READY') {
+            this.state = 'FOLLOWING';
+            this.follow(motherAngle);
         }
         // When coming to a close stop make a new decision
-        if (velocity() < 10) {
-            state = 'READY';
+        if (this.velocity() < 10) {
+            this.state = 'READY';
         }
-    };
-    var returnBack = function () {
-        var angleToMother = Phaser.Math.angleBetween(sprite.x, sprite.y, mother.x, mother.y);
-        sprite.body.rotation = angleToMother + Phaser.Math.HALF_PI;
-        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
-    };
-    var attack = function (player) {
-        var playerEnemyAngle = Phaser.Math.angleBetween(sprite.x, sprite.y, player.sprite.x, player.sprite.y);
+    },
+    /**
+     * Calculates direct path to mother and moves in that direction.
+     * @method
+     */
+    returnBack: function () {
+        var angleToMother = Phaser.Math.angleBetween(this.sprite.x, this.sprite.y, this._mother.x, this._mother.y);
+        this.sprite.body.rotation = angleToMother + Phaser.Math.HALF_PI;
+        this.sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
+    },
+    /**
+     * Attacking currently only means moving in the direction of the player.
+     * @method
+     * @param  {Player} player
+     */
+    attack: function (player) {
+        //TODO: Shorten params?
+        var playerEnemyAngle = Phaser.Math.angleBetween(this.sprite.x, this.sprite.y, player.sprite.x, player.sprite.y);
         var offset = Math.random() * Phaser.Math.HALF_PI - Phaser.Math.HALF_PI / 2; // in [-pi/4, pi/4]
-        sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
-        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
-    };
-    var follow = function (motherAngle) {
+        this.sprite.body.rotation = playerEnemyAngle + offset + Phaser.Math.HALF_PI;
+        this.sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
+    },
+    /**
+     * Stays inside the influence radius of the mother.
+     * @method
+     * @param  {} motherAngle - choose a similar angle to move like the mother
+     */
+    follow: function (motherAngle) {
         var angle;
         // Stay inside bounds bounds
-        if (sprite.y < Constants_1["default"].INFLUENCE_RADIUS / 2) {
+        if (this.sprite.y < Constants_1["default"].INFLUENCE_RADIUS / 2) {
             angle = Math.PI;
         }
-        else if (sprite.y > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
+        else if (this.sprite.y > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
             angle = 0;
         }
-        else if (sprite.x < Constants_1["default"].INFLUENCE_RADIUS / 2) {
+        else if (this.sprite.x < Constants_1["default"].INFLUENCE_RADIUS / 2) {
             angle = Phaser.Math.HALF_PI;
         }
-        else if (sprite.x > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
+        else if (this.sprite.x > Constants_1["default"].WORLD_BOUNDS - Constants_1["default"].INFLUENCE_RADIUS / 2) {
             angle = Math.PI + Phaser.Math.HALF_PI;
-            // Random
         }
         else {
             angle = motherAngle + Math.PI / 6 * (Math.random() * 2 - 1);
         }
-        sprite.body.rotation = angle;
-        sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
-    };
-    var velocity = function () {
-        var x = sprite.body.velocity.x;
-        var y = sprite.body.velocity.y;
+        this.sprite.body.rotation = angle;
+        this.sprite.body.thrust(Constants_1["default"].ENEMY_THRUST_FORCE);
+    },
+    /**
+     * Calculate the velocity
+     * @method
+     * @returns {number} velocity of this object
+     */
+    velocity: function () {
+        var x = this.sprite.body.velocity.x;
+        var y = this.sprite.body.velocity.y;
         return Math.round(Math.sqrt(x * x + y * y));
-    };
-    var playerInRange = function (player) {
-        return Phaser.Math.distance(sprite.x, sprite.y, player.x, player.y) < Constants_1["default"].SIGHT_RANGE;
-    };
-    var closeToMother = function () {
-        return Phaser.Math.distance(sprite.x, sprite.y, mother.x, mother.y) < Constants_1["default"].INFLUENCE_RADIUS / 2;
-    };
-    // ----------------- DEBUG -----------------
-    var debugState;
-    if (Constants_1["default"].DEBUG_MODE) {
-        debugState = game.add.bitmapText(0, -80, 'menuFont', '', 30);
-        debugState.anchor.set(0.5);
-        sprite.addChild(debugState);
-    }
-    this.debug = function () {
+    },
+    /**
+     * Check whether the player is inside the sight range of this object
+     * @method
+     * @param {Player} player - Player to check
+     * @returns {boolean} - Whether or not player is inside sight range
+     */
+    playerInRange: function (player) {
+        return Phaser.Math.distance(this.sprite.x, this.sprite.y, player.x, player.y) < Constants_1["default"].SIGHT_RANGE;
+    },
+    /**
+     * Check whether this object is inside the mother's influence range
+     * @method
+     * @returns {boolean} - Whether or not this object is inside
+     */
+    closeToMother: function () {
+        return Phaser.Math.distance(this.sprite.x, this.sprite.y, this._mother.x, this._mother.y) < Constants_1["default"].INFLUENCE_RADIUS / 2; // TODO: Radius =/= circumference
+    },
+    /**
+     * Has to be called each cycle when debugging.
+     * Presents information on the state.
+     */
+    debug: function () {
         if (Constants_1["default"].DEBUG_MODE) {
-            debugState.text = state;
+            this._debugState.text = this.state;
         }
-    };
-}
-exports["default"] = default_1;
-;
+    }
+};
+exports["default"] = Minion;
 
 
 /***/ }),
@@ -107190,10 +107334,10 @@ exports["default"] = default_1;
 "use strict";
 
 /**
-* @author       Julien Midedji <admin@resamvi.de>
-* @copyright    2017 Julien Midedji
-* @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
-*/
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
 /**
@@ -107249,7 +107393,6 @@ function HUD(game, player, enemy) {
         }, this);
     }, this);
 }
-;
 /**
  * All the functions
  *
@@ -107306,41 +107449,58 @@ HUD.prototype = {
      * @method
      */
     focusPointer: function (enemy) {
-        if (this._enemy === undefined) {
+        // TODO: REDO:
+        /*if (this._enemy === undefined)
+        {
             this._warning.alpha = 0;
             this._arrow.alpha = 0;
             return;
         }
-        else {
+        else
+        {
             this._warning.alpha = 1;
             this._arrow.alpha = 1;
         }
+
         // Angle TODO: those parameters man...
-        this._arrow.rotation = Phaser.Math.angleBetween(this._player.sprite.x, this._player.sprite.y, this._enemy.x, this._enemy.y);
+        this._arrow.rotation = Phaser.Math.angleBetween(this._player.sprite.x,
+                                                        this._player.sprite.y,
+                                                        this._enemy.x,
+                                                        this._enemy.y);
+
         // Y Coord
-        var ySlope = (this._enemy.y - this._player.sprite.y) / Math.abs(this._enemy.x - this._player.sprite.x);
-        var yCoord = ySlope * Constants_1["default"].GAME_WIDTH / 2 + Constants_1["default"].CENTER_CAMERA_X;
-        if (yCoord < 7) {
+        let ySlope = (this._enemy.y - this._player.sprite.y) / Math.abs(this._enemy.x - this._player.sprite.x);
+        let yCoord = ySlope * Const.GAME_WIDTH / 2 + Const.CENTER_CAMERA_X;
+
+        if (yCoord < 7)
+        {
             this._arrow.y = 7;
         }
-        else if (yCoord > Constants_1["default"].GAME_HEIGHT) {
-            this._arrow.y = Constants_1["default"].GAME_HEIGHT - 7;
+        else if (yCoord > Const.GAME_HEIGHT)
+        {
+            this._arrow.y = Const.GAME_HEIGHT - 7;
         }
-        else {
+        else
+        {
             this._arrow.y = yCoord;
         }
+
         // X Coord
-        var xSlope = Math.abs(this._enemy.y - this._player.sprite.y) / (this._enemy.x - this._enemy.sprite.x);
-        var xCoord = (Constants_1["default"].GAME_HEIGHT * 0.5) / xSlope + Constants_1["default"].CENTER_CAMERA_Y;
-        if (xCoord > Constants_1["default"].GAME_WIDTH) {
-            this._arrow.x = Constants_1["default"].GAME_WIDTH - 7;
+        let xSlope = Math.abs(this._enemy.y - this._player.sprite.y) / (this._enemy.x - this._enemy.sprite.x);
+        let xCoord = (Const.GAME_HEIGHT * 0.5) / xSlope + Const.CENTER_CAMERA_Y;
+
+        if (xCoord > Const.GAME_WIDTH)
+        {
+            this._arrow.x = Const.GAME_WIDTH - 7;
         }
-        else if (xCoord < 7) {
+        else if (xCoord < 7)
+        {
             this._arrow.x = 7;
         }
-        else {
+        else
+        {
             this._arrow.x = xCoord;
-        }
+        }*/
     }
 };
 exports["default"] = HUD;
