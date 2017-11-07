@@ -6,7 +6,15 @@
 
 import Const from './Constants';
 
-function Minion(game : Phaser.Game, mother)
+/**
+ * A Minion is spawned by its mother and follows it to
+ * all eternity. Is a simple type enemy that is of no threat
+ * whatsoever.
+ *
+ * @param  {Phaser.Game} game
+ * @param  {Phaser.Sprite} mother //TODO: DO not pass the sprite
+ */
+function Minion(game : Phaser.Game, mother : Phaser.Sprite)
 {
     /**
      * @property {Phaser.Game} - Keep a reference to the game
@@ -28,7 +36,6 @@ function Minion(game : Phaser.Game, mother)
     this.sprite = game.add.sprite(this._mother.x + xOffset, this._mother.y + yOffset, 'enemy_many');
     this.sprite.anchor.setTo(0.5);
 
-    // Grant access to this object's physics body
     game.physics.p2.enable(this.sprite);
     this.sprite.body.damping = 0.8;
     this.sprite.body.fixedRotation = true;
@@ -60,7 +67,7 @@ Minion.prototype = {
     /**
      * Has to be called each cycle.
      * Currently controls decision making.
-     * 
+     *
      * @param  {Player} player
      * @param  {} motherAngle
      */
@@ -151,7 +158,7 @@ Minion.prototype = {
         this.sprite.body.rotation = angle;
         this.sprite.body.thrust(Const.ENEMY_THRUST_FORCE);
     },
-    
+
     /**
      * Calculate the velocity
      * @method
