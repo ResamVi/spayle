@@ -140,7 +140,8 @@ HUD.prototype = {
      */
     focusPointer: function (enemy)
     {
-        if (this._enemy === undefined)
+        // TODO: REDO:
+        /*if (this._enemy === undefined)
         {
             this._warning.alpha = 0;
             this._arrow.alpha = 0;
@@ -190,7 +191,7 @@ HUD.prototype = {
         else
         {
             this._arrow.x = xCoord;
-        }
+        }*/
     }
 };
 
