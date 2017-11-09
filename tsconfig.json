@@ -1,6 +1,12 @@
 {
   "compilerOptions": {
-    "sourceMap": true,
-    "allowJs": true
-  }
+    "target": "es5",
+    "module": "es6",
+    "sourceMap": true
+  },
+  
+  "files": [
+    "./node_modules/phaser-ce/typescript/phaser.d.ts",
+    "./src/decl/spayle.d.ts"
+  ]
 }

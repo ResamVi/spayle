@@ -4,7 +4,8 @@
  * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
  */
 
-export default {
+let Const = {} as any;
+Const = {
 
     GAME_HEIGHT: 600,
     GAME_WIDTH: 800,
@@ -102,3 +103,5 @@ export default {
         'To infinity and beyond!'],
     COMMENT_TIME_SHOWN: 2000,
 };
+
+export default Const;

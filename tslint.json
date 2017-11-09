@@ -1,13 +1,15 @@
 {
     "defaultSeverity": "error",
     "extends": "tslint:recommended",
-    "jsRules": {
+    "rules": {
         "semicolon": true,
         "space-before-function-paren": false,
         "one-line": false,
         "quotemark": [true, "single"],
         "trailing-comma": false,
         "object-literal-sort-keys": false,
-        "no-console": false
+        "no-console": false,
+        "ordered-imports": false
     }
+    
 }

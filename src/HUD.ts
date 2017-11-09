@@ -123,7 +123,7 @@ HUD.prototype = {
             {
                 shortestDistance = d;
                 closestEnemy = child;
-            }
+            } 
         }, this);
 
         if (shortestDistance < Const.WARNING_RADIUS)

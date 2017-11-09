@@ -20,7 +20,7 @@ export default function(game : Phaser.Game)
         enemy = new Mother(game);
         hud = new Hud(game, player, enemy);
 
-        game.global = {enemies: enemy};
+        // game.global = {enemies: enemy};
 
         /* line = game.add.sprite(game.camera.width/2, game.game.height/2, 'line');
         hud.add(line); */

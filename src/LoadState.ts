@@ -53,7 +53,7 @@ export default
         this.game.load.setPreloadSprite(preloadBar);
 
         this.queueFiles();
-    }
+    },
 
     queueFiles: function()
     {
@@ -91,14 +91,14 @@ export default
         // TODO: Rename files
         // Everything above has been put into queue, now start loading
         this.game.load.start();
-    }
+    },
 
     loadStart: function()
     {
         if (Const.DEBUG_MODE) {
             console.log('Start loading');
         }
-    }
+    },
 
     fileComplete: function(progress: string, cacheKey: string, success: string, totalLoaded: string, totalFiles: string)
     {
@@ -112,7 +112,7 @@ export default
             console.log('\n');
         }
         this.progressText.setText(progress + '%');
-    }
+    },
 
     loadComplete: function()
     {

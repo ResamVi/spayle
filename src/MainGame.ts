@@ -24,7 +24,7 @@ this.game = game;
 game.state.add('splash', splash);
 game.state.add('boot', boot);
 game.state.add('load', load);
-game.state.add('menu', menu;
+game.state.add('menu', menu);
 game.state.add('play', playGame(game));
 
 game.state.start('splash');
@@ -46,3 +46,4 @@ game.state.start('splash');
 // TODO: Endless level
 // TODO: Player and Minion should be subclasses of entity?
 // TODO: HUD is bugged
+// I dont need local typescript and tslint devpackages, jdoc neither

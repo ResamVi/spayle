@@ -1,7 +1,7 @@
 import Minion from './Minion';
 import Const from './Constants';
 
-function Mother(game: Phaser.Game) : Mother
+function Mother(game: Phaser.Game)
 {
     /**
      * @property {Phaser.Game} - Keep a reference to the game

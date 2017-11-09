@@ -1,3 +1,0 @@
-wechsel von browserify zu es6 mit babel zu webpack
-
-wechsel von javascript zu typescript zu type.js zu javascript mit .d.ts

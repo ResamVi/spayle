@@ -1,7 +1,7 @@
 let path = require('path');
 
 module.exports = {
-    entry: __dirname + '/src/MainGame.js',
+    entry: __dirname + '/src/MainGame.ts',
 
     output: {
         filename: 'spayle.js',
@@ -19,9 +19,9 @@ module.exports = {
 
     module: {
         rules: [
-            { test: /\.js$/, loader: 'ts-loader'},
+            { test: /\.ts$/, loader: 'ts-loader'},
             { test: /pixi/, loader: 'expose-loader?PIXI'},
-            { test: /phaser-ce/, loader: 'expose-loader?Phaser'},
+            { test: /phaser-ce/, loader: 'expose-loader?Phaser'}, //TODO: Still necessary?
             { test: /p2/, loader: 'expose-loader?p2'}
         ]
     }
