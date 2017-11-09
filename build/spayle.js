@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -191,312 +191,25 @@ module.exports = g;
  * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
  */
 exports.__esModule = true;
-var Constants_1 = __webpack_require__(0);
-var Weapon_1 = __webpack_require__(17);
-/**
- * The rocket ship is controlled by the player
- * and the main actor of this game.
- *
- * @param {Phaser.Game} game - A reference to the currently running game
- * @constructor
- */
-function Player(game) {
-    /**
-     * @property {Phaser.Game} - Reference to the game
-     */
-    this._game = game;
-    /**
-     * @property {Phaser.Sprite} sprite - Reference to sprite object
-     * @public
-     */
-    this.sprite = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'player', 1);
-    this.sprite.anchor.setTo(0.5);
-    this.sprite.angle = Constants_1["default"].PLAYER_START_ANGLE;
-    this._game.physics.p2.enable(this.sprite);
-    /**
-     * @property {Phaser.Physics.P2.Body} - Reference to physics body
-     */
-    this.body = this.sprite.body;
-    /**
-     * @property {Phaser.Sound} - Sound file for explosions on thrusts
-     */
-    this._boomSound = game.add.audio('boom');
-    this._boomSound.volume = 0.05;
-    /**
-     * @property {number} - Keep track how frequently the player presses spacebar to thrust
-     */
-    this._thrustFrequency = 0;
-    /**
-     * @property {number} - Calculated bonus velocity gained by high thrust frequency
-     */
-    this._velocityBonus = 0;
-    /**
-     * @property {number} - Hold count of how many shots were made in the 'snipe' position
-     */
-    this._shotsMade = 0;
-    /**
-     * @property {string} - Keeps track of the current status of movement
-     * possible states are 'ready', 'spinning', 'charging', 'aiming'
-     */
-    this._state = 'ready';
-    /**
-     * @property {object} - Keeps count of spinning intensity (object notation so it can be tweened)
-     */
-    this._angularVelocity = { amount: 0 };
-    // Add aim sight animation to rocket
-    /**
-     * @property {Phaser.Sprite} - Dotted line animation used when sniping
-     */
-    this._aimSight = game.add.sprite(-4, 40, 'lineAtlas');
-    this._aimSight.alpha = Constants_1["default"].INVISIBLE;
-    this._aimSight.anchor.setTo(1);
-    this._aimSight.scale.x *= -1;
-    this._aimSight.scale.y *= -1;
-    (_a = this._aimSight.animations).add.apply(_a, Constants_1["default"].ANIMATION_PARAMS).play();
-    this.sprite.addChild(this._aimSight);
-    // Responsible for bullet spawns their angle/velocity and kill properties
-    this._weapon = new Weapon_1["default"](this.sprite, this._game);
-    // Given the frequency, increase the the camera shake with higher frequency TODO: Inside prototype?
-    var trackFrequency = function () {
-        if (this._thrustFrequency > Constants_1["default"].TOO_FAST) {
-            this._velocityBonus++; // Increase
-        }
-        else if (this._velocityBonus / 2 > 1) {
-            this._velocityBonus /= 2; // Decrease
-        }
-        else {
-            this._velocityBonus = 0; // Round down to zero
-        }
-        this._thrustFrequency = 0;
-        // Go intro "instability mode" i.e. camera shakes due to high velocity
-        if (this._velocityBonus > Constants_1["default"].INSTABILITY_THRESHOLD) {
-            game.camera.shake(0.002 * this._velocityBonus, Constants_1["default"].SHAKE_DURATION, false);
-        }
-    };
-    // Keep track of thrust frequency and adjust "instability mode" accordingly
-    game.time.events.repeat(Constants_1["default"].UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
-    var _a;
-}
-/**
- * Functions
- * @method
- */
-Player.prototype = {
-    /**
-     * Does animation, camera shake and sound effects.
-     *
-     * @param  {number} explosionSize - Size of explosion sprite
-     * @param  {number} distanceFromShip - Distance from ship where explosion will occur
-     */
-    fireEngine: function (explosionSize, distanceFromShip) {
-        var position = this.calculateRearPosition(distanceFromShip);
-        var explosion = this._game.add.sprite(position.x, position.y, 'explosionAtlas');
-        explosion.anchor.setTo(0.5);
-        explosion.scale.setTo(explosionSize, explosionSize);
-        explosion.animations.add('explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true).play();
-        // game.global.enemies.group.forEach(function(enemy) { // TODO: WTF?
-        //     if(checkOverlap(enemy, explosion)) {
-        //         console.log("HEUREKA");
-        //     }
-        // });
-        this._boomSound.play();
-        this._game.camera.shake(0.01, 100, false);
-    },
-    /**
-     * Check for collision
-     *
-     * @param  {Phaser.Sprite} spriteA - This sprite
-     * @param  {Phaser.Sprite} spriteB - Other sprite to check for
-     * @method
-     */
-    checkOverlap: function (spriteA, spriteB) {
-        var boundsA = spriteA.getBounds();
-        var boundsB = spriteB.getBounds();
-        return false;
-        // return Phaser.Rectangle.intersects(boundsA, boundsB);
-    },
-    /**
-     * Applies the animation, physics
-     * @method
-     */
-    thrust: function () {
-        this.fireEngine(Constants_1["default"].SMALL_EXPLOSION, Constants_1["default"].SMALL_EXPLOSION_DISTANCE);
-        // Handle a space bar press as moving forwards
-        if (this.isReady || this.isSpinning) {
-            this._thrustFrequency++;
-            var acceleration = Constants_1["default"].THRUST_FORCE + Constants_1["default"].THRUST_FORCE * 0.1 * (Math.pow(this._velocityBonus, 2));
-            this.sprite.body.setZeroVelocity();
-            this.sprite.body.thrust(acceleration);
-            // Handle a space bar press as shooting a missile
-        }
-        else if (this.isAiming) {
-            this._shotsMade++;
-            this._weapon.fire();
-            this.sprite.body.thrust(Constants_1["default"].RECOIL_FORCE);
-            // TODO: Cleanup
-            if (this._shotsMade < Constants_1["default"].MAGAZINE_SIZE) {
-                this._game.time.events.add(Constants_1["default"].RECOVER_TIME, function () {
-                    this._game.add.tween(this.sprite.body.velocity)
-                        .to({ x: 0, y: 0 }, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
-                }, this);
-            }
-            else {
-                this.sprite.body.thrust(Constants_1["default"].RECOIL_FORCE * 2);
-                this._aimSight.alpha = Constants_1["default"].INVISIBLE;
-                this._shotsMade = 0;
-                this._state = 'ready';
-            }
-        }
-    },
-    /**
-     * This has to be called in the game loop for each frame
-     * @method
-     */
-    update: function () {
-        if (this.isReady) {
-            this.sprite.body.thrust(Constants_1["default"].MINIMUM_SPEED);
-        }
-        if (this.isSpinning) {
-            this.sprite.body.rotateLeft(this._angularVelocity.amount);
-        }
-    },
-    /**
-     * Stop spinning and fade out into stability again
-     * @param {number} duration - how fas to gain back sability
-     * @method
-     */
-    gainControl: function (duration) {
-        var tween = this._game.add.tween(this._angularVelocity);
-        tween.to({ amount: 0 }, duration, Phaser.Easing.Quintic.Out, true);
-        tween.onComplete.add(function () {
-            this._state = 'ready';
-        }, this);
-    },
-    /**
-     * Start spinning madly.
-     * Don't even dare trying to touch that first argument.
-     *
-     * @param  {number} duration - How long the rocket should spin
-     */
-    loseControl: function (_, duration) {
-        if (this.isReady) {
-            this._state = 'spinning';
-            this._angularVelocity.amount = Constants_1["default"].SPIN_AMOUNT;
-            this._game.time.events.add(duration, this.gainControl, this, duration);
-        }
-    },
-    /**
-     * These coordinates are used for spawning explosion animations,
-     * Given how the rocket ship is angled, calculate the coordinates
-     *
-     * @method
-     * @param  {number} radius - this number dictates the distance between rocket center and rear
-     * @returns {object} The point object containing x and y properties of the rocket rear
-     */
-    calculateRearPosition: function (radius) {
-        var xAngle = Math.cos(this.sprite.rotation - Phaser.Math.HALF_PI);
-        var yAngle = Math.sin(this.sprite.rotation - Phaser.Math.HALF_PI);
-        return {
-            x: this.sprite.x + xAngle * radius,
-            y: this.sprite.y + yAngle * radius
-        };
-    },
-    /**
-     * A special thrust that requires build-up but launces farther, at the cost of
-     * spinning out of control
-     *
-     * @method
-     */
-    superThrust: function () {
-        if (this.isReady) {
-            this._state = 'charging';
-            // TODO: Particles
-            // Come to a stop
-            this._game.add.tween(this.sprite.body.velocity).to(Constants_1["default"].STOPPING_PARAMS);
-            this.sprite.loadTexture('playerFire');
-            // Same as thrust() but bigger
-            var launch = function () {
-                this.fireEngine(Constants_1["default"].BIG_EXPLOSION, Constants_1["default"].BIG_EXPLOSION_DISTANCE);
-                this.sprite.body.setZeroVelocity();
-                this.sprite.body.thrust(Constants_1["default"].THRUST_FORCE * 5);
-                this.sprite.loadTexture('player');
-                this._state = 'ready';
-                this.loseControl(null, Constants_1["default"].SUPER_THRUST_STUN_DURATION);
-            };
-            // When fully braked: launch away
-            this._game.time.events.add(1000, launch, this);
-        }
-    },
-    /**
-     * The player goes to a standstill and the aimsight appears.
-     * Player can shoot a certain amount of missiles before being launched away again.
-     *
-     * @method
-     */
-    snipe: function () {
-        if (this.isReady) {
-            this._state = 'aiming';
-            // Come to a stop
-            this._game.add.tween(this.sprite.body.velocity).
-                to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
-            // Aim
-            this._game.add.tween(this._aimSight).to({ alpha: Constants_1["default"].VISIBLE }, 500, 'Linear', true);
-            // Shooting is done via space button (and thus handled in this.thrust())
-        }
-    },
-    /**
-     * Clears sprites (only in use by the menu)
-     *
-     * @method
-     */
-    destroy: function () {
-        this.sprite.destroy();
-        this._boomSound.destroy();
-    }
-};
-/**
- * Getter and Setter
- *
- * @method
- */
-Object.defineProperties(Player.prototype, {
-    'isReady': { get: function () { return this._state === 'ready'; } },
-    'isSpinning': { get: function () { return this._state === 'spinning'; } },
-    'isChargin': { get: function () { return this._state === 'charging'; } },
-    'isAiming': { get: function () { return this._state === 'aiming'; } }
-});
-exports["default"] = Player;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-/**
- * @author       Julien Midedji <admin@resamvi.de>
- * @copyright    2017 Julien Midedji
- * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
- */
-exports.__esModule = true;
-__webpack_require__(4);
-__webpack_require__(7);
-__webpack_require__(10);
-var BootScene_1 = __webpack_require__(13);
-var SplashScene_1 = __webpack_require__(14);
-var LoadScene_1 = __webpack_require__(15);
-var MenuScene_1 = __webpack_require__(16);
-var PlayScene_1 = __webpack_require__(18);
+__webpack_require__(3);
+__webpack_require__(6);
+__webpack_require__(9);
+var BootState_1 = __webpack_require__(12);
+var SplashState_1 = __webpack_require__(13);
+var LoadState_1 = __webpack_require__(14);
+var MenuState_1 = __webpack_require__(15);
+var PlayState_1 = __webpack_require__(16);
 var width = window.innerWidth;
 var height = window.innerHeight;
 var game = new Phaser.Game(width, height, Phaser.AUTO, '');
-game.state.add('splash', SplashScene_1["default"](game));
-game.state.add('boot', BootScene_1["default"](game));
-game.state.add('load', LoadScene_1["default"](game));
-game.state.add('menu', MenuScene_1["default"](game));
-game.state.add('play', PlayScene_1["default"](game));
-game.state.start('boot');
+// Each State loaded (boot, splash, ...) depends on having this property configured
+this.game = game;
+game.state.add('splash', SplashState_1["default"]);
+game.state.add('boot', BootState_1["default"]);
+game.state.add('load', LoadState_1["default"]);
+game.state.add('menu', MenuState_1["default"]);
+game.state.add('play', PlayState_1["default"](game));
+game.state.start('splash');
 // TODO: Center splash, warning signal [x]
 // TODO: Get screen size and use that as game constraints [x]
 // TOOO: insert global [x]
@@ -504,7 +217,7 @@ game.state.start('boot');
 // TODO: Use webpack [x]
 // TODO: Combine package.json inside build [x]
 // TODO: Fix all linter mistakes
-// TODO: Scenes should be objects. Not functions
+// TODO: States should be objects. Not functions
 // TODO: Add beeping sound to heating mode
 // TODO: Add comments as JSDOC
 // TODO: holding space gives bigger thrust
@@ -517,22 +230,22 @@ game.state.start('boot');
 
 
 /***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(4);
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+
+/***/ }),
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(5);
-
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["p2"] = __webpack_require__(5);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
 /* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["p2"] = __webpack_require__(6);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
-
-/***/ }),
-/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var require;var require;/**
@@ -14175,22 +13888,22 @@ World.prototype.raycast = function(result, ray){
 });
 
 /***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["PIXI"] = __webpack_require__(7);
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+
+/***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["PIXI"] = __webpack_require__(8);
-
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(8);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
 /* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(9);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
-
-/***/ }),
-/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -21768,15 +21481,15 @@ PIXI.TextureUvs = function()
 }).call(this);
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(11);
+/* WEBPACK VAR INJECTION */(function(global) {module.exports = global["Phaser"] = __webpack_require__(10);
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -106402,10 +106115,10 @@ PIXI.canUseNewCanvasBlendModes = function () {
 * "What matters in this life is not what we do but what we do for others, the legacy we leave and the imprint we make." - Eric Meyer
 */
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -106586,7 +106299,7 @@ process.umask = function () { return 0; };
 
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -106601,167 +106314,64 @@ var Constants_1 = __webpack_require__(0);
 /**
  * Initialize physics and world settings to start playing
  *
- * @method
- * @param  {Phaser.Game} game - Reference to the game
- * @return {Phaser.State} The scene that handles booting
+ * @this MainGame Has game property to the recently initialized game
  */
 // TODO: Change to object
-function Boot(game) {
-    return {
-        create: function () {
-            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-            game.physics.startSystem(Phaser.Physics.P2JS);
-            game.world.setBounds(0, 0, Constants_1["default"].MAP_SIZE, Constants_1["default"].MAP_SIZE);
-            game.state.start('load');
-        }
-    };
-}
-exports["default"] = Boot;
+exports["default"] = {
+    create: function () {
+        this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        this.game.physics.startSystem(Phaser.Physics.P2JS);
+        this.game.world.setBounds(0, 0, Constants_1["default"].MAP_SIZE, Constants_1["default"].MAP_SIZE);
+        this.game.state.start('load');
+    }
+};
+
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
+exports.__esModule = true;
+/**
+ * The SplashState fades in the melon logo along with the creator's name.
+ * @typedef {Phaser.Scene}
+ */
+exports["default"] = {
+    FADE_IN_DURATION: 1000,
+    FADE_OUT_DURATION: 1000,
+    DELAY_DURATION: 1200,
+    preload: function () {
+        this.game.load.image('melon', 'assets/splash.png'); // TODO: Rename to splash
+    },
+    create: function () {
+        this.game.stage.backgroundColor = '#FFFFFF';
+        var melon = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'melon');
+        melon.anchor.setTo(0.5);
+        melon.alpha = 0;
+        var tween = this.game.add.tween(melon);
+        tween.to({ alpha: 1 }, this.FADE_IN_DURATION, Phaser.Easing.Linear.None, true);
+        tween.onComplete.add(this.fadeOut, this);
+    },
+    fadeOut: function (melon) {
+        var tween = this.game.add.tween(melon);
+        tween.to({ alpha: 0 }, this.FADE_OUT_DURATION, Phaser.Easing.Linear.None, true, this.DELAY_DURATION);
+        tween.onComplete.add(function () {
+            this.game.stage.backgroundColor = '#000000';
+            this.game.state.start('boot');
+        }, this);
+    }
+};
 
 
 /***/ }),
 /* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-// TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
-function default_1(game) {
-    var FADE_IN_DURATION = 1000;
-    var FADE_OUT_DURATION = 1000;
-    var DELAY_DURATION = 1200;
-    function preload() {
-        game.load.image('melon', 'assets/splash.png'); // TODO: Rename to splash
-    }
-    function create() {
-        game.stage.backgroundColor = '#FFFFFF';
-        var melon = game.add.sprite(game.world.centerX, game.world.centerY, 'melon');
-        melon.anchor.setTo(0.5);
-        melon.alpha = 0;
-        var tween = game.add.tween(melon);
-        tween.to({ alpha: 1 }, FADE_IN_DURATION, Phaser.Easing.Linear.None, true);
-        tween.onComplete.add(fadeOut);
-    }
-    function fadeOut(melon) {
-        var tween = game.add.tween(melon);
-        tween.to({ alpha: 0 }, FADE_OUT_DURATION, Phaser.Easing.Linear.None, true, DELAY_DURATION);
-        tween.onComplete.add(function () {
-            game.stage.backgroundColor = '#000000';
-            game.state.start('boot');
-        });
-    }
-    return { preload: preload, create: create };
-}
-exports["default"] = default_1;
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var Constants_1 = __webpack_require__(0);
-// TODO: Code like thisExample: https://github.com/photonstorm/phaser-ce/blob/master/src/sound/Sound.js
-function default_1(game) {
-    var progressText;
-    function preload() {
-        game.load.bitmapFont('font', 'assets/font_0.png', 'assets/font.fnt');
-        game.load.image('preloadbar', 'assets/loadbar.png');
-    }
-    function create() {
-        // Declare loading process
-        game.load.onLoadStart.add(loadStart);
-        game.load.onFileComplete.add(fileComplete);
-        game.load.onLoadComplete.add(loadComplete);
-        // Display and center load text
-        var loadText = game.add.bitmapText(0, 0, 'font', 'Loading');
-        loadText.updateTransform();
-        var centerX = game.width / 2 - (loadText.textWidth * 0.5);
-        var centerY = game.height / 2 - (loadText.textHeight * 0.5);
-        loadText.x = centerX;
-        loadText.y = centerY - 90;
-        // Display and center current progress text
-        progressText = game.add.bitmapText(0, 0, 'font', '0%');
-        progressText.updateTransform();
-        centerX = game.width / 2 - (progressText.textWidth * 0.5);
-        centerY = game.height / 2 - (progressText.textHeight * 0.5);
-        progressText.x = centerX;
-        progressText.y = centerY;
-        // Loadbar
-        var preloadBar = game.add.sprite(10, 30, 'preloadbar');
-        preloadBar.updateTransform();
-        centerX = game.width / 2;
-        centerY = game.height / 2;
-        preloadBar.x = centerX - Constants_1["default"].LOADBAR_WIDTH / 2;
-        preloadBar.y = centerY + Constants_1["default"].LOADBAR_OFFSET;
-        game.load.setPreloadSprite(preloadBar);
-        queueFiles();
-    }
-    function queueFiles() {
-        //console.log('Queue files');
-        game.load.audio('startMusic', 'assets/start.mp3');
-        game.load.audio('menuMusic', 'assets/menu.mp3');
-        game.load.audio('mainMusic', 'assets/main.mp3');
-        game.load.audio('startMusic', 'assets/start.mp3');
-        game.load.audio('ignition', 'assets/ignition.mp3');
-        game.load.audio('boom', 'assets/boom.mp3');
-        game.load.audio('roger', 'assets/rogerbeep.mp3');
-        game.load.image('instructions', 'assets/instructions.png');
-        game.load.image('dot', 'assets/dot.png'); // debug purposes only
-        game.load.image('empty', 'assets/empty.png');
-        game.load.image('bullet', 'assets/bullet.png');
-        game.load.image('background', 'assets/background.png');
-        game.load.image('redPlanet', 'assets/red_planet.png');
-        game.load.image('moon', 'assets/moon.png');
-        //game.load.image('player', 'assets/player.png');
-        game.load.image('playerFire', 'assets/player_fire.png');
-        game.load.image('enemy_boss', 'assets/enemy_boss.png');
-        game.load.image('enemy_many', 'assets/enemy_many.png');
-        game.load.image('enemy_bullet', 'assets/enemy_bullet.png');
-        game.load.image('warning', 'assets/warning.png');
-        game.load.image('line', 'assets/line.png');
-        game.load.image('arrow', 'assets/arrow.png');
-        game.load.bitmapFont('menuFont', 'assets/menu_0.png', 'assets/menu.fnt');
-        game.load.atlasJSONHash('player', 'assets/player.png', 'assets/player.json');
-        game.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
-        game.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
-        game.load.atlasJSONHash('lineAtlas', 'assets/dotted_line_animation.png', 'assets/dotted_line_animation.json');
-        // Everything above has been put into queue, now start loading
-        game.load.start();
-    }
-    function loadStart() {
-        if (Constants_1["default"].DEBUG_MODE) {
-            console.log('Start loading');
-        }
-    }
-    function fileComplete(progress, cacheKey, success, totalLoaded, totalFiles) {
-        if (Constants_1["default"].DEBUG_MODE) {
-            console.log('--- Completed file ---');
-            console.log('progress: ' + progress);
-            console.log('cacheKey: ' + cacheKey);
-            console.log('success: ' + success);
-            console.log('totalLoaded: ' + totalLoaded);
-            console.log('totalFiles: ' + totalFiles);
-            console.log('\n');
-        }
-        progressText.setText(progress + '%');
-    }
-    function loadComplete() {
-        if (Constants_1["default"].DEBUG_MODE) {
-            console.log('Load complete');
-        }
-        game.state.start('menu');
-    }
-    return { preload: preload, create: create };
-}
-exports["default"] = default_1;
-
-
-/***/ }),
-/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -106773,156 +106383,225 @@ exports["default"] = default_1;
  */
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
-var Player_1 = __webpack_require__(2);
+/**
+ * The LoadState displays a loading bar foremost and then loads all textures/assets/sounds.
+ * @typedef {Phaser.Scene}
+ */
+exports["default"] = {
+    progressText: Phaser.BitmapText,
+    preload: function () {
+        this.game.load.bitmapFont('font', 'assets/font_0.png', 'assets/font.fnt');
+        this.game.load.image('preloadbar', 'assets/loadbar.png');
+    },
+    create: function () {
+        // Declare loading process
+        this.game.load.onLoadStart.add(this.loadStart, this);
+        this.game.load.onFileComplete.add(this.fileComplete, this);
+        this.game.load.onLoadComplete.add(this.loadComplete, this);
+        // Display and center load text
+        var loadText = this.game.add.bitmapText(0, 0, 'font', 'Loading');
+        loadText.updateTransform();
+        var centerX = this.game.width / 2 - (loadText.textWidth * 0.5);
+        var centerY = this.game.height / 2 - (loadText.textHeight * 0.5);
+        loadText.x = centerX;
+        loadText.y = centerY - 90;
+        // Display and center current progress text
+        this.progressText = this.game.add.bitmapText(0, 0, 'font', '0%');
+        this.progressText.updateTransform();
+        centerX = this.game.width / 2 - (this.progressText.textWidth * 0.5);
+        centerY = this.game.height / 2 - (this.progressText.textHeight * 0.5);
+        this.progressText.x = centerX;
+        this.progressText.y = centerY;
+        // Loadbar
+        var preloadBar = this.game.add.sprite(10, 30, 'preloadbar');
+        preloadBar.updateTransform();
+        centerX = this.game.width / 2;
+        centerY = this.game.height / 2;
+        preloadBar.x = centerX - Constants_1["default"].LOADBAR_WIDTH / 2;
+        preloadBar.y = centerY + Constants_1["default"].LOADBAR_OFFSET;
+        this.game.load.setPreloadSprite(preloadBar);
+        this.queueFiles();
+    },
+    queueFiles: function () {
+        //console.log('Queue files');
+        this.game.load.audio('startMusic', 'assets/start.mp3');
+        this.game.load.audio('menuMusic', 'assets/menu.mp3');
+        this.game.load.audio('mainMusic', 'assets/main.mp3');
+        this.game.load.audio('startMusic', 'assets/start.mp3');
+        this.game.load.audio('ignition', 'assets/ignition.mp3');
+        this.game.load.audio('boom', 'assets/boom.mp3');
+        this.game.load.audio('roger', 'assets/rogerbeep.mp3');
+        this.game.load.image('instructions', 'assets/instructions.png');
+        this.game.load.image('dot', 'assets/dot.png'); // debug purposes only
+        this.game.load.image('empty', 'assets/empty.png');
+        this.game.load.image('bullet', 'assets/bullet.png');
+        this.game.load.image('background', 'assets/background.png');
+        this.game.load.image('redPlanet', 'assets/red_planet.png');
+        this.game.load.image('moon', 'assets/moon.png');
+        //this.game.load.image('player', 'assets/player.png');
+        this.game.load.image('playerFire', 'assets/player_fire.png');
+        this.game.load.image('enemy_boss', 'assets/enemy_boss.png');
+        this.game.load.image('enemy_many', 'assets/enemy_many.png');
+        this.game.load.image('enemy_bullet', 'assets/enemy_bullet.png');
+        this.game.load.image('warning', 'assets/warning.png');
+        this.game.load.image('line', 'assets/line.png');
+        this.game.load.image('arrow', 'assets/arrow.png');
+        this.game.load.bitmapFont('menuFont', 'assets/menu_0.png', 'assets/menu.fnt');
+        this.game.load.atlasJSONHash('player', 'assets/player.png', 'assets/player.json');
+        this.game.load.atlasJSONHash('explosionAtlas', 'assets/explosionAnimation.png', 'assets/explosionAnimation.json');
+        this.game.load.atlasJSONHash('buttonAtlas', 'assets/buttons.png', 'assets/buttons.json');
+        this.game.load.atlasJSONHash('lineAtlas', 'assets/dotted_line_animation.png', 'assets/dotted_line_animation.json');
+        // TODO: Rename files
+        // Everything above has been put into queue, now start loading
+        this.game.load.start();
+    },
+    loadStart: function () {
+        if (Constants_1["default"].DEBUG_MODE) {
+            console.log('Start loading');
+        }
+    },
+    fileComplete: function (progress, cacheKey, success, totalLoaded, totalFiles) {
+        if (Constants_1["default"].DEBUG_MODE) {
+            console.log('--- Completed file ---');
+            console.log('progress: ' + progress);
+            console.log('cacheKey: ' + cacheKey);
+            console.log('success: ' + success);
+            console.log('totalLoaded: ' + totalLoaded);
+            console.log('totalFiles: ' + totalFiles);
+            console.log('\n');
+        }
+        this.progressText.setText(progress + '%');
+    },
+    loadComplete: function () {
+        if (Constants_1["default"].DEBUG_MODE) {
+            console.log('Load complete');
+        }
+        this.game.state.start('menu');
+    }
+};
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
+exports.__esModule = true;
+var Constants_1 = __webpack_require__(0);
+var Player_1 = __webpack_require__(17);
 /**
  * The menu is displayed after loading and before playing.
  * This is where options can be changed, credits viewed, name changed
- * and the game started.
+ * and the this.game started.
  *
- * @param  {Phaser.Game} game - Reference to the game
- * @returns {Phaser.State} Scene object that contains all information to display
+ * @typedef  {Phaser.State}
  */
-// TODO: Change to object
-function Menu(game) {
-    var player;
-    var planet;
-    var title;
-    var startButton;
-    var optionButton;
-    var backButton;
-    var instructions;
-    var menuMusic;
-    var startMusic;
-    var centerX;
-    var centerY;
-    function create() {
+exports["default"] = {
+    player: null,
+    planet: null,
+    title: null,
+    startButton: null,
+    optionButton: null,
+    backButton: null,
+    instructions: null,
+    menuMusic: null,
+    startMusic: null,
+    centerX: 0,
+    centerY: 0,
+    create: function () {
         // Center of screen (not the world!)
-        centerX = game.camera.width / 2;
-        centerY = game.camera.height / 2;
+        this.centerX = this.game.camera.width / 2;
+        this.centerY = this.game.camera.height / 2;
         // Background
-        game.add.sprite(0, 0, 'background');
+        this.game.add.sprite(0, 0, 'background');
         // Moon
-        planet = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'moon');
-        planet.anchor.setTo(0.5, 0.5);
-        planet.scale.setTo(0.1, 0.1);
-        planet.pivot.set(Constants_1["default"].ORBIT_RADIUS, Constants_1["default"].ORBIT_RADIUS);
+        this.planet = this.game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'moon');
+        this.planet.anchor.setTo(0.5, 0.5);
+        this.planet.scale.setTo(0.1, 0.1);
+        this.planet.pivot.set(Constants_1["default"].ORBIT_RADIUS, Constants_1["default"].ORBIT_RADIUS);
         // Player (only used for displayal; not to actually control)
-        player = new Player_1["default"](game);
-        // Title
-        title = game.add.bitmapText(0, 0, 'menuFont', 'SPAYLE', 80);
-        title.updateTransform();
-        title.anchor.setTo(0.5, 0.5);
-        title.position.x = centerX + Constants_1["default"].TITLE_X_OFFSET;
-        title.position.y = centerY - Constants_1["default"].TITLE_Y_OFFSET;
-        game.add.tween(title.scale).to({ x: 1.1, y: 1.1 }, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true);
+        this.player = new Player_1["default"](this.game);
+        // this.title
+        this.title = this.game.add.bitmapText(0, 0, 'menuFont', 'SPAYLE', 80);
+        this.title.updateTransform();
+        this.title.anchor.setTo(0.5, 0.5);
+        this.title.position.x = this.centerX + Constants_1["default"].TITLE_X_OFFSET;
+        this.title.position.y = this.centerY - Constants_1["default"].TITLE_Y_OFFSET;
+        this.game.add.tween(this.title.scale).to({ x: 1.1, y: 1.1 }, 2000, Phaser.Easing.Cubic.InOut, true, 10, -1, true);
         // Buttons
-        startButton = createButton(-50, 1.5, play, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
-        optionButton = createButton(50, 1.5, moveDown, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
-        backButton = createButton(850, 1.5, moveUp, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
+        this.startButton = this.createButton(-50, 1.5, this.play, 'buttonAtlas', 'yellow_button01.png', 'yellow_button02.png', 'yellow_button01.png');
+        this.optionButton = this.createButton(50, 1.5, this.moveDown, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
+        this.backButton = this.createButton(850, 1.5, this.moveUp, 'buttonAtlas', 'grey_button02.png', 'grey_button01.png', 'grey_button02.png');
         // Instructions
-        instructions = game.add.sprite(30, 870, 'instructions');
+        this.instructions = this.game.add.sprite(30, 870, 'instructions');
         // Music
-        menuMusic = game.add.audio('menuMusic');
-        menuMusic.onDecoded.add(function () {
-            menuMusic.fadeIn(Constants_1["default"].AUDIO_FADE_DURATION, true);
-        });
-    }
-    function createButton(y, scale, func, atlas, onHover, onIdle, onClick) {
-        var button = game.add.button(0, 0, atlas, func, game, onHover, onIdle, onClick, onIdle);
+        this.menuMusic = this.game.add.audio('menuMusic');
+        this.menuMusic.onDecoded.add(function () {
+            this.menuMusic.fadeIn(Constants_1["default"].AUDIO_FADE_DURATION, true);
+        }, this);
+    },
+    createButton: function (y, scale, func, atlas, onHover, onIdle, onClick) {
+        var button = this.game.add.button(0, 0, atlas, func, this, onHover, onIdle, onClick, onIdle);
         button.anchor.setTo(0.5, 0.5);
         button.scale.setTo(scale, scale);
-        button.x = centerX + Constants_1["default"].BUTTON_X;
-        button.y = centerY + y;
+        button.x = this.centerX + Constants_1["default"].BUTTON_X;
+        button.y = this.centerY + y;
         return button;
-    }
-    function play() {
+    },
+    play: function () {
         // Scale camera out for dramatic effect
-        game.add.tween(game.camera.scale).to({ x: 0.5, y: 0.5 }, 7000, Phaser.Easing.Cubic.InOut, true);
+        this.game.add.tween(this.game.camera.scale).to({ x: 0.5, y: 0.5 }, 7000, Phaser.Easing.Cubic.InOut, true);
         // Fade out all menu items
-        for (var _i = 0, _a = [title, startButton, optionButton, backButton, instructions]; _i < _a.length; _i++) {
+        for (var _i = 0, _a = [this.title, this.startButton, this.optionButton, this.backButton, this.instructions]; _i < _a.length; _i++) {
             var sprite = _a[_i];
-            var t = game.add.tween(sprite).to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.InOut, true, 0);
+            var t = this.game.add.tween(sprite).to({ alpha: 0 }, 1000, Phaser.Easing.Cubic.InOut, true, 0);
             t.onComplete.add(function (invisibleSprite) {
                 invisibleSprite.destroy();
             });
         }
         // Change music and start count down
-        menuMusic.fadeOut(1000);
-        startMusic = game.add.audio('startMusic');
-        startMusic.onDecoded.add(function () {
-            startMusic.fadeIn(Constants_1["default"].AUDIO_FADE_DURATION);
-        });
-        var countdown = game.add.audio('ignition');
+        this.menuMusic.fadeOut(1000);
+        // TODO: Can this be made local?
+        this.startMusic = this.game.add.audio('this.startMusic');
+        this.startMusic.onDecoded.add(function () {
+            this.startMusic.fadeIn(Constants_1["default"].AUDIO_FADE_DURATION);
+        }, this);
+        var countdown = this.game.add.audio('ignition');
         countdown.onDecoded.add(function () {
             countdown.play();
         });
         countdown.onStop.add(function () {
-            player.destroy();
-            game.state.start('play', false, false);
-        });
+            this.player.destroy();
+            this.game.state.start('play', false, false);
+        }, this);
+    },
+    moveUp: function () {
+        this.game.add.tween(this.game.camera).to({ y: 0 }, 1500, Phaser.Easing.Cubic.Out, true);
+    },
+    moveDown: function () {
+        this.game.add.tween(this.game.camera).to({ y: 700 }, 1500, Phaser.Easing.Cubic.Out, true);
+    },
+    update: function () {
+        this.planet.rotation += Constants_1["default"].ORBIT_SPEED;
     }
-    function moveUp() {
-        game.add.tween(game.camera).to({ y: 0 }, 1500, Phaser.Easing.Cubic.Out, true);
-    }
-    function moveDown() {
-        game.add.tween(game.camera).to({ y: 700 }, 1500, Phaser.Easing.Cubic.Out, true);
-    }
-    function update() {
-        planet.rotation += Constants_1["default"].ORBIT_SPEED;
-    }
-    return { create: create, update: update };
-}
-exports["default"] = Menu;
+};
 
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
 var Constants_1 = __webpack_require__(0);
-function default_1(trackedSprite, game) {
-    this.fire = function () {
-        var position = calculateCoordinates(-20);
-        var bullet = game.add.sprite(position.x, position.y, 'bullet');
-        bullet.anchor.setTo(0.5);
-        bullet.angle = trackedSprite.angle + 180;
-        game.physics.arcade.enable(bullet);
-        var velocity = calculateVelocity(Constants_1["default"].BULLET_SPEED);
-        bullet.body.velocity.x = velocity.x;
-        bullet.body.velocity.y = velocity.y;
-    };
-    var calculateVelocity = function (speed) {
-        var x = Math.cos(trackedSprite.rotation + Math.PI / 2) * speed;
-        var y = Math.sin(trackedSprite.rotation + Math.PI / 2) * speed;
-        return {
-            x: x,
-            y: y
-        };
-    };
-    var calculateCoordinates = function (radius) {
-        var xAngle = Math.cos(trackedSprite.rotation - Phaser.Math.HALF_PI);
-        var yAngle = Math.sin(trackedSprite.rotation - Phaser.Math.HALF_PI);
-        return {
-            x: trackedSprite.x + xAngle * radius,
-            y: trackedSprite.y + yAngle * radius
-        };
-    };
-}
-exports["default"] = default_1;
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var Constants_1 = __webpack_require__(0);
-var Player_1 = __webpack_require__(2);
+var Player_1 = __webpack_require__(17);
 var Mother_1 = __webpack_require__(19);
 var HUD_1 = __webpack_require__(21);
 function default_1(game) {
@@ -107004,6 +106683,334 @@ function default_1(game) {
         }
     }
     return { create: create, update: update, render: render };
+}
+exports["default"] = default_1;
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/**
+ * @author       Julien Midedji <admin@resamvi.de>
+ * @copyright    2017 Julien Midedji
+ * @license      {@link https://github.com/ResamVi/spayle/blob/master/LICENSE MIT License}
+ */
+exports.__esModule = true;
+var Constants_1 = __webpack_require__(0);
+var Weapon_1 = __webpack_require__(18);
+/**
+ * The rocket ship is controlled by the player
+ * and the main actor of this game.
+ *
+ * @param {Phaser.Game} game - A reference to the currently running game
+ * @constructor
+ */
+function Player(game) {
+    /**
+     * @property {Phaser.Game} - Reference to the game
+     */
+    this._game = game;
+    /**
+     * @property {Phaser.Sprite} sprite - Reference to sprite object
+     * @public
+     */
+    this.sprite = game.add.sprite(Constants_1["default"].PLAYER_START_X, Constants_1["default"].PLAYER_START_Y, 'player', 1);
+    this.sprite.anchor.setTo(0.5);
+    this.sprite.angle = Constants_1["default"].PLAYER_START_ANGLE;
+    this._game.physics.p2.enable(this.sprite);
+    /**
+     * @property {Phaser.Physics.P2.Body} - Reference to physics body
+     */
+    this.body = this.sprite.body;
+    /**
+     * @property {Phaser.Sound} - Sound file for explosions on thrusts
+     */
+    this._boomSound = game.add.audio('boom');
+    this._boomSound.volume = 0.05;
+    /**
+     * @property {number} - Keep track how frequently the player presses spacebar to thrust
+     */
+    this._thrustFrequency = 0;
+    /**
+     * @property {number} - Calculated bonus velocity gained by high thrust frequency
+     */
+    this._velocityBonus = 0;
+    /**
+     * @property {number} - Hold count of how many shots were made in the 'snipe' position
+     */
+    this._shotsMade = 0;
+    /**
+     * @property {string} - Keeps track of the current status of movement
+     * possible states are 'ready', 'spinning', 'charging', 'aiming'
+     */
+    this._state = 'ready';
+    /**
+     * @property {object} - Keeps count of spinning intensity (object notation so it can be tweened)
+     */
+    this._angularVelocity = { amount: 0 };
+    // Add aim sight animation to rocket
+    /**
+     * @property {Phaser.Sprite} - Dotted line animation used when sniping
+     */
+    this._aimSight = game.add.sprite(-4, 40, 'lineAtlas');
+    this._aimSight.alpha = Constants_1["default"].INVISIBLE;
+    this._aimSight.anchor.setTo(1);
+    this._aimSight.scale.x *= -1;
+    this._aimSight.scale.y *= -1;
+    (_a = this._aimSight.animations).add.apply(_a, Constants_1["default"].ANIMATION_PARAMS).play();
+    this.sprite.addChild(this._aimSight);
+    // Responsible for bullet spawns their angle/velocity and kill properties
+    this._weapon = new Weapon_1["default"](this.sprite, this._game);
+    // Given the frequency, increase the the camera shake with higher frequency TODO: Inside prototype?
+    var trackFrequency = function () {
+        if (this._thrustFrequency > Constants_1["default"].TOO_FAST) {
+            this._velocityBonus++; // Increase
+        }
+        else if (this._velocityBonus / 2 > 1) {
+            this._velocityBonus /= 2; // Decrease
+        }
+        else {
+            this._velocityBonus = 0; // Round down to zero
+        }
+        this._thrustFrequency = 0;
+        // Go intro "instability mode" i.e. camera shakes due to high velocity
+        if (this._velocityBonus > Constants_1["default"].INSTABILITY_THRESHOLD) {
+            game.camera.shake(0.002 * this._velocityBonus, Constants_1["default"].SHAKE_DURATION, false);
+        }
+    };
+    // Keep track of thrust frequency and adjust "instability mode" accordingly
+    game.time.events.repeat(Constants_1["default"].UPDATE_INTERVAL, Number.POSITIVE_INFINITY, trackFrequency, this);
+    var _a;
+}
+/**
+ * Functions
+ * @method
+ */
+Player.prototype = {
+    /**
+     * Does animation, camera shake and sound effects.
+     *
+     * @param  {number} explosionSize - Size of explosion sprite
+     * @param  {number} distanceFromShip - Distance from ship where explosion will occur
+     */
+    fireEngine: function (explosionSize, distanceFromShip) {
+        var position = this.calculateRearPosition(distanceFromShip);
+        var explosion = this._game.add.sprite(position.x, position.y, 'explosionAtlas');
+        explosion.anchor.setTo(0.5);
+        explosion.scale.setTo(explosionSize, explosionSize);
+        explosion.animations.add('explode', Phaser.Animation.generateFrameNames('explosion/ex', 0, 13, '.png', 1), 60, false, true).play();
+        // game.global.enemies.group.forEach(function(enemy) { // TODO: WTF?
+        //     if(checkOverlap(enemy, explosion)) {
+        //         console.log("HEUREKA");
+        //     }
+        // });
+        this._boomSound.play();
+        this._game.camera.shake(0.01, 100, false);
+    },
+    /**
+     * Check for collision
+     *
+     * @param  {Phaser.Sprite} spriteA - This sprite
+     * @param  {Phaser.Sprite} spriteB - Other sprite to check for
+     * @method
+     */
+    checkOverlap: function (spriteA, spriteB) {
+        var boundsA = spriteA.getBounds();
+        var boundsB = spriteB.getBounds();
+        return false;
+        // return Phaser.Rectangle.intersects(boundsA, boundsB);
+    },
+    /**
+     * Applies the animation, physics
+     * @method
+     */
+    thrust: function () {
+        this.fireEngine(Constants_1["default"].SMALL_EXPLOSION, Constants_1["default"].SMALL_EXPLOSION_DISTANCE);
+        // Handle a space bar press as moving forwards
+        if (this.isReady || this.isSpinning) {
+            this._thrustFrequency++;
+            var acceleration = Constants_1["default"].THRUST_FORCE + Constants_1["default"].THRUST_FORCE * 0.1 * (Math.pow(this._velocityBonus, 2));
+            this.sprite.body.setZeroVelocity();
+            this.sprite.body.thrust(acceleration);
+            // Handle a space bar press as shooting a missile
+        }
+        else if (this.isAiming) {
+            this._shotsMade++;
+            this._weapon.fire();
+            this.sprite.body.thrust(Constants_1["default"].RECOIL_FORCE);
+            // TODO: Cleanup
+            if (this._shotsMade < Constants_1["default"].MAGAZINE_SIZE) {
+                this._game.time.events.add(Constants_1["default"].RECOVER_TIME, function () {
+                    this._game.add.tween(this.sprite.body.velocity)
+                        .to({ x: 0, y: 0 }, 100, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+                }, this);
+            }
+            else {
+                this.sprite.body.thrust(Constants_1["default"].RECOIL_FORCE * 2);
+                this._aimSight.alpha = Constants_1["default"].INVISIBLE;
+                this._shotsMade = 0;
+                this._state = 'ready';
+            }
+        }
+    },
+    /**
+     * This has to be called in the game loop for each frame
+     * @method
+     */
+    update: function () {
+        if (this.isReady) {
+            this.sprite.body.thrust(Constants_1["default"].MINIMUM_SPEED);
+        }
+        if (this.isSpinning) {
+            this.sprite.body.rotateLeft(this._angularVelocity.amount);
+        }
+    },
+    /**
+     * Stop spinning and fade out into stability again
+     * @param {number} duration - how fas to gain back sability
+     * @method
+     */
+    gainControl: function (duration) {
+        var tween = this._game.add.tween(this._angularVelocity);
+        tween.to({ amount: 0 }, duration, Phaser.Easing.Quintic.Out, true);
+        tween.onComplete.add(function () {
+            this._state = 'ready';
+        }, this);
+    },
+    /**
+     * Start spinning madly.
+     * Don't even dare trying to touch that first argument.
+     *
+     * @param  {number} duration - How long the rocket should spin
+     */
+    loseControl: function (_, duration) {
+        if (this.isReady) {
+            this._state = 'spinning';
+            this._angularVelocity.amount = Constants_1["default"].SPIN_AMOUNT;
+            this._game.time.events.add(duration, this.gainControl, this, duration);
+        }
+    },
+    /**
+     * These coordinates are used for spawning explosion animations,
+     * Given how the rocket ship is angled, calculate the coordinates
+     *
+     * @method
+     * @param  {number} radius - this number dictates the distance between rocket center and rear
+     * @returns {object} The point object containing x and y properties of the rocket rear
+     */
+    calculateRearPosition: function (radius) {
+        var xAngle = Math.cos(this.sprite.rotation - Phaser.Math.HALF_PI);
+        var yAngle = Math.sin(this.sprite.rotation - Phaser.Math.HALF_PI);
+        return {
+            x: this.sprite.x + xAngle * radius,
+            y: this.sprite.y + yAngle * radius
+        };
+    },
+    /**
+     * A special thrust that requires build-up but launces farther, at the cost of
+     * spinning out of control
+     *
+     * @method
+     */
+    superThrust: function () {
+        if (this.isReady) {
+            this._state = 'charging';
+            // TODO: Particles
+            // Come to a stop
+            this._game.add.tween(this.sprite.body.velocity).to(Constants_1["default"].STOPPING_PARAMS);
+            this.sprite.loadTexture('playerFire');
+            // Same as thrust() but bigger
+            var launch = function () {
+                this.fireEngine(Constants_1["default"].BIG_EXPLOSION, Constants_1["default"].BIG_EXPLOSION_DISTANCE);
+                this.sprite.body.setZeroVelocity();
+                this.sprite.body.thrust(Constants_1["default"].THRUST_FORCE * 5);
+                this.sprite.loadTexture('player');
+                this._state = 'ready';
+                this.loseControl(null, Constants_1["default"].SUPER_THRUST_STUN_DURATION);
+            };
+            // When fully braked: launch away
+            this._game.time.events.add(1000, launch, this);
+        }
+    },
+    /**
+     * The player goes to a standstill and the aimsight appears.
+     * Player can shoot a certain amount of missiles before being launched away again.
+     *
+     * @method
+     */
+    snipe: function () {
+        if (this.isReady) {
+            this._state = 'aiming';
+            // Come to a stop
+            this._game.add.tween(this.sprite.body.velocity).
+                to({ x: 0, y: 0 }, 300, Phaser.Easing.Cubic.Out, true); // TODO: Constant
+            // Aim
+            this._game.add.tween(this._aimSight).to({ alpha: Constants_1["default"].VISIBLE }, 500, 'Linear', true);
+            // Shooting is done via space button (and thus handled in this.thrust())
+        }
+    },
+    /**
+     * Clears sprites (only in use by the menu)
+     *
+     * @method
+     */
+    destroy: function () {
+        this.sprite.destroy();
+        this._boomSound.destroy();
+    }
+};
+/**
+ * Getter and Setter
+ *
+ * @method
+ */
+Object.defineProperties(Player.prototype, {
+    'isReady': { get: function () { return this._state === 'ready'; } },
+    'isSpinning': { get: function () { return this._state === 'spinning'; } },
+    'isChargin': { get: function () { return this._state === 'charging'; } },
+    'isAiming': { get: function () { return this._state === 'aiming'; } }
+});
+exports["default"] = Player;
+
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var Constants_1 = __webpack_require__(0);
+function default_1(trackedSprite, game) {
+    this.fire = function () {
+        var position = calculateCoordinates(-20);
+        var bullet = game.add.sprite(position.x, position.y, 'bullet');
+        bullet.anchor.setTo(0.5);
+        bullet.angle = trackedSprite.angle + 180;
+        game.physics.arcade.enable(bullet);
+        var velocity = calculateVelocity(Constants_1["default"].BULLET_SPEED);
+        bullet.body.velocity.x = velocity.x;
+        bullet.body.velocity.y = velocity.y;
+    };
+    var calculateVelocity = function (speed) {
+        var x = Math.cos(trackedSprite.rotation + Math.PI / 2) * speed;
+        var y = Math.sin(trackedSprite.rotation + Math.PI / 2) * speed;
+        return {
+            x: x,
+            y: y
+        };
+    };
+    var calculateCoordinates = function (radius) {
+        var xAngle = Math.cos(trackedSprite.rotation - Phaser.Math.HALF_PI);
+        var yAngle = Math.sin(trackedSprite.rotation - Phaser.Math.HALF_PI);
+        return {
+            x: trackedSprite.x + xAngle * radius,
+            y: trackedSprite.y + yAngle * radius
+        };
+    };
 }
 exports["default"] = default_1;
 
